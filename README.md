@@ -43,5 +43,3 @@ My journey started at nine years old, building small games in Blender's node-bas
 ![](https://github-contributor-stats.vercel.app/api?username=OminousOne&limit=5&theme=dark&combine_all_yearly_contributions=true)
 
 ---
-
-[![](https://komarev.com/ghpvc/?username=OminousOne&icon=0&color=0)](https://visitcount.itsvg.in)
