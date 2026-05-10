@@ -1,6 +1,6 @@
 # Hi, I'm Julien DeWolfe 👋
 
-Software Engineering student at the University of Ottawa and lifelong tinkerer.
+Software Engineering student at the University of Ottawa.
 
 My journey started at nine years old, building small games in Blender's node-based game engine. When I outgrew what node editors could do, I picked up C# through Unity and started shipping games for fun and in game jams. That hobby grew into a craft, and the craft became a career path. Today I focus on distributed systems, real-time networking, and full-stack development, while sharing what I learn with developers on YouTube.
 
