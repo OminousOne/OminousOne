@@ -2,19 +2,14 @@
 
 Software Engineering student at the University of Ottawa.
 
-My journey started at nine years old, building small games in Blender's node-based game engine. When I outgrew what node editors could do, I picked up C# through Unity and started shipping games for fun and in game jams. That hobby grew into a craft, and the craft became a career path. Today I focus on distributed systems, real-time networking, and full-stack development, while sharing what I learn with developers on YouTube.
-
-## 🚀 What I'm into
-
-- 🎮 Real-time and low-latency systems: prediction, reconciliation, and interpolation
-- ☁️ Cloud-native backends and scalable distributed architectures
-- 🛠️ Full-stack development from database to UI
+My journey started at nine years old, building small games in Blender's node-based game engine. When I outgrew what node editors could do, I picked up C# through Unity and started shipping games for fun and in game jams. That hobby grew into a craft, and the craft became a career path. Today, I focus on distributed systems, real-time networking, and full-stack development, while sharing what I learn with developers on YouTube.
 
 ## 🔧 Featured Projects
 
 - **Distributed Game Server on Kubernetes**: Scalable real-time game server infrastructure with microservices, load balancing, and fault tolerance across distributed nodes. Backed by Redis and MongoDB, deployed via GitHub Actions CI/CD.
 - **Server-Authoritative Multiplayer Networking**: Custom TCP/UDP game server in C# with client prediction, server reconciliation, and entity interpolation for low-latency gameplay.
 - **Restaurant Delivery Management Web App**: Full-stack prototype in Next.js, React, and TypeScript with JWT auth, order/menu APIs, and component-driven architecture.
+- **uOttawa Scheduler** An application for helping University of Ottawa students create course schedules easily and quickly (https://uschedule.ca/).
 
 ## 🌐 Socials
 
