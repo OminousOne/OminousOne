@@ -14,7 +14,11 @@
 
 <br/>
 
-I'm Julien DeWolfe. I study software engineering at the University of Ottawa and work as a software engineer at [Gadget](https://gadget.dev), where I help build the platform that other people's apps run on. I started programming at nine by making games, and most of what I build still comes from the same place: realtime systems, multiplayer servers, and tools that save people real time.
+I'm **Julien DeWolfe**, a Software Engineering student at the University of Ottawa who started making games in Blender's node-based engine at nine years old. That turned into Unity, C#, game jams, networking rabbit holes, and eventually a fascination with systems that have to stay fast when everything is happening at once.
+
+I like building things where there is a real engine underneath the UI: multiplayer servers, scheduling tools, distributed infrastructure, realtime systems, and developer-facing products that feel polished instead of duct-taped together. Right now that means working as a software engineer at [Gadget](https://gadget.dev) while finishing my degree.
+
+<img src="./assets/story.svg" width="100%" alt="Timeline: blender games, minecraft plugins, unity and c sharp, uOttawa, gadget, reciped." />
 
 ## Projects
 
@@ -40,16 +44,6 @@ Live: [uschedule.ca](https://uschedule.ca/) · [NAV Canada simulator](https://na
 </div>
 
 Every number in this section is fetched from the GitHub API when the page loads, cached for about ten minutes. Nothing here is a screenshot or a hand-typed figure.
-
-## My story
-
-<img src="./assets/story.svg" width="100%" alt="Timeline: blender games, minecraft plugins, unity and c sharp, uOttawa, gadget, reciped." />
-
-I got into programming at nine years old through Blender's node based game engine, because I wanted to make games and had no idea the thing I was wiring together was called logic. Nodes led to Unity and C#, and game jams led to the question that still drives most of my projects: how do you make software feel instant for people who are far apart?
-
-For a few years most of my code ran on Minecraft servers. Writing plugins in Java and Kotlin for real players taught me more than any tutorial: things crash on a Saturday, someone always finds the edge case, and performance only matters once other people depend on you.
-
-Today I study software engineering at the University of Ottawa and build the platform at Gadget that other developers ship their apps on. The throughline has not changed since I was nine: I like building systems with real users and real constraints, where making something feel effortless takes actual engineering.
 
 ## Guestbook
 
