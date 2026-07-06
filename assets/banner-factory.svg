@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="830" height="64" viewBox="0 0 830 64" role="img" aria-label="Software Factory banner with work flowing from plan to code to review to PR">
+<style><![CDATA[
+text{font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;}
+@keyframes bsf{0%{transform:translateX(610px);opacity:0}6%{opacity:1}30%{transform:translateX(630px)}45%{transform:translateX(674px)}66%{transform:translateX(694px)}80%{transform:translateX(738px)}92%{transform:translateX(758px);opacity:1}100%{opacity:0}}
+.bsf{animation:bsf 4.5s linear infinite;}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;}}
+]]></style>
+
+<defs>
+  <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <pattern id="scan" width="3" height="3" patternUnits="userSpaceOnUse">
+    <rect width="3" height="1" y="2" fill="#000"/>
+  </pattern>
+</defs>
+<rect x="0.75" y="0.75" width="828.5" height="62.5" rx="8" fill="#0E1116" stroke="#262E36" stroke-width="1.5"/><text x="18" y="39" font-size="14" letter-spacing="2" fill="#FFB300">SOFTWARE FACTORY</text><text x="812" y="39" font-size="10" letter-spacing="1" fill="#46525E" text-anchor="end">AI DEV PIPELINE</text><g transform="translate(-118,0)"><rect x="566" y="22" width="44" height="20" rx="3" fill="#05070A" stroke="#2A333C"/><text x="588" y="35" font-size="9" fill="#6C7986" text-anchor="middle">plan</text><rect x="630" y="22" width="44" height="20" rx="3" fill="#05070A" stroke="#2A333C"/><text x="652" y="35" font-size="9" fill="#6C7986" text-anchor="middle">code</text><rect x="694" y="22" width="44" height="20" rx="3" fill="#05070A" stroke="#2A333C"/><text x="716" y="35" font-size="9" fill="#6C7986" text-anchor="middle">review</text><rect x="758" y="22" width="44" height="20" rx="3" fill="#05070A" stroke="#2A333C"/><text x="780" y="35" font-size="9" fill="#6C7986" text-anchor="middle">PR</text><line x1="610" y1="32" x2="630" y2="32" stroke="#232B33"/><line x1="674" y1="32" x2="694" y2="32" stroke="#232B33"/><line x1="738" y1="32" x2="758" y2="32" stroke="#232B33"/><circle cy="32" r="2.4" fill="#FFB300" class="bsf" opacity="0"/></g>
+<rect x="1" y="1" width="828" height="62" rx="10" fill="url(#scan)" opacity="0.14"/>
+</svg>

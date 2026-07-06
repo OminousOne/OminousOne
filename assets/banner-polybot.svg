@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="830" height="64" viewBox="0 0 830 64" role="img" aria-label="Polybot banner with a scrolling market sparkline">
+<style><![CDATA[
+text{font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;}
+@keyframes bpb{from{transform:translateX(0)}to{transform:translateX(-230px)}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;}}
+]]></style>
+
+<defs>
+  <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <pattern id="scan" width="3" height="3" patternUnits="userSpaceOnUse">
+    <rect width="3" height="1" y="2" fill="#000"/>
+  </pattern>
+</defs>
+<rect x="0.75" y="0.75" width="828.5" height="62.5" rx="8" fill="#0E1116" stroke="#262E36" stroke-width="1.5"/><text x="18" y="39" font-size="14" letter-spacing="2" fill="#FFB300">POLYBOT</text><text x="812" y="39" font-size="10" letter-spacing="1" fill="#46525E" text-anchor="end">PAPER TRADING</text><g transform="translate(-118,0)"><clipPath id="bpbc"><rect x="560" y="14" width="230" height="36"/></clipPath><g clip-path="url(#bpbc)"><g transform="translate(560,32)"><path d="M0,5.994 L8,1.782 L16,6.84 L24,1.548 L32,2.376 L40,-5.778 L48,-1.674 L56,-4.608 L64,7.02 L72,-4.14 L80,6.498 L88,-5.724 L96,6.948 L104,7.956 L112,-6.876 L120,6.462 L128,5.346 L136,-1.818 L144,-7.074 L152,6.588 L160,-0.486 L168,1.638 L176,0.09 L184,3.816 L192,-7.776 L200,-7.398 L208,-7.938 L216,-8.514 L230,5.994 L238,1.782 L246,6.84 L254,1.548 L262,2.376 L270,-5.778 L278,-1.674 L286,-4.608 L294,7.02 L302,-4.14 L310,6.498 L318,-5.724 L326,6.948 L334,7.956 L342,-6.876 L350,6.462 L358,5.346 L366,-1.818 L374,-7.074 L382,6.588 L390,-0.486 L398,1.638 L406,0.09 L414,3.816 L422,-7.776 L430,-7.398 L438,-7.938 L446,-8.514 L460,5.994" fill="none" stroke="#FFB300" stroke-width="1.2" opacity="0.75" style="animation:bpb 16s linear infinite"/></g></g></g>
+<rect x="1" y="1" width="828" height="62" rx="10" fill="url(#scan)" opacity="0.14"/>
+</svg>

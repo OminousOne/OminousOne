@@ -1,67 +1,54 @@
 <div align="center">
 
-<img src="./assets/hero.svg" width="100%" alt="A netcode replay viewer: one Pong match shown from three synchronized views — Client A (predicted), the authoritative server, and Client B (predicted) — with packets flowing between panels. Mid-loop a snapshot is dropped, Client A mispredicts and visibly desyncs, then gets rolled back to the server's truth. All of it is a single animated SVG." />
+<img src="./assets/hero.svg" width="100%" alt="Control board with an animated panel for each of Julien's projects: Reciped build progress, a uschedule timetable assembling itself, Polybot market sparklines, a miniature multiplayer Pong court, a Software Factory agent pipeline, and an air traffic radar. The bottom strip shows real GitHub totals." />
 
 <br/><br/>
 
 <a href="https://www.linkedin.com/in/julien-dewolfe/"><img src="./assets/btn-linkedin.svg" height="36" alt="linkedin" /></a>&nbsp;
-<a href="https://uschedule.ca/"><img src="./assets/btn-uschedule.svg" height="36" alt="uschedule.ca" /></a>&nbsp;
-<a href="./tools/simulate.py"><img src="./assets/btn-source.svg" height="36" alt="view the machinery" /></a>
+<a href="https://uschedule.ca/"><img src="./assets/btn-uschedule.svg" height="36" alt="uschedule.ca" /></a>
 
 </div>
 
-## the short version
-
-I'm **Julien DeWolfe** — a software engineering student at the University of Ottawa. I started making games at nine in Blender's node-based engine, which led to Unity, C#, game jams, and eventually the problem I still can't put down: **multiplayer**. Not the menus — the part where two machines on opposite ends of a bad connection have to agree on reality sixty times a second.
-
-Everything below is some version of that interest: realtime systems, server-authoritative netcode, and infrastructure that keeps working while things fail around it. I like software that feels instant because someone sweated the parts you can't see.
-
-## what's listening
-
-My projects, the way my router sees them.
-
-| port | service | log |
-|:--|:--|:--|
-| `:4000/graphql` | **Reciped** · *building now* | The main event: a social recipe platform — import a recipe from anywhere, cook from a feed worth scrolling. Built properly: Fastify + GraphQL API, Next.js web, Flutter mobile, on Postgres, Redis, Kafka, Elasticsearch, and Temporal, with a local LLM doing the recipe parsing. Private repo while it's in the oven. |
-| `:27015/udp` | **server-authoritative multiplayer** | Custom TCP/UDP netcode in C#: client prediction, server reconciliation, interpolation. The animation up top is a portrait of this project — gameplay feels instant, but clients don't get to lie. |
-| `:7777/udp` | **distributed game server lab** | Kubernetes-backed realtime game servers: scaling, failover, and keeping game state sane while pods come and go. Redis and Mongo behind it, CI/CD in front. |
-| `:443/tls` | **[uschedule.ca](https://uschedule.ca/)** | Course scheduling for uOttawa students without the tabs-PDFs-spreadsheet ritual. Live and free. |
-| `:3000/http` | **delivery management prototype** | Full-stack restaurant delivery management: Next.js, React, TypeScript, JWT auth, order and menu APIs. The project that taught me web apps are just realtime systems with better fonts. |
-| `:9/udp` | `discard` | The games I made at nine live here now. Packets are accepted and lovingly ignored. |
-
-## the loadout
-
-```ini
-[realtime]   ; the part I'd do for free
-c#, unity, tcp/udp sockets, client prediction, server reconciliation, interpolation
-
-[product]    ; reciped + uschedule run on this
-typescript, react, next.js, node, graphql, flutter, tailwind
-
-[infra]      ; where the weekends go
-docker, kubernetes, postgres, redis, kafka, elasticsearch, temporal, nginx, github actions
-```
-
-## wait — how is a README animated?
-
-<details>
-<summary><strong>no gifs, no javascript, no embeds — click for the trick</strong></summary>
 <br/>
 
-GitHub strips scripts and styles out of READMEs, but it happily renders an SVG inside an `<img>` — and an SVG is allowed to carry its own stylesheet.
+I'm Julien DeWolfe. I study software engineering at the University of Ottawa and work as a software engineer at [Gadget](https://gadget.dev), where I help build the platform that other people's apps run on. I started programming at nine by making games, and most of what I build still comes from the same place: realtime systems, multiplayer servers, and tools that save people real time.
 
-- The hero is **one SVG** (`assets/hero.svg`). The whole match — ball physics, paddle AI, exact loop closure so the rally repeats seamlessly — is simulated ahead of time by [`tools/simulate.py`](./tools/simulate.py) and baked into pure CSS keyframes. It's a stylesheet cosplaying as a game server.
-- The three panels replay the same match. The dashed *remote* paddles in the client views run **120 ms in the past** via a negative `animation-delay` — the same interpolation-delay trick real netcode uses.
-- The story is scripted like a real incident: at `t≈13.3s` a snapshot from server to Client A dies mid-lane (watch the lower packet lane, left gap). Client A extrapolates from stale state, mispredicts the deflection at `t≈14.05s`, drifts away from the server's ball, and at `t≈15.1s` gets snapped back — red flash, six ticks rewound, inputs replayed. The log at the bottom narrates the whole thing.
-- The replay clock, rtt sparklines, interp-buffer cells, and the boot flicker on my name are all keyframes too. `seed 0x4A44` is `JD` in ASCII.
-- If your OS asks for reduced motion, the whole thing respects it and freezes on a clean still of the serve.
+## Projects
 
-Refresh the page to restart the match.
+<img src="./assets/banner-reciped.svg" width="100%" alt="Reciped, in development" />
 
-</details>
+My current focus. A social recipe app: import a recipe from any website, keep your collection in one place, and share what you cook. One GraphQL API serves a Next.js web app and a Flutter mobile app, with recipe parsing handled by a local language model. The repo stays private until launch.
 
----
+<img src="./assets/banner-uschedule.svg" width="100%" alt="uschedule.ca, live" />
+
+A timetable builder for uOttawa students, live at [uschedule.ca](https://uschedule.ca/). Pick your courses, set preferences like no morning classes or Fridays off, and it generates every conflict-free schedule and ranks them. Professor ratings and calendar export are built in.
+
+<img src="./assets/banner-factory.svg" width="100%" alt="Software Factory, an AI dev pipeline" />
+
+A personal tool that turns AI agents into a small dev team. I describe work in a browser terminal, a manager agent splits it into tasks, worker agents write the code, a reviewer agent checks it, and the results come back to me as pull requests.
+
+<img src="./assets/banner-polybot.svg" width="100%" alt="Polybot, paper trading" />
+
+A lab for testing prediction market trading strategies on Polymarket. Six strategies run side by side, each in its own Docker container, all reporting to one live dashboard. Paper trading only: no wallet keys, no real orders, no real money.
+
+<img src="./assets/banner-navsim.svg" width="100%" alt="NAV Canada simulator, air traffic control" />
+
+An air traffic control simulator: 1,000 real Canadian flights moving across a 3D globe, with weather overlays and conflict scenarios you have to resolve before they become close calls. [Try it here](https://nav-canada-simulator.vercel.app).
+
+<img src="./assets/banner-netcode.svg" width="100%" alt="Multiplayer netcode, C# and Kubernetes" />
+
+Multiplayer networking written from scratch in C#: client prediction, server reconciliation, and interpolation, so the game feels instant while the server stays in charge of the truth. Alongside it, a Kubernetes lab for running game servers that survive crashes and restarts.
+
+<img src="./assets/banner-earlier.svg" width="100%" alt="Earlier work, 2018 to 2024" />
+
+Years of Minecraft server plugins in Java and Kotlin, including [Conway's Game of Life running inside Minecraft](https://github.com/OminousOne/NotchsGameOfLife), and [Tailor](https://github.com/OminousOne/Tailor), a tool for flashing operating systems to USB drives. This is where I learned to program.
+
+## A year on GitHub
+
+<img src="./assets/stats.svg" width="100%" alt="Heatmap of 1,629 contributions in the past year, busiest day 119, and a language bar showing mostly TypeScript with JavaScript, Dart and GraphQL." />
+
+<br/>
 
 <div align="center">
-<sub>connection closed by remote host — refresh to replay</sub>
+<sub>every graphic on this page is a hand-built SVG, generated by <a href="./tools/build.py">tools/build.py</a> · refresh to replay</sub>
 </div>

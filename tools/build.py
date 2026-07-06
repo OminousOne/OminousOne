@@ -1,0 +1,555 @@
+#!/usr/bin/env python3
+"""
+build.py generates every SVG asset for the profile README.
+
+No JavaScript, no GIFs: each graphic is a single SVG whose animation is baked
+into CSS keyframes, which GitHub preserves inside <img>-embedded SVGs.
+
+Outputs:
+  assets/hero.svg          mission-control board, one animated module per project
+  assets/banner-*.svg      one slim animated banner per project section
+  assets/stats.svg         contribution heatmap + language mix from real data
+                           (refresh tools/github-data.json to update the numbers)
+
+Usage:  python3 tools/build.py [--shift SECONDS]
+        --shift is a dev flag: it fast-forwards every animation so a headless
+        browser screenshot can capture any moment of a loop.
+"""
+
+import json
+import os
+import sys
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+AMBER = "#FFB300"
+WHITE = "#EDE6D6"
+SLATE = "#6C7986"
+SLATE2 = "#46525E"
+LINE = "#1E262E"
+PANEL = "#0A0D10"
+SCREEN = "#05070A"
+BG = "#0E1116"
+BARBG = "#1B222A"
+
+MONO = "ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace"
+
+
+def f(v):
+    s = f"{v:.3f}".rstrip("0").rstrip(".")
+    return s if s else "0"
+
+
+# ------------------------------------------------------------- pixel font
+
+FONT = {
+    "J": ["00111", "00010", "00010", "00010", "00010", "10010", "01100"],
+    "U": ["10001", "10001", "10001", "10001", "10001", "10001", "01110"],
+    "L": ["10000", "10000", "10000", "10000", "10000", "10000", "11111"],
+    "I": ["01110", "00100", "00100", "00100", "00100", "00100", "01110"],
+    "E": ["11111", "10000", "10000", "11110", "10000", "10000", "11111"],
+    "N": ["10001", "11001", "10101", "10011", "10001", "10001", "10001"],
+    "D": ["11110", "10001", "10001", "10001", "10001", "10001", "11110"],
+    "W": ["10001", "10001", "10001", "10101", "10101", "10101", "01010"],
+    "O": ["01110", "10001", "10001", "10001", "10001", "10001", "01110"],
+    "F": ["11111", "10000", "10000", "11110", "10000", "10000", "10000"],
+    " ": ["00000"] * 7,
+}
+
+
+def pixel_text(text, x, y, u, fill, cls_prefix=None):
+    out = []
+    for ci, ch in enumerate(text):
+        glyph = FONT[ch]
+        cls = f' class="{cls_prefix}{ci}"' if cls_prefix else ""
+        rects = []
+        for r, row in enumerate(glyph):
+            for c, bit in enumerate(row):
+                if bit == "1":
+                    rects.append(
+                        f'<rect x="{f(x + ci * 6 * u + c * u)}" y="{f(y + r * u)}" '
+                        f'width="{f(u * 0.86)}" height="{f(u * 0.86)}"/>'
+                    )
+        if rects:
+            out.append(f'<g fill="{fill}"{cls}>' + "".join(rects) + "</g>")
+    return "".join(out)
+
+
+def pixel_width(text, u):
+    return len(text) * 6 * u - u
+
+
+# ------------------------------------------------------------- svg shell
+
+def shell(w, h, css, body, label, shift=None):
+    dev = f"<style>*{{animation-delay:-{f(shift)}s !important}}</style>" if shift else ""
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}" role="img" aria-label="{label}">
+<style><![CDATA[
+text{{font-family:{MONO};}}
+{chr(10).join(css)}
+@media (prefers-reduced-motion:reduce){{*{{animation:none !important;}}}}
+]]></style>
+{dev}
+<defs>
+  <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <pattern id="scan" width="3" height="3" patternUnits="userSpaceOnUse">
+    <rect width="3" height="1" y="2" fill="#000"/>
+  </pattern>
+</defs>
+{body}
+<rect x="1" y="1" width="{w - 2}" height="{h - 2}" rx="10" fill="url(#scan)" opacity="0.14"/>
+</svg>"""
+
+
+def frame(w, h, rx=10):
+    return f'<rect x="0.75" y="0.75" width="{w - 1.5}" height="{h - 1.5}" rx="{rx}" fill="{BG}" stroke="#262E36" stroke-width="1.5"/>'
+
+
+def module_box(x, y, w, h, title, status):
+    return (
+        f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="7" fill="{PANEL}" stroke="#212932"/>'
+        f'<text x="{x + 12}" y="{y + 19}" font-size="11" letter-spacing="1.4" fill="{AMBER}">{title}</text>'
+        f'<text x="{x + w - 12}" y="{y + 19}" font-size="9" letter-spacing="0.8" fill="{SLATE2}" text-anchor="end">{status}</text>'
+    )
+
+
+# ------------------------------------------------------------- hero modules
+# each returns (body, css). coordinates are absolute; p = unique class prefix.
+
+def mod_reciped(x, y, w, h):
+    css, out = [], [module_box(x, y, w, h, "RECIPED", "IN DEV")]
+    bars = [("api", 0.86, 0.0), ("web", 0.76, 0.9), ("mobile", 0.44, 1.8)]
+    bw = w - 96
+    for i, (label, fill_to, delay) in enumerate(bars):
+        by = y + 44 + i * 30
+        p = f"rcp{i}"
+        out.append(f'<text x="{x + 12}" y="{by + 8}" font-size="10.5" fill="{SLATE}">{label}</text>')
+        out.append(f'<rect x="{x + 62}" y="{by}" width="{bw}" height="8" rx="2" fill="{BARBG}"/>')
+        out.append(
+            f'<rect x="{x + 62}" y="{by}" width="{bw}" height="8" rx="2" fill="{AMBER}" opacity="0.9" '
+            f'class="{p}" style="transform:scaleX({f(fill_to)});transform-origin:{x + 62}px 0"/>'
+        )
+        css.append(
+            f"@keyframes {p}{{0%{{transform:scaleX(0)}}"
+            f"{f(8 + delay * 6)}%{{transform:scaleX(0)}}"
+            f"{f(34 + delay * 6)}%{{transform:scaleX({f(fill_to)})}}"
+            f"88%{{transform:scaleX({f(fill_to)})}}96%,100%{{transform:scaleX(0)}}}}"
+        )
+        css.append(f".{p}{{animation:{p} 10s cubic-bezier(.3,.6,.3,1) infinite;}}")
+    css.append("@keyframes rcpcur{0%,49%{opacity:1}50%,100%{opacity:0}}")
+    out.append(
+        f'<rect x="{x + 62}" y="{y + 134}" width="6" height="11" fill="{AMBER}" '
+        f'style="animation:rcpcur 1.1s steps(1) infinite"/>'
+    )
+    out.append(f'<text x="{x + 12}" y="{y + 144}" font-size="10" fill="{SLATE2}">next up</text>')
+    return "".join(out), css
+
+
+def mod_uschedule(x, y, w, h):
+    css, out = [], [module_box(x, y, w, h, "USCHEDULE.CA", "LIVE")]
+    css.append("@keyframes uspulse{0%,100%{opacity:1}50%{opacity:.2}}")
+    out.append(f'<circle cx="{x + w - 46}" cy="{y + 15.5}" r="3" fill="{AMBER}" style="animation:uspulse 2s ease-in-out infinite"/>')
+    gx, gy, cw, ch, gap = x + 12, y + 34, 45, 20, 3
+    for c in range(5):
+        out.append(f'<rect x="{f(gx + c * (cw + gap))}" y="{gy}" width="{cw}" height="{5 * (ch + gap) - gap}" fill="{SCREEN}" stroke="{LINE}"/>')
+    blocks = [(0, 1, 2), (2, 0, 1), (1, 3, 2), (3, 1, 2), (4, 3, 1), (2, 2, 2), (0, 4, 1), (4, 0, 2)]
+    for i, (c, r, span) in enumerate(blocks):
+        p = f"usb{i}"
+        t_on = 6 + i * 7
+        css.append(
+            f"@keyframes {p}{{0%,{t_on}%{{opacity:0}}{t_on + 4}%,86%{{opacity:1}}92%,100%{{opacity:0}}}}"
+        )
+        css.append(f".{p}{{animation:{p} 11s linear infinite;}}")
+        out.append(
+            f'<rect x="{f(gx + c * (cw + gap) + 3)}" y="{f(gy + r * (ch + gap) + 2)}" width="{cw - 6}" '
+            f'height="{f(span * (ch + gap) - gap - 4)}" rx="2" fill="{AMBER}" fill-opacity="0.28" '
+            f'stroke="{AMBER}" stroke-opacity="0.85" class="{p}" opacity="1"/>'
+        )
+    out.append(f'<text x="{x + 12}" y="{y + h - 12}" font-size="10" fill="{SLATE2}">a timetable assembling itself</text>')
+    return "".join(out), css
+
+
+def spark_path(seed, width, amp=6.0, step=8):
+    vals, s = [], seed
+    n = width // step
+    for _ in range(n):
+        s = (s * 1103515245 + 12345) % (2 ** 31)
+        vals.append(((s >> 16) % 1000) / 1000.0 * amp * 2 - amp)
+    pts = []
+    for copy in range(2):
+        for i, v in enumerate(vals):
+            pts.append(f"{f(copy * width + i * step)},{f(v)}")
+    pts.append(f"{f(2 * width)},{f(vals[0])}")
+    return "M" + " L".join(pts)
+
+
+def mod_polybot(x, y, w, h):
+    css, out = [], [module_box(x, y, w, h, "POLYBOT", "PAPER ONLY")]
+    names = ["market-maker", "basket-arb", "btc-5m"]
+    for i, name in enumerate(names):
+        ry = y + 52 + i * 32
+        p = f"pb{i}"
+        css.append(f"@keyframes {p}led{{0%,100%{{opacity:1}}50%{{opacity:.15}}}}")
+        out.append(f'<circle cx="{x + 18}" cy="{ry}" r="2.6" fill="{AMBER}" style="animation:{p}led {f(1.3 + i * 0.5)}s ease-in-out infinite"/>')
+        out.append(f'<text x="{x + 28}" y="{ry + 3.5}" font-size="9" fill="{SLATE}">{name}</text>')
+        sw = w - 122
+        sx = x + 106
+        css.append(f"@keyframes {p}s{{from{{transform:translateX(0)}}to{{transform:translateX(-{sw}px)}}}}")
+        out.append(
+            f'<clipPath id="{p}c"><rect x="{sx}" y="{ry - 12}" width="{sw}" height="24"/></clipPath>'
+            f'<g clip-path="url(#{p}c)"><g transform="translate({sx},{ry})">'
+            f'<path d="{spark_path(seed=11 + i * 7, width=sw)}" fill="none" stroke="{AMBER}" '
+            f'stroke-width="1.1" opacity="0.7" style="animation:{p}s {f(14 + i * 4)}s linear infinite"/></g></g>'
+        )
+    out.append(f'<text x="{x + 12}" y="{y + h - 12}" font-size="10" fill="{SLATE2}">6 strategies, no real money</text>')
+    return "".join(out), css
+
+
+def mod_netcode(x, y, w, h):
+    css, out = [], [module_box(x, y, w, h, "NETCODE", "60 TICK/S")]
+    cx, cy, cw, ch = x + 12, y + 32, w - 24, h - 62
+    out.append(f'<rect x="{cx}" y="{cy}" width="{cw}" height="{ch}" fill="{SCREEN}" stroke="{LINE}"/>')
+    out.append(f'<line x1="{f(cx + cw / 2)}" y1="{cy + 4}" x2="{f(cx + cw / 2)}" y2="{cy + ch - 4}" stroke="{LINE}" stroke-dasharray="3 5"/>')
+    lx, rx_ = cx + 8, cx + cw - 12
+    top, bot, mid = cy + 8, cy + ch - 8, cy + ch / 2
+    css.append(
+        f"@keyframes ncball{{0%{{transform:translate({f(lx + 6)}px,{f(mid + 18)}px)}}"
+        f"25%{{transform:translate({f(cx + cw * 0.5)}px,{f(top)}px)}}"
+        f"50%{{transform:translate({f(rx_ - 4)}px,{f(mid - 6)}px)}}"
+        f"75%{{transform:translate({f(cx + cw * 0.42)}px,{f(bot)}px)}}"
+        f"100%{{transform:translate({f(lx + 6)}px,{f(mid + 18)}px)}}}}"
+    )
+    css.append(".ncball{animation:ncball 5.2s linear infinite;}")
+    out.append(f'<rect x="-2.5" y="-2.5" width="5" height="5" fill="{AMBER}" filter="url(#glow)" class="ncball" style="transform:translate({f(lx + 6)}px,{f(mid + 18)}px)"/>')
+    css.append(
+        f"@keyframes ncpl{{0%{{transform:translateY({f(mid + 18)}px)}}40%{{transform:translateY({f(mid - 10)}px)}}"
+        f"100%{{transform:translateY({f(mid + 18)}px)}}}}"
+    )
+    css.append(
+        f"@keyframes ncpr{{0%{{transform:translateY({f(mid + 14)}px)}}50%{{transform:translateY({f(mid - 6)}px)}}"
+        f"100%{{transform:translateY({f(mid + 14)}px)}}}}"
+    )
+    css.append(".ncpl{animation:ncpl 5.2s ease-in-out infinite;}")
+    css.append(".ncpr{animation:ncpr 5.2s ease-in-out infinite;}")
+    css.append(".nclag{animation-delay:-4.9s;}")
+    out.append(f'<rect x="{lx}" y="-10" width="4" height="20" rx="1" fill="{AMBER}" class="ncpl" style="transform:translateY({f(mid)}px)"/>')
+    out.append(f'<rect x="{rx_}" y="-10" width="4" height="20" rx="1" fill="{AMBER}" class="ncpr" style="transform:translateY({f(mid)}px)"/>')
+    out.append(
+        f'<rect x="{rx_}" y="-10" width="4" height="20" rx="1" fill="none" stroke="{AMBER}" '
+        f'stroke-dasharray="3 2" opacity="0.5" class="ncpr nclag" style="transform:translateY({f(mid)}px)"/>'
+    )
+    out.append(f'<text x="{x + 12}" y="{y + h - 12}" font-size="10" fill="{SLATE2}">prediction, rollback, interpolation</text>')
+    return "".join(out), css
+
+
+def mod_factory(x, y, w, h):
+    css, out = [], [module_box(x, y, w, h, "SOFTWARE FACTORY", "AGENTS")]
+    my = y + 92
+    mgr = (x + 20, my - 12, 46, 24)
+    workers = [(x + 106, my - 52 + i * 40 - 9, 40, 18) for i in range(3)]
+    rev = (x + 180, my - 12, 46, 24)
+
+    def node(nx, ny, nw, nh, label, fs=9):
+        return (
+            f'<rect x="{nx}" y="{ny}" width="{nw}" height="{nh}" rx="3" fill="{SCREEN}" stroke="#2A333C"/>'
+            f'<text x="{f(nx + nw / 2)}" y="{f(ny + nh / 2 + 3)}" font-size="{fs}" fill="{SLATE}" text-anchor="middle">{label}</text>'
+        )
+
+    out.append(node(*mgr, "plan"))
+    for i, wk in enumerate(workers):
+        out.append(node(*wk, f"code {i + 1}"))
+    out.append(node(*rev, "review"))
+    out.append(f'<text x="{x + w - 16}" y="{f(my + 4)}" font-size="10" fill="{AMBER}" text-anchor="end" opacity="0.9">PR</text>')
+    for i, wk in enumerate(workers):
+        wy = wk[1] + 9
+        out.append(f'<line x1="{mgr[0] + mgr[2]}" y1="{my}" x2="{wk[0]}" y2="{wy}" stroke="#232B33"/>')
+        out.append(f'<line x1="{wk[0] + wk[2]}" y1="{wy}" x2="{rev[0]}" y2="{my}" stroke="#232B33"/>')
+        p = f"sfp{i}"
+        css.append(
+            f"@keyframes {p}{{0%{{transform:translate({mgr[0] + mgr[2]}px,{my}px);opacity:0}}"
+            f"4%{{opacity:1}}22%{{transform:translate({wk[0]}px,{wy}px)}}"
+            f"46%{{transform:translate({wk[0] + wk[2]}px,{wy}px);opacity:1}}"
+            f"64%{{transform:translate({rev[0]}px,{my}px);opacity:1}}68%{{opacity:0}}100%{{opacity:0}}}}"
+        )
+        css.append(f".{p}{{animation:{p} 5.4s linear infinite;animation-delay:{f(i * 1.1)}s;}}")
+        out.append(f'<circle r="2.4" fill="{AMBER}" class="{p}" opacity="0"/>')
+    css.append(
+        f"@keyframes sfpr{{0%,66%{{opacity:0;transform:translate({rev[0] + rev[2]}px,{my}px)}}"
+        f"72%{{opacity:1}}84%{{transform:translate({x + w - 26}px,{my}px);opacity:1}}88%,100%{{opacity:0}}}}"
+    )
+    css.append(".sfpr{animation:sfpr 5.4s linear infinite;}")
+    out.append(f'<circle r="2.4" fill="{AMBER}" class="sfpr" opacity="0"/>')
+    out.append(f'<text x="{x + 12}" y="{y + h - 12}" font-size="10" fill="{SLATE2}">agents that ship pull requests</text>')
+    return "".join(out), css
+
+
+def mod_atc(x, y, w, h):
+    css, out = [], [module_box(x, y, w, h, "ATC SIMULATOR", "CYOW")]
+    cx, cy = x + w / 2, y + 88
+    for r in (18, 34, 50):
+        out.append(f'<circle cx="{f(cx)}" cy="{f(cy)}" r="{r}" fill="none" stroke="{LINE}"/>')
+    out.append(f'<line x1="{f(cx - 50)}" y1="{f(cy)}" x2="{f(cx + 50)}" y2="{f(cy)}" stroke="{LINE}"/>')
+    out.append(f'<line x1="{f(cx)}" y1="{f(cy - 50)}" x2="{f(cx)}" y2="{f(cy + 50)}" stroke="{LINE}"/>')
+    css.append("@keyframes atcsweep{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}")
+    out.append(
+        f'<g style="animation:atcsweep 6s linear infinite;transform-origin:{f(cx)}px {f(cy)}px">'
+        f'<path d="M{f(cx)},{f(cy)} L{f(cx + 50)},{f(cy)} A50,50 0 0,0 {f(cx + 46.98)},{f(cy - 17.1)} Z" fill="{AMBER}" opacity="0.12"/>'
+        f'<line x1="{f(cx)}" y1="{f(cy)}" x2="{f(cx + 50)}" y2="{f(cy)}" stroke="{AMBER}" stroke-width="1.2" opacity="0.8"/></g>'
+    )
+    blips = [(28, 40), (150, 42), (215, 26), (305, 46)]
+    for i, (ang, r) in enumerate(blips):
+        import math
+        bx = cx + r * math.cos(math.radians(ang))
+        by = cy - r * math.sin(math.radians(ang))
+        p = f"atcb{i}"
+        t_on = ((360 - ang) % 360) / 360 * 100
+        css.append(
+            f"@keyframes {p}{{0%,{f(t_on)}%{{opacity:0}}{f(t_on + 2)}%{{opacity:1}}"
+            f"{f(min(t_on + 55, 99.5))}%{{opacity:0}}100%{{opacity:0}}}}"
+        )
+        css.append(f".{p}{{animation:{p} 6s linear infinite;}}")
+        out.append(f'<rect x="{f(bx - 2.5)}" y="{f(by - 2.5)}" width="5" height="5" fill="{AMBER}" filter="url(#glow)" class="{p}" opacity="0.95"/>')
+    out.append(f'<text x="{x + 12}" y="{y + h - 12}" font-size="10" fill="{SLATE2}">1,000 real flights on a globe</text>')
+    return "".join(out), css
+
+
+def build_hero(gh, shift=None):
+    W, H = 900, 506
+    css, out = [], [frame(W, H, rx=12)]
+
+    css.append("@keyframes boot{0%{opacity:.1}0.9%{opacity:.9}1.5%{opacity:.25}2.4%{opacity:1}100%{opacity:1}}")
+    name = "JULIEN DEWOLFE"
+    out.append(f'<g filter="url(#glow)">{pixel_text(name, 24, 18, 4, AMBER, cls_prefix="wm")}</g>')
+    for i in range(len(name)):
+        css.append(f".wm{i}{{animation:boot 12s linear infinite;animation-delay:{f(0.06 * i)}s;}}")
+    out.append(f'<text x="{900 - 24}" y="30" font-size="12" fill="{SLATE}" text-anchor="end">software engineer @ gadget.dev</text>')
+    out.append(f'<text x="{900 - 24}" y="46" font-size="12" fill="{SLATE}" text-anchor="end">software engineering @ uOttawa</text>')
+    out.append(f'<line x1="24" y1="64" x2="876" y2="64" stroke="{LINE}"/>')
+
+    mods = [mod_reciped, mod_uschedule, mod_polybot, mod_netcode, mod_factory, mod_atc]
+    for i, fn in enumerate(mods):
+        col, row = i % 3, i // 3
+        b, c = fn(24 + col * 292, 80 + row * 186, 268, 170)
+        out.append(b)
+        css += c
+
+    out.append(f'<line x1="24" y1="452" x2="876" y2="452" stroke="{LINE}"/>')
+    total = f"{gh['total_contributions_past_year']:,}"
+    out.append(
+        f'<text x="24" y="480" font-size="11.5" fill="{SLATE}">past year on github: '
+        f'<tspan fill="{AMBER}">{total}</tspan> contributions · busiest day: <tspan fill="{AMBER}">{gh["busiest_day"]}</tspan></text>'
+    )
+    css.append("@keyframes hpulse{0%,100%{opacity:1}50%{opacity:.25}}")
+    out.append(f'<circle cx="800" cy="476" r="3" fill="{AMBER}" style="animation:hpulse 2s ease-in-out infinite"/>')
+    out.append(f'<text x="876" y="480" font-size="11.5" fill="{SLATE}" text-anchor="end">6 projects</text>')
+
+    label = ("Control board for Julien DeWolfe's projects: animated panels for Reciped, uschedule.ca, "
+             "Polybot, multiplayer netcode, Software Factory and an air traffic control simulator, "
+             "with real GitHub totals along the bottom.")
+    return shell(W, H, css, "".join(out), label, shift)
+
+
+# ------------------------------------------------------------- banners
+
+def banner_shell(name, title, status, motif, motif_css, label, shift=None):
+    W, H = 830, 64
+    css = list(motif_css)
+    out = [frame(W, H, rx=8)]
+    out.append(f'<text x="18" y="39" font-size="14" letter-spacing="2" fill="{AMBER}">{title}</text>')
+    out.append(f'<text x="{W - 18}" y="39" font-size="10" letter-spacing="1" fill="{SLATE2}" text-anchor="end">{status}</text>')
+    out.append(f'<g transform="translate(-118,0)">{motif}</g>')
+    return name, shell(W, H, css, "".join(out), label, shift)
+
+
+def banner_reciped(shift=None):
+    css, out = [], []
+    for i, to in enumerate((0.86, 0.76, 0.44)):
+        by = 20 + i * 9
+        p = f"brc{i}"
+        out.append(f'<rect x="560" y="{by}" width="150" height="4" rx="1.5" fill="{BARBG}"/>')
+        out.append(f'<rect x="560" y="{by}" width="150" height="4" rx="1.5" fill="{AMBER}" opacity="0.9" class="{p}" style="transform:scaleX({f(to)});transform-origin:560px 0"/>')
+        css.append(f"@keyframes {p}{{0%,{6 + i * 5}%{{transform:scaleX(0)}}{30 + i * 5}%,88%{{transform:scaleX({f(to)})}}96%,100%{{transform:scaleX(0)}}}}")
+        css.append(f".{p}{{animation:{p} 9s cubic-bezier(.3,.6,.3,1) infinite;}}")
+    return banner_shell("banner-reciped", "RECIPED", "IN DEVELOPMENT", "".join(out), css,
+                        "Reciped banner with three build progress bars", shift)
+
+
+def banner_uschedule(shift=None):
+    css, out = [], []
+    for i in range(8):
+        p = f"bus{i}"
+        bx = 560 + (i % 4) * 40
+        by = 16 + (i // 4) * 18
+        css.append(f"@keyframes {p}{{0%,{5 + i * 6}%{{opacity:0}}{9 + i * 6}%,86%{{opacity:1}}93%,100%{{opacity:0}}}}")
+        css.append(f".{p}{{animation:{p} 10s linear infinite;}}")
+        out.append(f'<rect x="{bx}" y="{by}" width="34" height="14" rx="2" fill="{AMBER}" fill-opacity="0.28" stroke="{AMBER}" stroke-opacity="0.8" class="{p}"/>')
+    return banner_shell("banner-uschedule", "USCHEDULE.CA", "LIVE", "".join(out), css,
+                        "uschedule.ca banner with course blocks filling a timetable", shift)
+
+
+def banner_factory(shift=None):
+    css, out = [], []
+    xs = [566, 630, 694, 758]
+    labels = ["plan", "code", "review", "PR"]
+    for nx, lb in zip(xs, labels):
+        out.append(f'<rect x="{nx}" y="22" width="44" height="20" rx="3" fill="{SCREEN}" stroke="#2A333C"/>')
+        out.append(f'<text x="{nx + 22}" y="35" font-size="9" fill="{SLATE}" text-anchor="middle">{lb}</text>')
+    for i in range(3):
+        out.append(f'<line x1="{xs[i] + 44}" y1="32" x2="{xs[i + 1]}" y2="32" stroke="#232B33"/>')
+    css.append(
+        f"@keyframes bsf{{0%{{transform:translateX(610px);opacity:0}}6%{{opacity:1}}"
+        f"30%{{transform:translateX(630px)}}45%{{transform:translateX(674px)}}"
+        f"66%{{transform:translateX(694px)}}80%{{transform:translateX(738px)}}"
+        f"92%{{transform:translateX(758px);opacity:1}}100%{{opacity:0}}}}"
+    )
+    css.append(".bsf{animation:bsf 4.5s linear infinite;}")
+    out.append(f'<circle cy="32" r="2.4" fill="{AMBER}" class="bsf" opacity="0"/>')
+    return banner_shell("banner-factory", "SOFTWARE FACTORY", "AI DEV PIPELINE", "".join(out), css,
+                        "Software Factory banner with work flowing from plan to code to review to PR", shift)
+
+
+def banner_polybot(shift=None):
+    css, out = [], []
+    css.append("@keyframes bpb{from{transform:translateX(0)}to{transform:translateX(-230px)}}")
+    out.append(
+        '<clipPath id="bpbc"><rect x="560" y="14" width="230" height="36"/></clipPath>'
+        f'<g clip-path="url(#bpbc)"><g transform="translate(560,32)">'
+        f'<path d="{spark_path(seed=23, width=230, amp=9)}" fill="none" stroke="{AMBER}" stroke-width="1.2" opacity="0.75" style="animation:bpb 16s linear infinite"/></g></g>'
+    )
+    return banner_shell("banner-polybot", "POLYBOT", "PAPER TRADING", "".join(out), css,
+                        "Polybot banner with a scrolling market sparkline", shift)
+
+
+def banner_navsim(shift=None):
+    import math
+    css, out = [], []
+    cx, cy = 700, 32
+    for r in (10, 19, 28):
+        out.append(f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="none" stroke="#2A333C"/>')
+    css.append(f"@keyframes bnav{{from{{transform:rotate(0deg)}}to{{transform:rotate(360deg)}}}}")
+    out.append(
+        f'<line x1="{cx}" y1="{cy}" x2="{cx + 28}" y2="{cy}" stroke="{AMBER}" stroke-width="1.1" opacity="0.85" '
+        f'style="animation:bnav 5s linear infinite;transform-origin:{cx}px {cy}px"/>'
+    )
+    for i, (ang, r) in enumerate([(50, 22), (170, 16), (285, 25)]):
+        bx = cx + r * math.cos(math.radians(ang))
+        by = cy - r * math.sin(math.radians(ang))
+        t_on = ((360 - ang) % 360) / 360 * 100
+        css.append(f"@keyframes bnb{i}{{0%,{f(t_on)}%{{opacity:0}}{f(t_on + 3)}%{{opacity:1}}{f(min(t_on + 50, 99))}%,100%{{opacity:0}}}}")
+        css.append(f".bnb{i}{{animation:bnb{i} 5s linear infinite;}}")
+        out.append(f'<rect x="{f(bx - 1.8)}" y="{f(by - 1.8)}" width="3.6" height="3.6" fill="{AMBER}" class="bnb{i}"/>')
+    return banner_shell("banner-navsim", "NAV CANADA SIMULATOR", "AIR TRAFFIC CONTROL", "".join(out), css,
+                        "NAV Canada simulator banner with a sweeping radar", shift)
+
+
+def banner_netcode(shift=None):
+    css, out = [], []
+    out.append(f'<rect x="560" y="14" width="230" height="36" fill="{SCREEN}" stroke="{LINE}"/>')
+    out.append(f'<line x1="675" y1="18" x2="675" y2="46" stroke="{LINE}" stroke-dasharray="2 4"/>')
+    css.append(
+        "@keyframes bnc{0%{transform:translate(572px,40px)}25%{transform:translate(640px,20px)}"
+        "50%{transform:translate(778px,34px)}75%{transform:translate(690px,46px)}100%{transform:translate(572px,40px)}}"
+    )
+    css.append(".bnc{animation:bnc 4.6s linear infinite;}")
+    out.append(f'<rect x="-2" y="-2" width="4" height="4" fill="{AMBER}" class="bnc" style="transform:translate(572px,40px)"/>')
+    css.append("@keyframes bncl{0%,100%{transform:translateY(38px)}40%{transform:translateY(24px)}}")
+    css.append("@keyframes bncr{0%,100%{transform:translateY(30px)}50%{transform:translateY(36px)}}")
+    out.append(f'<rect x="566" y="-7" width="3" height="14" fill="{AMBER}" style="animation:bncl 4.6s ease-in-out infinite;transform:translateY(38px)"/>')
+    out.append(f'<rect x="783" y="-7" width="3" height="14" fill="{AMBER}" style="animation:bncr 4.6s ease-in-out infinite;transform:translateY(30px)"/>')
+    return banner_shell("banner-netcode", "MULTIPLAYER NETCODE", "C# · KUBERNETES", "".join(out), css,
+                        "Multiplayer netcode banner with a miniature pong rally", shift)
+
+
+def banner_earlier(shift=None):
+    css, out = [], []
+    cells = [(0, 2), (1, 2), (2, 2), (3, 2), (4, 2), (5, 2), (1, 1), (2, 1), (4, 1), (2, 0)]
+    for i, (c, r) in enumerate(cells):
+        p = f"bev{i}"
+        css.append(f"@keyframes {p}{{0%,{4 + i * 5}%{{opacity:0}}{8 + i * 5}%,88%{{opacity:1}}94%,100%{{opacity:0}}}}")
+        css.append(f".{p}{{animation:{p} 12s linear infinite;}}")
+        op = 0.9 if r == 2 else 0.65 if r == 1 else 0.45
+        out.append(f'<rect x="{620 + c * 15}" y="{18 + (2 - r) * 11}" width="13" height="9" fill="{AMBER}" opacity="{op}" class="{p}"/>')
+    return banner_shell("banner-earlier", "EARLIER WORK", "2018 TO 2024", "".join(out), css,
+                        "Earlier work banner with pixel blocks stacking up", shift)
+
+
+# ------------------------------------------------------------- stats
+
+def build_stats(gh, shift=None):
+    W, H = 830, 244
+    css, out = [], [frame(W, H, rx=10)]
+    weeks = gh["weeks"]
+    nz = sorted(c for w in weeks for c in w if c > 0)
+
+    def level(c):
+        if c == 0:
+            return None
+        idx = min(3, int(4 * nz.index(c) / len(nz)))
+        return (0.25, 0.45, 0.7, 1.0)[idx]
+
+    step, cell = 14.75, 11.5
+    gx, gy = 24, 22
+    css.append("@keyframes cellin{from{opacity:0}to{opacity:1}}")
+    for wi, week in enumerate(weeks):
+        col = []
+        for di, c in enumerate(week):
+            a = level(c)
+            if a is None:
+                col.append(f'<rect x="{f(gx + wi * step)}" y="{f(gy + di * step)}" width="{cell}" height="{cell}" rx="2" fill="#151B22"/>')
+            else:
+                col.append(f'<rect x="{f(gx + wi * step)}" y="{f(gy + di * step)}" width="{cell}" height="{cell}" rx="2" fill="{AMBER}" opacity="{f(a)}"/>')
+        out.append(f'<g style="animation:cellin .5s both;animation-delay:{f(wi * 0.022)}s">' + "".join(col) + "</g>")
+
+    ty = gy + 7 * step + 26
+    total = f"{gh['total_contributions_past_year']:,}"
+    out.append(f'<text x="24" y="{f(ty)}" font-size="12" fill="{SLATE}"><tspan fill="{AMBER}" font-size="15">{total}</tspan> contributions in the past year</text>')
+    out.append(f'<text x="{W - 24}" y="{f(ty)}" font-size="12" fill="{SLATE}" text-anchor="end">busiest day: <tspan fill="{AMBER}" font-size="15">{gh["busiest_day"]}</tspan></text>')
+
+    langs = gh["languages_active_projects"]
+    bx, bw, by = 24, W - 48, ty + 22
+    acc = 0.0
+    ops = {"TypeScript": 1.0, "JavaScript": 0.45, "Dart": 0.3, "GraphQL": 0.2, "other": None}
+    css.append("@keyframes seggrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}")
+    out.append(f'<g style="animation:seggrow 1.2s cubic-bezier(.3,.6,.3,1) both;transform-origin:{bx}px 0">')
+    for name, pct_ in langs.items():
+        seg_w = bw * pct_ / 100.0
+        fill = f'fill="{AMBER}" opacity="{ops[name]}"' if ops[name] else 'fill="#2A333C"'
+        out.append(f'<rect x="{f(bx + acc)}" y="{by}" width="{f(max(seg_w - 2, 1))}" height="12" rx="2" {fill}/>')
+        acc += seg_w
+    out.append("</g>")
+    lbl = " · ".join(f"{n.lower()} {round(p)}%" for n, p in langs.items() if n != "other")
+    out.append(f'<text x="24" y="{by + 32}" font-size="10.5" fill="{SLATE2}">{lbl} · lines of code across the projects I am working on now</text>')
+
+    label = (f"GitHub activity: {total} contributions in the past year shown as a heatmap, "
+             "busiest day 119, and a language bar dominated by TypeScript.")
+    return shell(W, H, css, "".join(out), label, shift)
+
+
+# ------------------------------------------------------------- main
+
+def main():
+    args = sys.argv[1:]
+    shift = None
+    if "--shift" in args:
+        i = args.index("--shift")
+        shift = float(args[i + 1])
+
+    gh = json.load(open(os.path.join(ROOT, "tools", "github-data.json")))
+    outputs = {"hero": build_hero(gh, shift), "stats": build_stats(gh, shift)}
+    for fn in (banner_reciped, banner_uschedule, banner_factory, banner_polybot,
+               banner_navsim, banner_netcode, banner_earlier):
+        name, svg = fn(shift)
+        outputs[name] = svg
+
+    for name, svg in outputs.items():
+        path = os.path.join(ROOT, "assets", f"{name}.svg")
+        with open(path, "w") as fh:
+            fh.write(svg)
+        print(f"wrote assets/{name}.svg ({len(svg)} bytes)")
+
+
+if __name__ == "__main__":
+    main()
