@@ -14,7 +14,7 @@
 
 <br/>
 
-I'm **Julien DeWolfe**, a Software Engineering student at the University of Ottawa who started making games in Blender's node-based engine at nine years old. That turned into Unity, C#, game jams, networking rabbit holes, and eventually a fascination with systems that have to stay fast when everything is happening at once.
+I'm **Julien DeWolfe**, a Software Engineering student at the University of Ottawa who started making games using Blender's node-based engine at age 9. That turned into Unity, C#, game jams, networking rabbit holes, and eventually a fascination with systems and engineering in general. I'm currently an intern at [Gadget](https://gadget.dev) while studying Software Engineering at the University of Ottawa.
 
 <img src="./assets/story.svg" width="100%" alt="Timeline from age nine to now: blender games, then unity and c sharp, minecraft plugins overlapping them, then uOttawa with gadget running alongside it into the present." />
 
