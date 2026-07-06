@@ -32,7 +32,7 @@ I like building things where there is a real engine underneath the UI: multiplay
 
 </div>
 
-Live: [uschedule.ca](https://uschedule.ca/) · [NAV Canada simulator](https://nav-canada-simulator.vercel.app). From the Minecraft years: [Game of Life inside Minecraft](https://github.com/OminousOne/NotchsGameOfLife) · [Tailor](https://github.com/OminousOne/Tailor).
+Live: [uschedule.ca](https://uschedule.ca/) · [NAV Canada simulator](https://nav-canada-simulator.vercel.app).
 
 ## A year on GitHub
 
