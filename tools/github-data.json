@@ -575,12 +575,15 @@
    "count": 42
   }
  ],
- "repo_commits": {
-  "reciped": 667,
-  "software-factory": 182,
-  "uschedule": 165,
-  "gadget": 52,
-  "polybot": 35
+ "lines_active_projects": 360173,
+ "commit_words": {
+  "feat": 302,
+  "fix": 212,
+  "add": 81,
+  "refactor": 52,
+  "test": 37
  },
- "lines_active_projects": 360173
+ "commit_words_total": 1115,
+ "commit_mention_fix_pct": 22,
+ "commit_avg_subject_len": 57
 }

@@ -54,13 +54,13 @@ Years of Minecraft server plugins in Java and Kotlin, including [Conway's Game o
 
 <div align="center">
 
-<img src="./assets/stats.svg" width="100%" alt="Heatmap of 1,629 contributions in the past year, busiest day 119, and a language bar showing mostly TypeScript with JavaScript, Dart and GraphQL." />
-<img src="./assets/stat-clock.svg" width="32.6%" alt="Commit clock: a 24 hour dial of 1,113 commits. Peak hour 2 pm, 40 percent after 6 pm." /> <img src="./assets/stat-streaks.svg" width="32.6%" alt="Streaks: longest streak 24 days, 139 active days of 366." /> <img src="./assets/stat-weekdays.svg" width="32.6%" alt="Commits by weekday: Monday is the biggest day, weekends get 23 percent." />
-<img src="./assets/stat-repos.svg" width="32.6%" alt="Commits by repo: reciped leads with 667, then software-factory, uschedule, gadget, polybot." /> <img src="./assets/stat-months.svg" width="32.6%" alt="Contributions by month over the past year. The june spike is Reciped at 841." /> <img src="./assets/stat-numbers.svg" width="32.6%" alt="By the numbers: 360,173 lines of code in active projects, 11.7 contributions per active day, 119 on the busiest day." />
+<img src="./assets/stats.svg" width="100%" alt="Heatmap of 1,629 contributions in the past year, busiest day 119." />
+<img src="./assets/stat-clock.svg" width="32.6%" alt="Commit clock: a 24 hour dial of 1,113 commits. Peak hour 2 pm, 40 percent after 6 pm." /> <img src="./assets/stat-streaks.svg" width="32.6%" alt="Streaks: longest streak 24 days, 139 active days of 366." /> <img src="./assets/stat-weekdays.svg" width="32.6%" alt="Commits by weekday: mondays lead, weekends get 23 percent." />
+<img src="./assets/stat-langs.svg" width="32.6%" alt="Languages across active repos by lines of code: TypeScript 69 percent, JavaScript 25 percent, Dart 3 percent, GraphQL 1 percent." /> <img src="./assets/stat-commits.svg" width="32.6%" alt="How my commit messages start: feat 302, fix 212, add 81, refactor 52, test 37. 22 percent of all 1,115 mention a fix." /> <img src="./assets/stat-numbers.svg" width="32.6%" alt="By the numbers: 360,173 lines of code in active projects, 11.7 contributions per active day, 119 on the busiest day." />
 
 </div>
 
-The heatmap, streaks and monthly chart come from my GitHub contribution calendar. The clock, weekday and repo charts come from the timestamps of 1,113 commits in the repos I am working on right now.
+The heatmap and streaks come from my GitHub contribution calendar. The clock, weekday, language and commit message cards come from the code and git history of the repos I am working on right now.
 
 ## My story
 

@@ -14,6 +14,6 @@ text{font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospa
     <rect width="3" height="1" y="2" fill="#000"/>
   </pattern>
 </defs>
-<rect x="0.75" y="0.75" width="898.5" height="42.5" rx="10" fill="#0E1116" stroke="#262E36" stroke-width="1.5"/><text x="24" y="27" font-size="11.5" fill="#6C7986">past year on github: <tspan fill="#FFB300">1,629</tspan> contributions · busiest day: <tspan fill="#FFB300">119</tspan></text><circle cx="800" cy="23" r="3" fill="#FFB300" style="animation:hpulse 2s ease-in-out infinite"/><text x="876" y="27" font-size="11.5" fill="#6C7986" text-anchor="end">6 projects</text>
+<rect x="0.75" y="0.75" width="898.5" height="42.5" rx="10" fill="#0E1116" stroke="#262E36" stroke-width="1.5"/><text x="24" y="27" font-size="11.5" fill="#6C7986">past year on github: <tspan fill="#FFB300">1,629</tspan> contributions · busiest day: <tspan fill="#FFB300">119</tspan></text><circle cx="745" cy="23" r="3" fill="#FFB300" style="animation:hpulse 2s ease-in-out infinite"/><text x="876" y="27" font-size="11.5" fill="#6C7986" text-anchor="end">selected projects</text>
 <rect x="1" y="1" width="898" height="42" rx="10" fill="url(#scan)" opacity="0.14"/>
 </svg>

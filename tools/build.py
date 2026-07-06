@@ -463,8 +463,8 @@ def build_hero_footer(gh, shift=None):
         f'<tspan fill="{AMBER}">{total}</tspan> contributions · busiest day: <tspan fill="{AMBER}">{gh["busiest_day"]}</tspan></text>'
     )
     css.append("@keyframes hpulse{0%,100%{opacity:1}50%{opacity:.25}}")
-    out.append(f'<circle cx="800" cy="23" r="3" fill="{AMBER}" style="animation:hpulse 2s ease-in-out infinite"/>')
-    out.append(f'<text x="{W - 24}" y="27" font-size="11.5" fill="{SLATE}" text-anchor="end">6 projects</text>')
+    out.append(f'<circle cx="745" cy="23" r="3" fill="{AMBER}" style="animation:hpulse 2s ease-in-out infinite"/>')
+    out.append(f'<text x="{W - 24}" y="27" font-size="11.5" fill="{SLATE}" text-anchor="end">selected projects</text>')
     return shell(W, H, css, "".join(out), f"Past year on GitHub: {total} contributions, busiest day {gh['busiest_day']}", shift)
 
 
@@ -599,7 +599,7 @@ def banner_earlier(shift=None):
 # ------------------------------------------------------------- stats
 
 def build_stats(gh, shift=None):
-    W, H = 830, 244
+    W, H = 830, 172
     css, out = [], [frame(W, H, rx=10)]
     weeks = gh["weeks"]
     nz = sorted(c for w in weeks for c in w if c > 0)
@@ -628,23 +628,8 @@ def build_stats(gh, shift=None):
     out.append(f'<text x="24" y="{f(ty)}" font-size="12" fill="{SLATE}"><tspan fill="{AMBER}" font-size="15">{total}</tspan> contributions in the past year</text>')
     out.append(f'<text x="{W - 24}" y="{f(ty)}" font-size="12" fill="{SLATE}" text-anchor="end">busiest day: <tspan fill="{AMBER}" font-size="15">{gh["busiest_day"]}</tspan></text>')
 
-    langs = gh["languages_active_projects"]
-    bx, bw, by = 24, W - 48, ty + 22
-    acc = 0.0
-    ops = {"TypeScript": 1.0, "JavaScript": 0.45, "Dart": 0.3, "GraphQL": 0.2, "other": None}
-    css.append("@keyframes seggrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}")
-    out.append(f'<g style="animation:seggrow 1.2s cubic-bezier(.3,.6,.3,1) both;transform-origin:{bx}px 0">')
-    for name, pct_ in langs.items():
-        seg_w = bw * pct_ / 100.0
-        fill = f'fill="{AMBER}" opacity="{ops[name]}"' if ops[name] else 'fill="#2A333C"'
-        out.append(f'<rect x="{f(bx + acc)}" y="{by}" width="{f(max(seg_w - 2, 1))}" height="12" rx="2" {fill}/>')
-        acc += seg_w
-    out.append("</g>")
-    lbl = " · ".join(f"{n.lower()} {round(p)}%" for n, p in langs.items() if n != "other")
-    out.append(f'<text x="24" y="{by + 32}" font-size="10.5" fill="{SLATE2}">{lbl} · lines of code across the projects I am working on now</text>')
-
     label = (f"GitHub activity: {total} contributions in the past year shown as a heatmap, "
-             "busiest day 119, and a language bar dominated by TypeScript.")
+             f"busiest day {gh['busiest_day']}.")
     return shell(W, H, css, "".join(out), label, shift)
 
 
@@ -677,11 +662,24 @@ def build_stat_clock(gh, shift=None):
     out.append(f'<text x="{cx}" y="{cy - 49}" font-size="7" fill="{SLATE2}" text-anchor="middle">00</text>')
     out.append(f'<text x="{cx}" y="{cy + 55}" font-size="7" fill="{SLATE2}" text-anchor="middle">12</text>')
 
+    # quietest stretch: the longest circular run of hours under 10% of peak
+    lo = [v < 0.1 * vmax for v in hours]
+    best_len = best_start = 0
+    for start in range(24):
+        ln = 0
+        while ln < 24 and lo[(start + ln) % 24]:
+            ln += 1
+        if ln > best_len:
+            best_len, best_start = ln, start
+    q0, q1 = best_start, (best_start + best_len) % 24
+    hr = lambda h: f"{h % 12 if h % 12 else 12}"
+    quiet = f"{hr(q0)} to {hr(q1)} {'am' if q1 < 12 else 'pm'}"
+
     fx = 134
     ampm = lambda h: f"{h % 12 if h % 12 else 12} {'am' if h < 12 else 'pm'}"
     out.append(f'<text x="{fx}" y="66" font-size="11" fill="{SLATE}">peak: <tspan fill="{AMBER}" font-size="14">{ampm(peak)}</tspan></text>')
     out.append(f'<text x="{fx}" y="94" font-size="11" fill="{SLATE}"><tspan fill="{AMBER}" font-size="14">{evening}%</tspan> after 6 pm</text>')
-    out.append(f'<text x="{fx}" y="122" font-size="11" fill="{SLATE}">quiet: <tspan fill="{AMBER}">4 to 9 am</tspan></text>')
+    out.append(f'<text x="{fx}" y="122" font-size="11" fill="{SLATE}">quiet: <tspan fill="{AMBER}">{quiet}</tspan></text>')
     out.append(f'<text x="12" y="{SH - 12}" font-size="10" fill="{SLATE2}">{total:,} commits, by hour of day</text>')
     label = f"Commit clock: a 24 hour dial of {total:,} commits. Peak hour {ampm(peak)}, {evening} percent after 6 pm."
     return shell(SW, SH, css, "".join(out), label, shift)
@@ -743,53 +741,70 @@ def build_stat_weekdays(gh, shift=None):
             f'animation-delay:{f(0.06 * i)}s;transform-origin:0px {base}px"/>'
         )
         out.append(f'<text x="{bx + i * 31 + bw / 2}" y="136" font-size="8" fill="{SLATE2}" text-anchor="middle">{"mtwtfss"[i]}</text>')
-    out.append(f'<text x="12" y="{SH - 12}" font-size="10" fill="{SLATE2}">mondays lead · weekends get {weekend}%</text>')
-    label = f"Commits by weekday: Monday is the biggest day, weekends get {weekend} percent."
+    daynames = ["mondays", "tuesdays", "wednesdays", "thursdays", "fridays", "saturdays", "sundays"]
+    out.append(f'<text x="12" y="{SH - 12}" font-size="10" fill="{SLATE2}">{daynames[peak_i]} lead · weekends get {weekend}%</text>')
+    label = f"Commits by weekday: {daynames[peak_i]} lead, weekends get {weekend} percent."
     return shell(SW, SH, css, "".join(out), label, shift)
 
 
-def build_stat_repos(gh, shift=None):
-    repos = gh["repo_commits"]
-    vmax = max(repos.values())
-    css, out = [], [module_box(0, 0, SW, SH, "WHERE COMMITS GO", "BY REPO")]
+def build_stat_langs(gh, shift=None):
+    import math as _m
+    langs = gh["languages_active_projects"]
+    css, out = [], [module_box(0, 0, SW, SH, "LANGUAGES", "ACTIVE REPOS")]
+    cx, cy, r = 64, 96, 34
+    circ = 2 * _m.pi * r
+    ops = {"TypeScript": 1.0, "JavaScript": 0.45, "Dart": 0.3, "GraphQL": 0.2, "other": None}
+    css.append("@keyframes din{from{opacity:0;transform:rotate(-40deg)}to{opacity:1;transform:rotate(0deg)}}")
+    segs = []
+    acc = 0.0
+    for name, pct_ in langs.items():
+        seg = circ * pct_ / 100
+        color = f'stroke="{AMBER}" stroke-opacity="{ops[name]}"' if ops[name] else 'stroke="#2A333C"'
+        segs.append(
+            f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="none" {color} stroke-width="11" '
+            f'stroke-dasharray="{f(max(seg - 2, 1))} {f(circ - max(seg - 2, 1))}" '
+            f'stroke-dashoffset="{f(-acc)}" transform="rotate(-90 {cx} {cy})"/>'
+        )
+        acc += seg
+    out.append(
+        f'<g style="animation:din .9s cubic-bezier(.3,.6,.3,1) both;transform-origin:{cx}px {cy}px">'
+        + "".join(segs) + "</g>"
+    )
+    top = max(langs, key=lambda k: langs[k] if k != "other" else 0)
+    out.append(f'<text x="{cx}" y="{cy + 4}" font-size="12" fill="{AMBER}" text-anchor="middle">{f(round(langs[top]))}%</text>')
+    ry = 56
+    for name, pct_ in langs.items():
+        if name == "other":
+            continue
+        sw = f'fill="{AMBER}" opacity="{ops[name]}"'
+        out.append(f'<rect x="128" y="{ry - 8}" width="9" height="9" rx="2" {sw}/>')
+        out.append(f'<text x="144" y="{ry}" font-size="10.5" fill="{SLATE}">{name.lower()} <tspan fill="{SLATE2}">{f(round(pct_))}%</tspan></text>')
+        ry += 24
+    out.append(f'<text x="12" y="{SH - 12}" font-size="10" fill="{SLATE2}">by lines of code, repos I work in now</text>')
+    lbl = ", ".join(f"{n} {round(p)} percent" for n, p in langs.items() if n != "other")
+    return shell(SW, SH, css, "".join(out), f"Languages across active repos by lines of code: {lbl}.", shift)
+
+
+def build_stat_commits(gh, shift=None):
+    words = gh["commit_words"]
+    vmax = max(words.values())
+    css, out = [], [module_box(0, 0, SW, SH, "COMMIT MESSAGES", "FIRST WORD")]
     css.append("@keyframes rbar{from{transform:scaleX(0)}to{transform:scaleX(1)}}")
     ry = 48
-    for i, (name, v) in enumerate(repos.items()):
-        bw = 6 + 110 * v / vmax
-        out.append(f'<text x="14" y="{ry + 4}" font-size="9.5" fill="{SLATE}">{name}</text>')
+    for i, (word, v) in enumerate(words.items()):
+        bw = 6 + 104 * v / vmax
+        out.append(f'<text x="14" y="{ry + 4}" font-size="10" fill="{SLATE}">{word}</text>')
         out.append(
-            f'<rect x="106" y="{ry - 5}" width="{f(bw)}" height="9" rx="2" fill="{AMBER}" opacity="0.85" '
+            f'<rect x="76" y="{ry - 5}" width="{f(bw)}" height="9" rx="2" fill="{AMBER}" opacity="0.85" '
             f'style="animation:rbar .6s cubic-bezier(.3,.6,.3,1) both;animation-delay:{f(0.09 * i)}s;'
-            f'transform-origin:106px 0"/>'
+            f'transform-origin:76px 0"/>'
         )
-        out.append(f'<text x="{f(110 + bw + 4)}" y="{ry + 4}" font-size="9" fill="{AMBER}" opacity="0.9">{v}</text>')
+        out.append(f'<text x="{f(80 + bw + 4)}" y="{ry + 4}" font-size="9" fill="{AMBER}" opacity="0.9">{v}</text>')
         ry += 21
-    out.append(f'<text x="12" y="{SH - 12}" font-size="10" fill="{SLATE2}">my commits, current repos</text>')
-    label = "Commits by repo: reciped leads with 667, then software-factory, uschedule, gadget, polybot."
-    return shell(SW, SH, css, "".join(out), label, shift)
-
-
-def build_stat_months(gh, shift=None):
-    monthly = gh["monthly"]
-    vmax = max(m["count"] for m in monthly)
-    peak = max(monthly, key=lambda m: m["count"])
-    names = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
-    css, out = [], [module_box(0, 0, SW, SH, "MONTH BY MONTH", "12 MONTHS")]
-    css.append("@keyframes mbar{from{transform:scaleY(0)}to{transform:scaleY(1)}}")
-    bx, base, bw = 24, 122, 14
-    for i, m in enumerate(monthly):
-        h_ = 4 + 74 * m["count"] / vmax
-        mi = int(m["month"][5:]) - 1
-        a = 1.0 if m is peak else 0.4 + 0.5 * m["count"] / vmax
-        out.append(
-            f'<rect x="{bx + i * 19}" y="{f(base - h_)}" width="{bw}" height="{f(h_)}" rx="2" fill="{AMBER}" '
-            f'opacity="{f(a)}" style="animation:mbar .55s cubic-bezier(.3,.6,.3,1) both;'
-            f'animation-delay:{f(0.05 * i)}s;transform-origin:0px {base}px"/>'
-        )
-        out.append(f'<text x="{bx + i * 19 + bw / 2}" y="136" font-size="7" fill="{SLATE2}" text-anchor="middle">{names[mi][0]}</text>')
-    peak_name = names[int(peak["month"][5:]) - 1]
-    out.append(f'<text x="12" y="{SH - 12}" font-size="10" fill="{SLATE2}">the {peak_name} spike is reciped</text>')
-    label = f"Contributions by month over the past year. The {peak_name} spike is Reciped at {peak['count']}."
+    out.append(f'<text x="12" y="{SH - 12}" font-size="10" fill="{SLATE2}">{gh["commit_mention_fix_pct"]}% of all {gh["commit_words_total"]:,} mention a fix</text>')
+    top = ", ".join(f"{w} {v}" for w, v in words.items())
+    label = (f"How my commit messages start: {top}. "
+             f"{gh['commit_mention_fix_pct']} percent of all {gh['commit_words_total']:,} mention a fix.")
     return shell(SW, SH, css, "".join(out), label, shift)
 
 
@@ -858,8 +873,8 @@ def main():
         "stat-clock": build_stat_clock(gh, shift),
         "stat-streaks": build_stat_streaks(gh, shift),
         "stat-weekdays": build_stat_weekdays(gh, shift),
-        "stat-repos": build_stat_repos(gh, shift),
-        "stat-months": build_stat_months(gh, shift),
+        "stat-langs": build_stat_langs(gh, shift),
+        "stat-commits": build_stat_commits(gh, shift),
         "stat-numbers": build_stat_numbers(gh, shift),
         "story": build_story(shift),
     }
