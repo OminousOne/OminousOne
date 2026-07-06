@@ -17,6 +17,7 @@ Usage:  python3 tools/build.py [--shift SECONDS]
 """
 
 import json
+import math
 import os
 import sys
 
@@ -286,32 +287,155 @@ def mod_factory(x, y, w, h):
     return "".join(out), css
 
 
+# ------------------------------------------------------------- 3d globe
+# real 3D, baked: rotate the sphere in Python, orthographically project each
+# frame, clip the back hemisphere, and flash the frames with opacity keyframes.
+
+TILT = math.radians(16)
+
+CITIES = {
+    "YOW": (45.3, -75.7), "YVR": (49.2, -123.2), "YYZ": (43.7, -79.6),
+    "YUL": (45.5, -73.6), "YYC": (51.1, -114.0), "YHZ": (44.9, -63.5),
+    "YFB": (63.8, -68.6),
+}
+ROUTES = [("YOW", "YVR"), ("YYZ", "YHZ"), ("YUL", "YFB"), ("YVR", "YYC")]
+
+
+def _coast():
+    return json.load(open(os.path.join(ROOT, "tools", "coastlines.json")))
+
+
+def _proj(lat, lon, phi, r):
+    """rotate by phi about the poles, tilt toward the viewer, project.
+    returns (px, py, visible) with px/py relative to the globe centre."""
+    la, lo = math.radians(lat), math.radians(lon) + phi
+    x = math.cos(la) * math.sin(lo)
+    y = math.sin(la)
+    z = math.cos(la) * math.cos(lo)
+    y2 = y * math.cos(TILT) - z * math.sin(TILT)
+    z2 = y * math.sin(TILT) + z * math.cos(TILT)
+    return x * r, -y2 * r, z2 > 0.02
+
+
+def _chain(pts):
+    """pts: [(px,py,vis)] -> compact path drawing only visible runs."""
+    d, run = [], False
+    for px, py, vis in pts:
+        if vis:
+            d.append(f"{'L' if run else 'M'}{round(px)},{round(py)}")
+            run = True
+        else:
+            run = False
+    path = "".join(d)
+    return path if "L" in path else ""
+
+
+def _gc_points(a, b, n, bulge=0.0):
+    """great-circle samples between two (lat,lon) cities, optional altitude."""
+    la1, lo1 = math.radians(a[0]), math.radians(a[1])
+    la2, lo2 = math.radians(b[0]), math.radians(b[1])
+    v1 = (math.cos(la1) * math.cos(lo1), math.cos(la1) * math.sin(lo1), math.sin(la1))
+    v2 = (math.cos(la2) * math.cos(lo2), math.cos(la2) * math.sin(lo2), math.sin(la2))
+    dot = max(-1, min(1, sum(p * q for p, q in zip(v1, v2))))
+    om = math.acos(dot)
+    pts = []
+    for i in range(n + 1):
+        t = i / n
+        s1 = math.sin((1 - t) * om) / math.sin(om)
+        s2 = math.sin(t * om) / math.sin(om)
+        v = [s1 * p + s2 * q for p, q in zip(v1, v2)]
+        alt = 1 + bulge * math.sin(math.pi * t)
+        lat = math.degrees(math.asin(max(-1, min(1, v[2] / math.hypot(*v)))))
+        lon = math.degrees(math.atan2(v[1], v[0]))
+        pts.append((lat, lon, alt))
+    return pts
+
+
+def globe(cx, cy, r, n_frames, dur, prefix, coast, meridian_step=45,
+          coast_width=0.8, routes=ROUTES, dots=True):
+    """returns (body, css) for a rotating baked-3D globe centred at cx,cy."""
+    css, out = [], []
+    out.append(f'<circle cx="{f(cx)}" cy="{f(cy)}" r="{r}" fill="{SCREEN}" stroke="#2A333C"/>')
+
+    # parallels are invariant under spin: draw once
+    static = []
+    for lat in (-60, -30, 0, 30, 60):
+        pts = [_proj(lat, lon, 0, r) for lon in range(0, 366, 6)]
+        p = _chain(pts)
+        if p:
+            static.append(f'<path d="{p}" fill="none" stroke="{LINE}" stroke-width="0.7"/>')
+    out.append(f'<g transform="translate({f(cx)},{f(cy)})">{"".join(static)}</g>')
+
+    route_pts = [_gc_points(CITIES[a], CITIES[b], 18, bulge=0.07) for a, b in routes]
+
+    frames = []
+    for fi in range(n_frames):
+        phi = 2 * math.pi * fi / n_frames
+        el = []
+        # meridians spin with the sphere
+        mer = []
+        for lon in range(0, 360, meridian_step):
+            pts = [_proj(lat, lon, phi, r) for lat in range(-90, 92, 10)]
+            p = _chain(pts)
+            if p:
+                mer.append(p)
+        el.append(f'<path d="{"".join(mer)}" fill="none" stroke="{LINE}" stroke-width="0.7"/>')
+        # coastlines
+        coast_d = []
+        for ring in coast:
+            p = _chain([_proj(la, lo, phi, r) for lo, la in ring])
+            if p:
+                coast_d.append(p)
+        el.append(f'<path d="{"".join(coast_d)}" fill="none" stroke="{AMBER}" stroke-opacity="0.55" stroke-width="{coast_width}" stroke-linejoin="round"/>')
+        # flight arcs + planes
+        arc_d, plane_d = [], []
+        for ri, pts in enumerate(route_pts):
+            proj = [_proj(la, lo, phi, r * alt) for la, lo, alt in pts]
+            p = _chain(proj)
+            if p:
+                arc_d.append(p)
+            if dots:
+                pos = (fi / n_frames * 2 + ri * 0.25) % 1.0
+                la, lo, alt = pts[round(pos * (len(pts) - 1))]
+                px, py, vis = _proj(la, lo, phi, r * alt)
+                if vis:
+                    plane_d.append(f'<rect x="{round(px) - 1.5}" y="{round(py) - 1.5}" width="3" height="3" fill="{AMBER}"/>')
+        if arc_d:
+            el.append(f'<path d="{"".join(arc_d)}" fill="none" stroke="{AMBER}" stroke-opacity="0.8" stroke-width="0.9"/>')
+        el += plane_d
+        if dots:
+            city_d = []
+            for la, lo in CITIES.values():
+                px, py, vis = _proj(la, lo, phi, r)
+                if vis:
+                    city_d.append(f'<circle cx="{round(px)}" cy="{round(py)}" r="1.3" fill="{WHITE}"/>')
+            el.append(f'<g opacity="0.8">{"".join(city_d)}</g>')
+        frames.append("".join(el))
+
+    for fi, content in enumerate(frames):
+        p = f"{prefix}f{fi}"
+        t0, t1 = fi / n_frames * 100, (fi + 1) / n_frames * 100
+        if fi == 0:
+            css.append(f"@keyframes {p}{{0%{{opacity:1}}{f(t1 - 0.004)}%{{opacity:1}}{f(t1)}%{{opacity:0}}100%{{opacity:0}}}}")
+            base = 1
+        else:
+            css.append(
+                f"@keyframes {p}{{0%,{f(t0 - 0.004)}%{{opacity:0}}{f(t0)}%{{opacity:1}}"
+                f"{f(t1 - 0.004)}%{{opacity:1}}{f(t1)}%{{opacity:0}}100%{{opacity:0}}}}"
+            )
+            base = 0
+        css.append(f".{p}{{animation:{p} {f(dur)}s linear infinite;}}")
+        out.append(f'<g transform="translate({f(cx)},{f(cy)})" class="{p}" opacity="{base}">{content}</g>')
+
+    out.append(f'<circle cx="{f(cx)}" cy="{f(cy)}" r="{r}" fill="none" stroke="{AMBER}" stroke-opacity="0.25"/>')
+    return "".join(out), css
+
+
 def mod_atc(x, y, w, h):
     css, out = [], [module_box(x, y, w, h, "ATC SIMULATOR", "CYOW")]
-    cx, cy = x + w / 2, y + 88
-    for r in (18, 34, 50):
-        out.append(f'<circle cx="{f(cx)}" cy="{f(cy)}" r="{r}" fill="none" stroke="{LINE}"/>')
-    out.append(f'<line x1="{f(cx - 50)}" y1="{f(cy)}" x2="{f(cx + 50)}" y2="{f(cy)}" stroke="{LINE}"/>')
-    out.append(f'<line x1="{f(cx)}" y1="{f(cy - 50)}" x2="{f(cx)}" y2="{f(cy + 50)}" stroke="{LINE}"/>')
-    css.append("@keyframes atcsweep{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}")
-    out.append(
-        f'<g style="animation:atcsweep 6s linear infinite;transform-origin:{f(cx)}px {f(cy)}px">'
-        f'<path d="M{f(cx)},{f(cy)} L{f(cx + 50)},{f(cy)} A50,50 0 0,0 {f(cx + 46.98)},{f(cy - 17.1)} Z" fill="{AMBER}" opacity="0.12"/>'
-        f'<line x1="{f(cx)}" y1="{f(cy)}" x2="{f(cx + 50)}" y2="{f(cy)}" stroke="{AMBER}" stroke-width="1.2" opacity="0.8"/></g>'
-    )
-    blips = [(28, 40), (150, 42), (215, 26), (305, 46)]
-    for i, (ang, r) in enumerate(blips):
-        import math
-        bx = cx + r * math.cos(math.radians(ang))
-        by = cy - r * math.sin(math.radians(ang))
-        p = f"atcb{i}"
-        t_on = ((360 - ang) % 360) / 360 * 100
-        css.append(
-            f"@keyframes {p}{{0%,{f(t_on)}%{{opacity:0}}{f(t_on + 2)}%{{opacity:1}}"
-            f"{f(min(t_on + 55, 99.5))}%{{opacity:0}}100%{{opacity:0}}}}"
-        )
-        css.append(f".{p}{{animation:{p} 6s linear infinite;}}")
-        out.append(f'<rect x="{f(bx - 2.5)}" y="{f(by - 2.5)}" width="5" height="5" fill="{AMBER}" filter="url(#glow)" class="{p}" opacity="0.95"/>')
+    body, gcss = globe(x + w / 2, y + 92, 52, 96, 14, "atc", _coast())
+    out.append(body)
+    css += gcss
     out.append(f'<text x="{x + 12}" y="{y + h - 12}" font-size="10" fill="{SLATE2}">1,000 real flights on a globe</text>')
     return "".join(out), css
 
@@ -347,8 +471,8 @@ def build_hero(gh, shift=None):
     out.append(f'<text x="876" y="480" font-size="11.5" fill="{SLATE}" text-anchor="end">6 projects</text>')
 
     label = ("Control board for Julien DeWolfe's projects: animated panels for Reciped, uschedule.ca, "
-             "Polybot, multiplayer netcode, Software Factory and an air traffic control simulator, "
-             "with real GitHub totals along the bottom.")
+             "Polybot, multiplayer netcode, Software Factory, and a rotating 3D globe of Canadian "
+             "flights for the ATC simulator, with real GitHub totals along the bottom.")
     return shell(W, H, css, "".join(out), label, shift)
 
 
@@ -424,25 +548,11 @@ def banner_polybot(shift=None):
 
 
 def banner_navsim(shift=None):
-    import math
-    css, out = [], []
-    cx, cy = 700, 32
-    for r in (10, 19, 28):
-        out.append(f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="none" stroke="#2A333C"/>')
-    css.append(f"@keyframes bnav{{from{{transform:rotate(0deg)}}to{{transform:rotate(360deg)}}}}")
-    out.append(
-        f'<line x1="{cx}" y1="{cy}" x2="{cx + 28}" y2="{cy}" stroke="{AMBER}" stroke-width="1.1" opacity="0.85" '
-        f'style="animation:bnav 5s linear infinite;transform-origin:{cx}px {cy}px"/>'
-    )
-    for i, (ang, r) in enumerate([(50, 22), (170, 16), (285, 25)]):
-        bx = cx + r * math.cos(math.radians(ang))
-        by = cy - r * math.sin(math.radians(ang))
-        t_on = ((360 - ang) % 360) / 360 * 100
-        css.append(f"@keyframes bnb{i}{{0%,{f(t_on)}%{{opacity:0}}{f(t_on + 3)}%{{opacity:1}}{f(min(t_on + 50, 99))}%,100%{{opacity:0}}}}")
-        css.append(f".bnb{i}{{animation:bnb{i} 5s linear infinite;}}")
-        out.append(f'<rect x="{f(bx - 1.8)}" y="{f(by - 1.8)}" width="3.6" height="3.6" fill="{AMBER}" class="bnb{i}"/>')
-    return banner_shell("banner-navsim", "NAV CANADA SIMULATOR", "AIR TRAFFIC CONTROL", "".join(out), css,
-                        "NAV Canada simulator banner with a sweeping radar", shift)
+    coast = [ring[::2] for ring in _coast() if len(ring) >= 12]
+    body, css = globe(700, 32, 25, 48, 12, "bng", coast, meridian_step=60,
+                      coast_width=0.7, routes=ROUTES[:2], dots=False)
+    return banner_shell("banner-navsim", "NAV CANADA SIMULATOR", "AIR TRAFFIC CONTROL", body, css,
+                        "NAV Canada simulator banner with a small rotating 3D globe", shift)
 
 
 def banner_netcode(shift=None):

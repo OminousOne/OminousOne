@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./assets/hero.svg" width="100%" alt="Control board with an animated panel for each of Julien's projects: Reciped build progress, a uschedule timetable assembling itself, Polybot market sparklines, a miniature multiplayer Pong court, a Software Factory agent pipeline, and an air traffic radar. The bottom strip shows real GitHub totals." />
+<img src="./assets/hero.svg" width="100%" alt="Control board with an animated panel for each of Julien's projects: Reciped build progress, a uschedule timetable assembling itself, Polybot market sparklines, a miniature multiplayer Pong court, a Software Factory agent pipeline, and a rotating 3D globe with Canadian flight routes. The bottom strip shows real GitHub totals." />
 
 <br/><br/>
 
@@ -31,7 +31,7 @@ A personal tool that turns AI agents into a small dev team. I describe work in a
 
 A lab for testing prediction market trading strategies on Polymarket. Six strategies run side by side, each in its own Docker container, all reporting to one live dashboard. Paper trading only: no wallet keys, no real orders, no real money.
 
-<img src="./assets/banner-navsim.svg" width="100%" alt="NAV Canada simulator, air traffic control" />
+<img src="./assets/banner-navsim.svg" width="100%" alt="NAV Canada simulator, air traffic control, with a small rotating 3D globe" />
 
 An air traffic control simulator: 1,000 real Canadian flights moving across a 3D globe, with weather overlays and conflict scenarios you have to resolve before they become close calls. [Try it here](https://nav-canada-simulator.vercel.app).
 
