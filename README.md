@@ -3,7 +3,7 @@
 <img src="./assets/hero-header.svg" width="100%" alt="Julien DeWolfe. Software engineer at gadget.dev, software engineering student at uOttawa." />
 <a href="#reciped" title="jump to Reciped"><img src="./assets/mod-reciped.svg" width="32.6%" alt="Reciped: build progress bars filling. Click to jump to the Reciped section." /></a> <a href="https://uschedule.ca/" title="open uschedule.ca"><img src="./assets/mod-uschedule.svg" width="32.6%" alt="uschedule.ca: a timetable assembling itself. Click to open uschedule.ca." /></a> <a href="#polybot" title="jump to Polybot"><img src="./assets/mod-polybot.svg" width="32.6%" alt="Polybot: trading strategy sparklines. Click to jump to the Polybot section." /></a>
 <a href="#netcode" title="jump to multiplayer netcode"><img src="./assets/mod-netcode.svg" width="32.6%" alt="Netcode: a miniature multiplayer Pong court. Click to jump to the netcode section." /></a> <a href="#software-factory" title="jump to Software Factory"><img src="./assets/mod-factory.svg" width="32.6%" alt="Software Factory: work flowing from plan to code to review to PR. Click to jump to the Software Factory section." /></a> <a href="https://nav-canada-simulator.vercel.app" title="open the NAV Canada simulator"><img src="./assets/mod-atc.svg" width="32.6%" alt="ATC simulator: a rotating 3D globe with Canadian flight routes. Click to open the live simulator." /></a>
-<img src="https://readme-ominousones-projects.vercel.app/live/footer.svg" width="100%" alt="Past year on GitHub, fetched live: total contributions and busiest day." />
+<img src="https://readme-ominousones-projects.vercel.app/live/footer.svg?v=2" width="100%" alt="Past year on GitHub, fetched live: total contributions and busiest day." />
 
 <br/><br/>
 
@@ -34,8 +34,8 @@ Live: [uschedule.ca](https://uschedule.ca/) · [NAV Canada simulator](https://na
 
 <div align="center">
 
-<img src="https://readme-ominousones-projects.vercel.app/live/stats.svg" width="100%" alt="My contribution heatmap for the past year, fetched live from the GitHub API." />
-<img src="https://readme-ominousones-projects.vercel.app/live/streaks.svg" width="32.6%" alt="Streaks, fetched live: longest streak, active days, and contributions per active day." /> <img src="https://readme-ominousones-projects.vercel.app/live/weekdays.svg" width="32.6%" alt="Contributions by weekday, fetched live." /> <img src="https://readme-ominousones-projects.vercel.app/live/langs.svg" width="32.6%" alt="Languages in the repos I pushed to in the last 12 months, fetched live." />
+<img src="https://readme-ominousones-projects.vercel.app/live/stats.svg?v=2" width="100%" alt="My contribution heatmap for the past year, fetched live from the GitHub API." />
+<img src="https://readme-ominousones-projects.vercel.app/live/streaks.svg?v=2" width="32.6%" alt="Streaks, fetched live: longest streak, active days, and contributions per active day." /> <img src="https://readme-ominousones-projects.vercel.app/live/weekdays.svg?v=2" width="32.6%" alt="Contributions by weekday, fetched live." /> <img src="https://readme-ominousones-projects.vercel.app/live/langs.svg?v=2" width="32.6%" alt="Languages in the repos I pushed to in the last 12 months, fetched live." />
 
 </div>
 
@@ -53,7 +53,7 @@ Today I study software engineering at the University of Ottawa and build the pla
 
 ## Guestbook
 
-<img src="https://readme-ominousones-projects.vercel.app/live/guestbook.svg" width="100%" alt="Guestbook signed by visitors through GitHub issues, showing the most recent signatures." />
+<img src="https://readme-ominousones-projects.vercel.app/live/guestbook.svg?v=2" width="100%" alt="Guestbook signed by visitors through GitHub issues, showing the most recent signatures." />
 
 <div align="center">
 

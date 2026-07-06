@@ -20,6 +20,6 @@ jobs:
           # visitors.svg is deliberately NOT warmed: it counts real page views
           for card in stats streaks weekdays langs footer guestbook; do
             curl -sS -o /dev/null --max-time 25 \
-              "https://readme-ominousones-projects.vercel.app/live/$card.svg" \
+              "https://readme-ominousones-projects.vercel.app/live/$card.svg?v=2" \
               && echo "$card warm" || echo "$card FAILED"
           done
