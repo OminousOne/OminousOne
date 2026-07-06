@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./assets/hero-header.svg" width="100%" alt="Julien DeWolfe. Software engineer at gadget.dev, software engineering student at uOttawa." />
+<img src="./assets/hero-header.svg" width="100%" alt="Julien DeWolfe. Software engineering intern at gadget.dev, software engineering student at uOttawa." />
 <a href="#reciped" title="jump to Reciped"><img src="./assets/mod-reciped.svg" width="32.6%" alt="Reciped: build progress bars filling. Click to jump to the Reciped section." /></a> <a href="https://uschedule.ca/" title="open uschedule.ca"><img src="./assets/mod-uschedule.svg" width="32.6%" alt="uschedule.ca: a timetable assembling itself. Click to open uschedule.ca." /></a> <a href="#polybot" title="jump to Polybot"><img src="./assets/mod-polybot.svg" width="32.6%" alt="Polybot: trading strategy sparklines. Click to jump to the Polybot section." /></a>
 <a href="#netcode" title="jump to multiplayer netcode"><img src="./assets/mod-netcode.svg" width="32.6%" alt="Netcode: a miniature multiplayer Pong court. Click to jump to the netcode section." /></a> <a href="#software-factory" title="jump to Software Factory"><img src="./assets/mod-factory.svg" width="32.6%" alt="Software Factory: work flowing from plan to code to review to PR. Click to jump to the Software Factory section." /></a> <a href="https://nav-canada-simulator.vercel.app" title="open the NAV Canada simulator"><img src="./assets/mod-atc.svg" width="32.6%" alt="ATC simulator: a rotating 3D globe with Canadian flight routes. Click to open the live simulator." /></a>
 <img src="https://readme-ominousones-projects.vercel.app/live/footer.svg?v=2" width="100%" alt="Past year on GitHub, fetched live: total contributions and busiest day." />
@@ -16,7 +16,7 @@
 
 I'm **Julien DeWolfe**, a Software Engineering student at the University of Ottawa who started making games using Blender's node-based engine at age 9. That turned into Unity, C#, game jams, networking rabbit holes, and eventually a fascination with systems and engineering in general. I'm currently an intern at [Gadget](https://gadget.dev) while studying Software Engineering at the University of Ottawa.
 
-<img src="./assets/story.svg" width="100%" alt="Timeline from age nine to now: blender games, then unity and c sharp, minecraft plugins overlapping them, then uOttawa with gadget running alongside it into the present." />
+<img src="./assets/story.svg" width="100%" alt="Timeline from the beginning to now: blender games, then unity and c sharp, minecraft plugins overlapping them, then uOttawa with gadget running alongside it into the present." />
 
 ## Projects
 

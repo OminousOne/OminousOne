@@ -452,9 +452,9 @@ def build_hero_header(shift=None):
     out.append(f'<g filter="url(#glow)">{pixel_text(name, 24, 20, 4, AMBER, cls_prefix="wm")}</g>')
     for i in range(len(name)):
         css.append(f".wm{i}{{animation:boot 12s linear infinite;animation-delay:{f(0.06 * i)}s;}}")
-    out.append(f'<text x="{W - 24}" y="32" font-size="12" fill="{SLATE}" text-anchor="end">software engineer @ gadget.dev</text>')
+    out.append(f'<text x="{W - 24}" y="32" font-size="12" fill="{SLATE}" text-anchor="end">swe intern @ gadget.dev</text>')
     out.append(f'<text x="{W - 24}" y="48" font-size="12" fill="{SLATE}" text-anchor="end">software engineering @ uOttawa</text>')
-    return shell(W, H, css, "".join(out), "Julien DeWolfe, software engineer at gadget.dev, software engineering student at uOttawa", shift)
+    return shell(W, H, css, "".join(out), "Julien DeWolfe, software engineering intern at gadget.dev, software engineering student at uOttawa", shift)
 
 
 HERO_MODULES = [
@@ -676,10 +676,10 @@ def build_story(shift=None):
             f'style="animation:eralbl .4s both;animation-delay:{f(delay + 0.35)}s">{label}</text>'
         )
 
-    out.append(f'<text x="{x0}" y="92" font-size="10" fill="{SLATE2}">age 9</text>')
+    out.append(f'<text x="{x0}" y="92" font-size="10" fill="{SLATE2}">the beginning</text>')
     out.append(f'<circle cx="{x1 - 34}" cy="88.5" r="3" fill="{AMBER}" style="animation:nowpulse 2s ease-in-out infinite"/>')
     out.append(f'<text x="{x1}" y="92" font-size="10" fill="{SLATE}" text-anchor="end">now</text>')
-    label = ("Timeline from age nine to now: blender games, then unity and c sharp, minecraft plugins "
+    label = ("Timeline from the beginning to now: blender games, then unity and c sharp, minecraft plugins "
              "overlapping them, then uOttawa with gadget running alongside it into the present.")
     return shell(W, H, css, "".join(out), label, shift)
 
