@@ -111,7 +111,8 @@ def frame(w, h, rx=10):
 
 def module_box(x, y, w, h, title, status):
     return (
-        f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="7" fill="{PANEL}" stroke="#212932"/>'
+        f'<rect x="{x + 0.75}" y="{y + 0.75}" width="{w - 1.5}" height="{h - 1.5}" rx="8" '
+        f'fill="{PANEL}" stroke="#262E36" stroke-width="1.5"/>'
         f'<text x="{x + 12}" y="{y + 19}" font-size="11" letter-spacing="1.4" fill="{AMBER}">{title}</text>'
         f'<text x="{x + w - 12}" y="{y + 19}" font-size="9" letter-spacing="0.8" fill="{SLATE2}" text-anchor="end">{status}</text>'
     )
@@ -150,9 +151,9 @@ def mod_reciped(x, y, w, h):
 
 
 def mod_uschedule(x, y, w, h):
-    css, out = [], [module_box(x, y, w, h, "USCHEDULE.CA", "LIVE")]
+    css, out = [], [module_box(x, y, w, h, "USCHEDULE.CA", "LIVE ↗")]
     css.append("@keyframes uspulse{0%,100%{opacity:1}50%{opacity:.2}}")
-    out.append(f'<circle cx="{x + w - 46}" cy="{y + 15.5}" r="3" fill="{AMBER}" style="animation:uspulse 2s ease-in-out infinite"/>')
+    out.append(f'<circle cx="{x + w - 60}" cy="{y + 15.5}" r="3" fill="{AMBER}" style="animation:uspulse 2s ease-in-out infinite"/>')
     gx, gy, cw, ch, gap = x + 12, y + 34, 45, 20, 3
     for c in range(5):
         out.append(f'<rect x="{f(gx + c * (cw + gap))}" y="{gy}" width="{cw}" height="{5 * (ch + gap) - gap}" fill="{SCREEN}" stroke="{LINE}"/>')
@@ -432,7 +433,7 @@ def globe(cx, cy, r, n_frames, dur, prefix, coast, meridian_step=45,
 
 
 def mod_atc(x, y, w, h):
-    css, out = [], [module_box(x, y, w, h, "ATC SIMULATOR", "CYOW")]
+    css, out = [], [module_box(x, y, w, h, "ATC SIMULATOR", "CYOW ↗")]
     body, gcss = globe(x + w / 2, y + 92, 52, 96, 14, "atc", _coast())
     out.append(body)
     css += gcss
@@ -440,40 +441,49 @@ def mod_atc(x, y, w, h):
     return "".join(out), css
 
 
-def build_hero(gh, shift=None):
-    W, H = 900, 506
-    css, out = [], [frame(W, H, rx=12)]
-
+def build_hero_header(shift=None):
+    W, H = 900, 68
+    css, out = [], [frame(W, H, rx=10)]
     css.append("@keyframes boot{0%{opacity:.1}0.9%{opacity:.9}1.5%{opacity:.25}2.4%{opacity:1}100%{opacity:1}}")
     name = "JULIEN DEWOLFE"
-    out.append(f'<g filter="url(#glow)">{pixel_text(name, 24, 18, 4, AMBER, cls_prefix="wm")}</g>')
+    out.append(f'<g filter="url(#glow)">{pixel_text(name, 24, 20, 4, AMBER, cls_prefix="wm")}</g>')
     for i in range(len(name)):
         css.append(f".wm{i}{{animation:boot 12s linear infinite;animation-delay:{f(0.06 * i)}s;}}")
-    out.append(f'<text x="{900 - 24}" y="30" font-size="12" fill="{SLATE}" text-anchor="end">software engineer @ gadget.dev</text>')
-    out.append(f'<text x="{900 - 24}" y="46" font-size="12" fill="{SLATE}" text-anchor="end">software engineering @ uOttawa</text>')
-    out.append(f'<line x1="24" y1="64" x2="876" y2="64" stroke="{LINE}"/>')
+    out.append(f'<text x="{W - 24}" y="32" font-size="12" fill="{SLATE}" text-anchor="end">software engineer @ gadget.dev</text>')
+    out.append(f'<text x="{W - 24}" y="48" font-size="12" fill="{SLATE}" text-anchor="end">software engineering @ uOttawa</text>')
+    return shell(W, H, css, "".join(out), "Julien DeWolfe, software engineer at gadget.dev, software engineering student at uOttawa", shift)
 
-    mods = [mod_reciped, mod_uschedule, mod_polybot, mod_netcode, mod_factory, mod_atc]
-    for i, fn in enumerate(mods):
-        col, row = i % 3, i // 3
-        b, c = fn(24 + col * 292, 80 + row * 186, 268, 170)
-        out.append(b)
-        css += c
 
-    out.append(f'<line x1="24" y1="452" x2="876" y2="452" stroke="{LINE}"/>')
+def build_hero_footer(gh, shift=None):
+    W, H = 900, 44
+    css, out = [], [frame(W, H, rx=10)]
     total = f"{gh['total_contributions_past_year']:,}"
     out.append(
-        f'<text x="24" y="480" font-size="11.5" fill="{SLATE}">past year on github: '
+        f'<text x="24" y="27" font-size="11.5" fill="{SLATE}">past year on github: '
         f'<tspan fill="{AMBER}">{total}</tspan> contributions · busiest day: <tspan fill="{AMBER}">{gh["busiest_day"]}</tspan></text>'
     )
     css.append("@keyframes hpulse{0%,100%{opacity:1}50%{opacity:.25}}")
-    out.append(f'<circle cx="800" cy="476" r="3" fill="{AMBER}" style="animation:hpulse 2s ease-in-out infinite"/>')
-    out.append(f'<text x="876" y="480" font-size="11.5" fill="{SLATE}" text-anchor="end">6 projects</text>')
+    out.append(f'<circle cx="800" cy="23" r="3" fill="{AMBER}" style="animation:hpulse 2s ease-in-out infinite"/>')
+    out.append(f'<text x="{W - 24}" y="27" font-size="11.5" fill="{SLATE}" text-anchor="end">6 projects</text>')
+    return shell(W, H, css, "".join(out), f"Past year on GitHub: {total} contributions, busiest day {gh['busiest_day']}", shift)
 
-    label = ("Control board for Julien DeWolfe's projects: animated panels for Reciped, uschedule.ca, "
-             "Polybot, multiplayer netcode, Software Factory, and a rotating 3D globe of Canadian "
-             "flights for the ATC simulator, with real GitHub totals along the bottom.")
-    return shell(W, H, css, "".join(out), label, shift)
+
+HERO_MODULES = [
+    ("mod-reciped", mod_reciped, "Reciped: three build progress bars filling. Links to the Reciped section below."),
+    ("mod-uschedule", mod_uschedule, "uschedule.ca: a timetable assembling itself. Links to uschedule.ca."),
+    ("mod-polybot", mod_polybot, "Polybot: three trading strategy sparklines. Links to the Polybot section below."),
+    ("mod-netcode", mod_netcode, "Netcode: a miniature multiplayer Pong court. Links to the netcode section below."),
+    ("mod-factory", mod_factory, "Software Factory: work flowing from plan through code to review and a PR. Links to the Software Factory section below."),
+    ("mod-atc", mod_atc, "ATC simulator: a rotating 3D globe with Canadian flight routes. Links to the live simulator."),
+]
+
+
+def build_hero_modules(shift=None):
+    pieces = {}
+    for name, fn, label in HERO_MODULES:
+        body, css = fn(0, 0, 268, 170)
+        pieces[name] = shell(268, 170, css, body, label, shift)
+    return pieces
 
 
 # ------------------------------------------------------------- banners
@@ -606,12 +616,52 @@ def build_stats(gh, shift=None):
     for wi, week in enumerate(weeks):
         col = []
         for di, c in enumerate(week):
-            a = level(c)
-            if a is None:
-                col.append(f'<rect x="{f(gx + wi * step)}" y="{f(gy + di * step)}" width="{cell}" height="{cell}" rx="2" fill="#151B22"/>')
-            else:
-                col.append(f'<rect x="{f(gx + wi * step)}" y="{f(gy + di * step)}" width="{cell}" height="{cell}" rx="2" fill="{AMBER}" opacity="{f(a)}"/>')
+            # every cell gets a dark slot; active days get their amber drawn in
+            # the snake layer below, so the snake can eat them down to the slot
+            col.append(f'<rect x="{f(gx + wi * step)}" y="{f(gy + di * step)}" width="{cell}" height="{cell}" rx="2" fill="#151B22"/>')
         out.append(f'<g style="animation:cellin .5s both;animation-delay:{f(wi * 0.022)}s">' + "".join(col) + "</g>")
+
+    # a snake roams the real heatmap, eating the year one day at a time
+    order = []
+    for wi in range(len(weeks)):
+        rng = range(7) if wi % 2 == 0 else range(6, -1, -1)
+        for di in rng:
+            if di < len(weeks[wi]):
+                order.append((wi, di))
+    n = len(order)
+    DUR, T0, T1 = 46.0, 2.0, 90.0
+    head_kf = [f"0%{{transform:translate({f(gx + order[0][0] * step)}px,{f(gy + order[0][1] * step)}px)}}"]
+    for i, (wi, di) in enumerate(order):
+        t = T0 + (T1 - T0) * i / (n - 1)
+        head_kf.append(f"{f(t)}%{{transform:translate({f(gx + wi * step)}px,{f(gy + di * step)}px)}}")
+    head_kf.append(f"100%{{transform:translate({f(gx + order[-1][0] * step)}px,{f(gy + order[-1][1] * step)}px)}}")
+    css.append("@keyframes snake{" + "".join(head_kf) + "}")
+    eat_i = 0
+    for i, (wi, di) in enumerate(order):
+        a = level(weeks[wi][di])
+        if a is None:
+            continue
+        t = T0 + (T1 - T0) * i / (n - 1)
+        p = f"sk{eat_i}"
+        eat_i += 1
+        css.append(
+            f"@keyframes {p}{{0%,{f(t - 0.05)}%{{opacity:{f(a)}}}{f(t)}%,92%{{opacity:0.1}}"
+            f"96%,100%{{opacity:{f(a)}}}}}"
+        )
+        css.append(f".{p}{{animation:{p} {f(DUR)}s linear infinite;}}")
+        out.append(
+            f'<g style="animation:cellin .5s both;animation-delay:{f(wi * 0.022)}s">'
+            f'<rect x="{f(gx + wi * step)}" y="{f(gy + di * step)}" width="{cell}" height="{cell}" rx="2" fill="{AMBER}" opacity="{f(a)}" class="{p}"/></g>'
+        )
+    seg_dt = (T1 - T0) / 100 * DUR / n
+    for k in range(5):
+        op = (1.0, 0.72, 0.5, 0.32, 0.18)[k]
+        glow = ' filter="url(#glow)"' if k == 0 else ""
+        out.append(
+            f'<rect x="0" y="0" width="{cell}" height="{cell}" rx="2" fill="{AMBER}" opacity="{f(op)}"{glow} '
+            f'style="animation:snake {f(DUR)}s linear infinite;animation-delay:{f(-1.4 * k * seg_dt)}s;'
+            f'transform:translate({f(gx)}px,{f(gy)}px)"/>'
+        )
 
     ty = gy + 7 * step + 26
     total = f"{gh['total_contributions_past_year']:,}"
@@ -638,6 +688,116 @@ def build_stats(gh, shift=None):
     return shell(W, H, css, "".join(out), label, shift)
 
 
+# ------------------------------------------------------------- fun cards
+
+def build_clock(gh, shift=None):
+    W, H = 410, 170
+    hours = gh["commit_hours"]
+    total = gh["commit_hours_total"]
+    peak = hours.index(max(hours))
+    evening = round(sum(v for h, v in enumerate(hours) if h >= 18 or h < 4) / total * 100)
+    css, out = [], [module_box(0, 0, W, H, "COMMIT CLOCK", "LOCAL GIT HISTORY")]
+
+    cx, cy, r0 = 90, 97, 24
+    vmax = max(hours)
+    css.append("@keyframes cbar{from{transform:scaleY(0)}to{transform:scaleY(1)}}")
+    out.append(f'<circle cx="{cx}" cy="{cy}" r="{r0 - 4}" fill="none" stroke="{LINE}"/>')
+    for h, v in enumerate(hours):
+        ln = 3 + 28 * v / vmax
+        a = 0.28 + 0.72 * v / vmax
+        w_ = 3.4 if h == peak else 2.4
+        out.append(
+            f'<g transform="translate({cx},{cy}) rotate({h * 15})">'
+            f'<line x1="0" y1="{-r0}" x2="0" y2="{f(-r0 - ln)}" stroke="{AMBER}" stroke-opacity="{f(a)}" '
+            f'stroke-width="{w_}" style="animation:cbar .6s cubic-bezier(.3,.6,.3,1) both;'
+            f'animation-delay:{f(0.04 * h)}s;transform-origin:0px {-r0}px"/></g>'
+        )
+    import math as _m
+    for lbl, ang in (("00", 0), ("06", 90), ("12", 180), ("18", 270)):
+        lx = cx + 63 * _m.sin(_m.radians(ang))
+        ly = cy - 63 * _m.cos(_m.radians(ang))
+        out.append(f'<text x="{f(lx)}" y="{f(ly + 3)}" font-size="8" fill="{SLATE2}" text-anchor="middle">{lbl}</text>')
+
+    fx = 196
+    ampm = lambda h: f"{h % 12 if h % 12 else 12} {'am' if h < 12 else 'pm'}"
+    out.append(f'<text x="{fx}" y="60" font-size="12" fill="{SLATE}">peak hour: <tspan fill="{AMBER}" font-size="15">{ampm(peak)}</tspan></text>')
+    out.append(f'<text x="{fx}" y="88" font-size="12" fill="{SLATE}"><tspan fill="{AMBER}" font-size="15">{evening}%</tspan> after 6 pm</text>')
+    out.append(f'<text x="{fx}" y="116" font-size="12" fill="{SLATE}">quiet: <tspan fill="{AMBER}">4 am to 9 am</tspan></text>')
+    out.append(f'<text x="{fx}" y="{H - 24}" font-size="10" fill="{SLATE2}">{total:,} commits, by hour of day</text>')
+    label = f"Commit clock: a 24 hour dial of {total:,} commits. Peak hour {ampm(peak)}, {evening} percent after 6 pm, quiet from 4 am to 9 am."
+    return shell(W, H, css, "".join(out), label, shift)
+
+
+def odometer(x, y, value, size, dur, prefix, css):
+    """digits roll up to their final value once, odometer style."""
+    out, dx = [], 0
+    ch_w = size * 0.62
+    for ci, ch in enumerate(str(value)):
+        d = int(ch)
+        p = f"{prefix}{ci}"
+        if d > 0:
+            css.append(f"@keyframes {p}{{from{{transform:translateY(0)}}to{{transform:translateY({f(-d * size * 1.15)}px)}}}}")
+            anim = f"animation:{p} {f(dur)}s steps({d}) both;animation-delay:{f(0.15 * ci + 0.1)}s"
+        else:
+            anim = ""
+        strip = "".join(
+            f'<text x="{f(x + dx)}" y="{f(y + k * size * 1.15)}" font-size="{size}" fill="{AMBER}">{k}</text>'
+            for k in range(d + 1)
+        )
+        out.append(
+            f'<clipPath id="{p}c"><rect x="{f(x + dx - 1)}" y="{f(y - size + 2)}" width="{f(ch_w + 2)}" height="{f(size + 4)}"/></clipPath>'
+            f'<g clip-path="url(#{p}c)"><g style="{anim}">{strip}</g></g>'
+        )
+        dx += ch_w
+    return "".join(out)
+
+
+def build_streaks(gh, shift=None):
+    W, H = 410, 170
+    s = gh["streaks"]
+    days = ["mondays", "tuesdays", "wednesdays", "thursdays", "fridays", "saturdays", "sundays"]
+    busiest = days[gh["commit_days_mon_sun"].index(max(gh["commit_days_mon_sun"]))]
+    css, out = [], [module_box(0, 0, W, H, "STREAKS", "PAST YEAR")]
+    tiles = [
+        (16, "longest streak", s["longest"], "days in a row"),
+        (216, "active days", s["active_days"], f"of {s['window_days']}"),
+    ]
+    for i, (tx, lbl, val, sub) in enumerate(tiles):
+        out.append(f'<text x="{tx}" y="52" font-size="11" fill="{SLATE}">{lbl}</text>')
+        out.append(odometer(tx, 92, val, 30, 0.9, f"od{i}_", css))
+        out.append(f'<text x="{tx + len(str(val)) * 19 + 8}" y="92" font-size="11" fill="{SLATE2}">{sub}</text>')
+    out.append(f'<text x="16" y="128" font-size="12" fill="{SLATE}">most commits land on <tspan fill="{AMBER}">{busiest}</tspan></text>')
+    out.append(f'<text x="12" y="{H - 12}" font-size="10" fill="{SLATE2}">counted from the contribution calendar</text>')
+    label = (f"Streaks: longest streak {s['longest']} days, {s['active_days']} active days of "
+             f"{s['window_days']}, most commits land on {busiest}.")
+    return shell(W, H, css, "".join(out), label, shift)
+
+
+def build_story(shift=None):
+    W, H = 830, 64
+    stops = ["blender at nine", "minecraft plugins", "unity + c#", "uottawa", "gadget", "reciped"]
+    css, out = [], [frame(W, H, rx=8)]
+    n = len(stops)
+    xs = [40 + i * (W - 80) / (n - 1) for i in range(n)]
+    out.append(f'<line x1="{f(xs[0])}" y1="28" x2="{f(xs[-1])}" y2="28" stroke="{LINE}"/>')
+    css.append("@keyframes stline{0%{transform:scaleX(0)}82%,100%{transform:scaleX(1)}}")
+    out.append(
+        f'<line x1="{f(xs[0])}" y1="28" x2="{f(xs[-1])}" y2="28" stroke="{AMBER}" stroke-opacity="0.5" '
+        f'style="animation:stline 9s linear infinite;transform-origin:{f(xs[0])}px 0"/>'
+    )
+    css.append("@keyframes stpulse{0%,100%{opacity:.35}50%{opacity:1}}")
+    for i, (sx, lbl) in enumerate(zip(xs, stops)):
+        out.append(
+            f'<circle cx="{f(sx)}" cy="28" r="3.2" fill="{AMBER}" '
+            f'style="animation:stpulse 9s ease-in-out infinite;animation-delay:{f(i * 1.5)}s;opacity:.35"/>'
+        )
+        anchor = "start" if i == 0 else "end" if i == n - 1 else "middle"
+        ax = sx if anchor != "start" else sx - 16
+        ax = ax if anchor != "end" else sx + 16
+        out.append(f'<text x="{f(ax)}" y="50" font-size="10.5" fill="{SLATE}" text-anchor="{anchor}">{lbl}</text>')
+    return shell(W, H, css, "".join(out), "Timeline: blender at nine, minecraft plugins, unity and c sharp, uOttawa, gadget, reciped", shift)
+
+
 # ------------------------------------------------------------- main
 
 def main():
@@ -648,7 +808,15 @@ def main():
         shift = float(args[i + 1])
 
     gh = json.load(open(os.path.join(ROOT, "tools", "github-data.json")))
-    outputs = {"hero": build_hero(gh, shift), "stats": build_stats(gh, shift)}
+    outputs = {
+        "hero-header": build_hero_header(shift),
+        "hero-footer": build_hero_footer(gh, shift),
+        "stats": build_stats(gh, shift),
+        "clock": build_clock(gh, shift),
+        "streaks": build_streaks(gh, shift),
+        "story": build_story(shift),
+    }
+    outputs.update(build_hero_modules(shift))
     for fn in (banner_reciped, banner_uschedule, banner_factory, banner_polybot,
                banner_navsim, banner_netcode, banner_earlier):
         name, svg = fn(shift)

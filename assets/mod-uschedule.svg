@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="268" height="170" viewBox="0 0 268 170" role="img" aria-label="uschedule.ca: a timetable assembling itself. Links to uschedule.ca.">
+<style><![CDATA[
+text{font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;}
+@keyframes uspulse{0%,100%{opacity:1}50%{opacity:.2}}
+@keyframes usb0{0%,6%{opacity:0}10%,86%{opacity:1}92%,100%{opacity:0}}
+.usb0{animation:usb0 11s linear infinite;}
+@keyframes usb1{0%,13%{opacity:0}17%,86%{opacity:1}92%,100%{opacity:0}}
+.usb1{animation:usb1 11s linear infinite;}
+@keyframes usb2{0%,20%{opacity:0}24%,86%{opacity:1}92%,100%{opacity:0}}
+.usb2{animation:usb2 11s linear infinite;}
+@keyframes usb3{0%,27%{opacity:0}31%,86%{opacity:1}92%,100%{opacity:0}}
+.usb3{animation:usb3 11s linear infinite;}
+@keyframes usb4{0%,34%{opacity:0}38%,86%{opacity:1}92%,100%{opacity:0}}
+.usb4{animation:usb4 11s linear infinite;}
+@keyframes usb5{0%,41%{opacity:0}45%,86%{opacity:1}92%,100%{opacity:0}}
+.usb5{animation:usb5 11s linear infinite;}
+@keyframes usb6{0%,48%{opacity:0}52%,86%{opacity:1}92%,100%{opacity:0}}
+.usb6{animation:usb6 11s linear infinite;}
+@keyframes usb7{0%,55%{opacity:0}59%,86%{opacity:1}92%,100%{opacity:0}}
+.usb7{animation:usb7 11s linear infinite;}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;}}
+]]></style>
+
+<defs>
+  <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <pattern id="scan" width="3" height="3" patternUnits="userSpaceOnUse">
+    <rect width="3" height="1" y="2" fill="#000"/>
+  </pattern>
+</defs>
+<rect x="0.75" y="0.75" width="266.5" height="168.5" rx="8" fill="#0A0D10" stroke="#262E36" stroke-width="1.5"/><text x="12" y="19" font-size="11" letter-spacing="1.4" fill="#FFB300">USCHEDULE.CA</text><text x="256" y="19" font-size="9" letter-spacing="0.8" fill="#46525E" text-anchor="end">LIVE ↗</text><circle cx="208" cy="15.5" r="3" fill="#FFB300" style="animation:uspulse 2s ease-in-out infinite"/><rect x="12" y="34" width="45" height="112" fill="#05070A" stroke="#1E262E"/><rect x="60" y="34" width="45" height="112" fill="#05070A" stroke="#1E262E"/><rect x="108" y="34" width="45" height="112" fill="#05070A" stroke="#1E262E"/><rect x="156" y="34" width="45" height="112" fill="#05070A" stroke="#1E262E"/><rect x="204" y="34" width="45" height="112" fill="#05070A" stroke="#1E262E"/><rect x="15" y="59" width="39" height="39" rx="2" fill="#FFB300" fill-opacity="0.28" stroke="#FFB300" stroke-opacity="0.85" class="usb0" opacity="1"/><rect x="111" y="36" width="39" height="16" rx="2" fill="#FFB300" fill-opacity="0.28" stroke="#FFB300" stroke-opacity="0.85" class="usb1" opacity="1"/><rect x="63" y="105" width="39" height="39" rx="2" fill="#FFB300" fill-opacity="0.28" stroke="#FFB300" stroke-opacity="0.85" class="usb2" opacity="1"/><rect x="159" y="59" width="39" height="39" rx="2" fill="#FFB300" fill-opacity="0.28" stroke="#FFB300" stroke-opacity="0.85" class="usb3" opacity="1"/><rect x="207" y="105" width="39" height="16" rx="2" fill="#FFB300" fill-opacity="0.28" stroke="#FFB300" stroke-opacity="0.85" class="usb4" opacity="1"/><rect x="111" y="82" width="39" height="39" rx="2" fill="#FFB300" fill-opacity="0.28" stroke="#FFB300" stroke-opacity="0.85" class="usb5" opacity="1"/><rect x="15" y="128" width="39" height="16" rx="2" fill="#FFB300" fill-opacity="0.28" stroke="#FFB300" stroke-opacity="0.85" class="usb6" opacity="1"/><rect x="207" y="36" width="39" height="39" rx="2" fill="#FFB300" fill-opacity="0.28" stroke="#FFB300" stroke-opacity="0.85" class="usb7" opacity="1"/><text x="12" y="158" font-size="10" fill="#46525E">a timetable assembling itself</text>
+<rect x="1" y="1" width="266" height="168" rx="10" fill="url(#scan)" opacity="0.14"/>
+</svg>
