@@ -1,40 +1,217 @@
-# Hi, I'm Julien DeWolfe 👋
+<div align="center">
 
-Software Engineering student at the University of Ottawa.
+<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&height=190&color=0:0F2027,45:2C5364,100:7F00FF&text=Julien%20DeWolfe&fontColor=ffffff&fontSize=54&fontAlignY=36&desc=Distributed%20Systems%20%7C%20Realtime%20Networking%20%7C%20Full-Stack%20Engineering&descAlignY=57&animation=fadeIn" />
 
-My journey started at nine years old, building small games in Blender's node-based game engine. When I outgrew what node editors could do, I picked up C# through Unity and started shipping games for fun and in game jams. That hobby grew into a craft, and the craft became a career path. Today, I focus on distributed systems, real-time networking, and full-stack development, while sharing what I learn with developers on YouTube.
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=700&size=24&pause=900&color=7DF9FF&center=true&vCenter=true&random=false&width=920&lines=I+build+systems+that+move+fast+and+stay+online.;Game+servers+%E2%80%A2+Kubernetes+%E2%80%A2+Networking+%E2%80%A2+Full-stack+apps;Started+in+Blender+at+9.+Still+shipping.)](https://git.io/typing-svg)
 
-## 🔧 Featured Projects
+<p>
+  <a href="https://github.com/OminousOne?tab=followers"><img src="https://img.shields.io/github/followers/OminousOne?label=Follow&style=for-the-badge&logo=github&logoColor=white&color=7F00FF&labelColor=0F172A" /></a>
+  <a href="https://www.linkedin.com/in/julien-dewolfe/"><img src="https://img.shields.io/badge/LinkedIn-Julien%20DeWolfe-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" /></a>
+  <a href="https://uschedule.ca/"><img src="https://img.shields.io/badge/uSchedule-Live%20App-00D4FF?style=for-the-badge&logo=googlecalendar&logoColor=white&labelColor=0F172A" /></a>
+</p>
 
-- **Distributed Game Server on Kubernetes**: Scalable real-time game server infrastructure with microservices, load balancing, and fault tolerance across distributed nodes. Backed by Redis and MongoDB, deployed via GitHub Actions CI/CD.
-- **Server-Authoritative Multiplayer Networking**: Custom TCP/UDP game server in C# with client prediction, server reconciliation, and entity interpolation for low-latency gameplay.
-- **Restaurant Delivery Management Web App**: Full-stack prototype in Next.js, React, and TypeScript with JWT auth, order/menu APIs, and component-driven architecture.
-- **uOttawa Scheduler** An application for helping University of Ottawa students create course schedules easily and quickly (https://uschedule.ca/).
+<img src="https://komarev.com/ghpvc/?username=OminousOne&style=for-the-badge&color=7F00FF&label=PROFILE+SCANS" />
 
-## 🌐 Socials
-
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/julien-dewolfe/)
-
-## 💻 Tech Stack
-
-![C#](https://img.shields.io/badge/c%23-%23239120.svg?style=for-the-badge&logo=csharp&logoColor=white) ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E) ![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white) ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white) ![CSS3](https://img.shields.io/badge/css3-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white) ![Dart](https://img.shields.io/badge/dart-%230175C2.svg?style=for-the-badge&logo=dart&logoColor=white) ![Markdown](https://img.shields.io/badge/markdown-%23000000.svg?style=for-the-badge&logo=markdown&logoColor=white) ![Kotlin](https://img.shields.io/badge/kotlin-%237F52FF.svg?style=for-the-badge&logo=kotlin&logoColor=white) ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white) ![Bash Script](https://img.shields.io/badge/bash_script-%23121011.svg?style=for-the-badge&logo=gnu-bash&logoColor=white) ![Rust](https://img.shields.io/badge/rust-%23000000.svg?style=for-the-badge&logo=rust&logoColor=white) ![DigitalOcean](https://img.shields.io/badge/DigitalOcean-%230167ff.svg?style=for-the-badge&logo=digitalOcean&logoColor=white) ![Express.js](https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB) ![Flutter](https://img.shields.io/badge/Flutter-%2302569B.svg?style=for-the-badge&logo=Flutter&logoColor=white) ![Insomnia](https://img.shields.io/badge/Insomnia-black?style=for-the-badge&logo=insomnia&logoColor=5849BE) ![JWT](https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens) ![NPM](https://img.shields.io/badge/NPM-%23CB3837.svg?style=for-the-badge&logo=npm&logoColor=white) ![Next JS](https://img.shields.io/badge/Next-black?style=for-the-badge&logo=next.js&logoColor=white) ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white) ![RabbitMQ](https://img.shields.io/badge/rabbitmq-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white) ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB) ![Socket.io](https://img.shields.io/badge/Socket.io-black?style=for-the-badge&logo=socket.io&badgeColor=010101) ![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white) ![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white) ![Nginx](https://img.shields.io/badge/nginx-%23009639.svg?style=for-the-badge&logo=nginx&logoColor=white) ![MongoDB](https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white) ![MySQL](https://img.shields.io/badge/mysql-4479A1.svg?style=for-the-badge&logo=mysql&logoColor=white) ![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white) ![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white) ![Blender](https://img.shields.io/badge/blender-%23F5792A.svg?style=for-the-badge&logo=blender&logoColor=white) ![Figma](https://img.shields.io/badge/figma-%23F24E1E.svg?style=for-the-badge&logo=figma&logoColor=white) ![Git](https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white) ![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white) ![Unity](https://img.shields.io/badge/unity-%23000000.svg?style=for-the-badge&logo=unity&logoColor=white) ![Itch.io](https://img.shields.io/badge/Itch-%23FF0B34.svg?style=for-the-badge&logo=Itch.io&logoColor=white) ![Trello](https://img.shields.io/badge/Trello-%23026AA7.svg?style=for-the-badge&logo=Trello&logoColor=white) ![XFCE](https://img.shields.io/badge/XFCE-%232284F2.svg?style=for-the-badge&logo=xfce&logoColor=white) ![Pi-Hole](https://img.shields.io/badge/pihole-%2396060C.svg?style=for-the-badge&logo=pi-hole&logoColor=white) ![Kubernetes](https://img.shields.io/badge/kubernetes-%23326ce5.svg?style=for-the-badge&logo=kubernetes&logoColor=white) ![Jellyfin](https://img.shields.io/badge/jellyfin-%23000B25.svg?style=for-the-badge&logo=Jellyfin&logoColor=00A4DC) ![Jira](https://img.shields.io/badge/jira-%230A0FFF.svg?style=for-the-badge&logo=jira&logoColor=white) ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white) ![Confluence](https://img.shields.io/badge/confluence-%23172BF4.svg?style=for-the-badge&logo=confluence&logoColor=white) ![Bitwarden](https://img.shields.io/badge/bitwarden-%23175DDC.svg?style=for-the-badge&logo=bitwarden&logoColor=white)
-
-## 📊 GitHub Stats
-
-![](https://github-readme-stats.vercel.app/api?username=OminousOne&theme=dark&hide_border=false&include_all_commits=true&count_private=true)<br/>
-![](https://streak-stats.demolab.com/?user=OminousOne&theme=dark&hide_border=false)<br/>
-![](https://github-readme-stats.vercel.app/api/top-langs/?username=OminousOne&theme=dark&hide_border=false&include_all_commits=true&count_private=true&layout=compact)
-
-## 🏆 GitHub Trophies
-
-![](https://github-profile-trophy.vercel.app/?username=OminousOne&theme=radical&no-frame=false&no-bg=false&margin-w=4)
-
-### ✍️ Random Dev Quote
-
-![](https://quotes-github-readme.vercel.app/api?type=horizontal&theme=radical)
-
-### 🔝 Top Contributed Repo
-
-![](https://github-contributor-stats.vercel.app/api?username=OminousOne&limit=5&theme=dark&combine_all_yearly_contributions=true)
+</div>
 
 ---
+
+<table>
+<tr>
+<td width="58%">
+<h2>⚡ System Boot</h2>
+<pre><code>&gt; whoami
+Julien DeWolfe — Software Engineering student @ University of Ottawa
+
+&gt; origin_story
+Spawned at age 9 inside Blender's node-based game engine.
+Unlocked C# through Unity. Shipped games. Entered game jams.
+Now building distributed systems, realtime networking, and web apps.
+
+&gt; current_focus
+Low-latency multiplayer • Kubernetes infrastructure • TypeScript/React • backend systems
+
+&gt; personal_quest
+Turn complicated engineering problems into fast, reliable, delightful software.</code></pre>
+</td>
+<td width="42%">
+<h2>🧭 Coordinates</h2>
+<pre><code>name: Julien DeWolfe
+location: Canada
+role: Software Engineering Student
+mode: Builder
+specialties:
+  - distributed systems
+  - realtime networking
+  - full-stack development
+  - game/server architecture
+status: always learning, always shipping</code></pre>
+</td>
+</tr>
+</table>
+
+---
+
+<div align="center">
+
+<h2>🛠️ Tech Arsenal</h2>
+
+<h3>Languages</h3>
+<img src="https://img.shields.io/badge/C%23-68217A?style=for-the-badge&logo=csharp&logoColor=white" />
+<img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" />
+<img src="https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E" />
+<img src="https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" />
+<img src="https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white" />
+<img src="https://img.shields.io/badge/Rust-000000?style=for-the-badge&logo=rust&logoColor=white" />
+<img src="https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white" />
+<img src="https://img.shields.io/badge/Bash-121011?style=for-the-badge&logo=gnu-bash&logoColor=white" />
+
+<h3>Frontend / Apps</h3>
+<img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" />
+<img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white" />
+<img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" />
+<img src="https://img.shields.io/badge/Tailwind-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" />
+<img src="https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white" />
+<img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" />
+<img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" />
+
+<h3>Backend / Infra</h3>
+<img src="https://img.shields.io/badge/Node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white" />
+<img src="https://img.shields.io/badge/Express-404D59?style=for-the-badge&logo=express&logoColor=61DAFB" />
+<img src="https://img.shields.io/badge/Socket.io-010101?style=for-the-badge&logo=socket.io&logoColor=white" />
+<img src="https://img.shields.io/badge/Docker-0db7ed?style=for-the-badge&logo=docker&logoColor=white" />
+<img src="https://img.shields.io/badge/Kubernetes-326ce5?style=for-the-badge&logo=kubernetes&logoColor=white" />
+<img src="https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white" />
+<img src="https://img.shields.io/badge/RabbitMQ-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white" />
+<img src="https://img.shields.io/badge/DigitalOcean-0167ff?style=for-the-badge&logo=digitalocean&logoColor=white" />
+
+<h3>Data / Tools / Game Dev</h3>
+<img src="https://img.shields.io/badge/Postgres-316192?style=for-the-badge&logo=postgresql&logoColor=white" />
+<img src="https://img.shields.io/badge/MongoDB-4ea94b?style=for-the-badge&logo=mongodb&logoColor=white" />
+<img src="https://img.shields.io/badge/Redis-DD0031?style=for-the-badge&logo=redis&logoColor=white" />
+<img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white" />
+<img src="https://img.shields.io/badge/Git-F05033?style=for-the-badge&logo=git&logoColor=white" />
+<img src="https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white" />
+<img src="https://img.shields.io/badge/Unity-000000?style=for-the-badge&logo=unity&logoColor=white" />
+<img src="https://img.shields.io/badge/Blender-F5792A?style=for-the-badge&logo=blender&logoColor=white" />
+<img src="https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white" />
+
+</div>
+
+---
+
+<h2>🚀 Featured Builds</h2>
+
+<table>
+<tr>
+<td width="50%">
+<h3>🛰️ Distributed Game Server on Kubernetes</h3>
+<p>Scalable realtime game server infrastructure built for microservices, load balancing, and fault tolerance across distributed nodes.</p>
+<p><code>Kubernetes</code> <code>Redis</code> <code>MongoDB</code> <code>CI/CD</code> <code>Realtime Systems</code></p>
+</td>
+<td width="50%">
+<h3>🎮 Server-Authoritative Multiplayer Networking</h3>
+<p>Custom TCP/UDP game server architecture with client prediction, server reconciliation, and entity interpolation for low-latency gameplay.</p>
+<p><code>C#</code> <code>TCP/UDP</code> <code>Networking</code> <code>Game Servers</code> <code>Interpolation</code></p>
+</td>
+</tr>
+<tr>
+<td width="50%">
+<h3>🍽️ Restaurant Delivery Management Web App</h3>
+<p>Full-stack prototype with authentication, order/menu APIs, and component-driven UI architecture.</p>
+<p><code>Next.js</code> <code>React</code> <code>TypeScript</code> <code>JWT</code> <code>REST APIs</code></p>
+</td>
+<td width="50%">
+<h3>📚 uOttawa Scheduler</h3>
+<p>A fast scheduling tool that helps University of Ottawa students build course schedules without the spreadsheet pain.</p>
+<a href="https://uschedule.ca/"><img src="https://img.shields.io/badge/Open-uschedule.ca-00D4FF?style=for-the-badge&logo=rocket&logoColor=white&labelColor=0F172A" /></a>
+<p><code>Student Tools</code> <code>Scheduling</code> <code>UX</code> <code>Web App</code></p>
+</td>
+</tr>
+</table>
+
+---
+
+<div align="center">
+
+<h2>📊 GitHub Telemetry</h2>
+
+<img width="98%" src="https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=OminousOne&theme=tokyonight" />
+
+<img width="32%" src="https://github-profile-summary-cards.vercel.app/api/cards/repos-per-language?username=OminousOne&theme=tokyonight" />
+<img width="32%" src="https://github-profile-summary-cards.vercel.app/api/cards/most-commit-language?username=OminousOne&theme=tokyonight" />
+<img width="32%" src="https://github-profile-summary-cards.vercel.app/api/cards/stats?username=OminousOne&theme=tokyonight" />
+
+<img width="49%" src="https://github-readme-streak-stats.herokuapp.com?user=OminousOne&theme=tokyonight&hide_border=true" />
+<img width="49%" src="https://github-profile-summary-cards.vercel.app/api/cards/productive-time?username=OminousOne&theme=tokyonight&utcOffset=-5" />
+
+<img width="98%" src="https://github-readme-activity-graph.vercel.app/graph?username=OminousOne&bg_color=0D1117&color=7DF9FF&line=BB86FC&point=FFFFFF&area=true&hide_border=true" />
+
+</div>
+
+---
+
+<div align="center">
+
+<h2>🏆 Achievement Wall</h2>
+
+<img src="https://img.shields.io/badge/BOSS%20CLASS-Systems%20Builder-7F00FF?style=for-the-badge&labelColor=0D1117" />
+<img src="https://img.shields.io/badge/SPECIALTY-Realtime%20Networking-00D4FF?style=for-the-badge&labelColor=0D1117" />
+<img src="https://img.shields.io/badge/LOADOUT-Kubernetes%20%2B%20TypeScript%20%2B%20C%23-BB86FC?style=for-the-badge&labelColor=0D1117" />
+
+</div>
+
+---
+
+<h2>🧪 Engineering DNA</h2>
+
+<table>
+<tr>
+<td align="center" width="25%">
+<h3>⚙️ Systems</h3>
+<p>Designing services that scale, recover, and stay observable.</p>
+</td>
+<td align="center" width="25%">
+<h3>⚡ Realtime</h3>
+<p>Low-latency networking, prediction, reconciliation, and smooth gameplay.</p>
+</td>
+<td align="center" width="25%">
+<h3>🎨 Product</h3>
+<p>Building interfaces that are fast, clear, and actually fun to use.</p>
+</td>
+<td align="center" width="25%">
+<h3>📚 Sharing</h3>
+<p>Learning in public and helping other developers level up.</p>
+</td>
+</tr>
+</table>
+
+---
+
+<div align="center">
+
+<h2>🔮 Current Quest Log</h2>
+
+</div>
+
+- 🕹️ Build stronger foundations for multiplayer and realtime systems
+- ☸️ Deepen Kubernetes, deployment, and distributed architecture skills
+- 🧰 Ship full-stack tools that solve real student/developer problems
+- 🎥 Keep turning lessons learned into useful developer content
+
+---
+
+<div align="center">
+
+<h3>💬 Random Dev Wisdom</h3>
+
+<img src="https://quotes-github-readme.vercel.app/api?type=horizontal&theme=tokyonight" />
+
+<br />
+<br />
+
+<pre><code>Thanks for visiting. If you're building something ambitious, weird, fast, or multiplayer — we should talk.</code></pre>
+
+<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&height=120&section=footer&color=0:7F00FF,55:2C5364,100:0F2027" />
+
+</div>
