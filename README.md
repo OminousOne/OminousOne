@@ -18,7 +18,7 @@ I'm **Julien DeWolfe**, a Software Engineering student at the University of Otta
 
 I like building things where there is a real engine underneath the UI: multiplayer servers, scheduling tools, distributed infrastructure, realtime systems, and developer-facing products that feel polished instead of duct-taped together. Right now that means working as a software engineer at [Gadget](https://gadget.dev) while finishing my degree.
 
-<img src="./assets/story.svg" width="100%" alt="Timeline: blender games, minecraft plugins, unity and c sharp, uOttawa, gadget, reciped." />
+<img src="./assets/story.svg" width="100%" alt="Timeline from age nine to now: blender games, then unity and c sharp, minecraft plugins overlapping them, then uOttawa with gadget running alongside it into the present." />
 
 ## Projects
 

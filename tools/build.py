@@ -641,28 +641,47 @@ def card_earlier(shift=None):
 
 
 def build_story(shift=None):
-    W, H = 830, 64
-    stops = ["blender games", "minecraft plugins", "unity + c#", "uottawa", "gadget", "reciped"]
+    W, H = 830, 100
+    x0, x1 = 24, 806
+    span = x1 - x0
+    # (label, start, end, lane) as fractions of the whole stretch; overlapping
+    # spans share the page the way they shared the years
+    eras = [
+        ("blender games", 0.00, 0.17, 0),
+        ("unity + c#", 0.13, 0.44, 1),
+        ("minecraft plugins", 0.28, 0.68, 0),
+        ("uottawa", 0.62, 1.00, 1),
+        ("gadget", 0.78, 1.00, 0),
+    ]
     css, out = [], [frame(W, H, rx=8)]
-    n = len(stops)
-    xs = [40 + i * (W - 80) / (n - 1) for i in range(n)]
-    out.append(f'<line x1="{f(xs[0])}" y1="28" x2="{f(xs[-1])}" y2="28" stroke="{LINE}"/>')
-    css.append("@keyframes stline{0%{transform:scaleX(0)}82%,100%{transform:scaleX(1)}}")
-    out.append(
-        f'<line x1="{f(xs[0])}" y1="28" x2="{f(xs[-1])}" y2="28" stroke="{AMBER}" stroke-opacity="0.5" '
-        f'style="animation:stline 9s linear infinite;transform-origin:{f(xs[0])}px 0"/>'
-    )
-    css.append("@keyframes stpulse{0%,100%{opacity:.35}50%{opacity:1}}")
-    for i, (sx, lbl) in enumerate(zip(xs, stops)):
+    css.append("@keyframes erabar{from{transform:scaleX(0)}to{transform:scaleX(1)}}")
+    css.append("@keyframes eralbl{from{opacity:0}to{opacity:1}}")
+    css.append("@keyframes nowpulse{0%,100%{opacity:1}50%{opacity:.25}}")
+
+    out.append(f'<line x1="{x0}" y1="74" x2="{x1}" y2="74" stroke="{LINE}"/>')
+    out.append(f'<line x1="{x1}" y1="10" x2="{x1}" y2="74" stroke="#2A333C" stroke-dasharray="2 4"/>')
+
+    for label, s, e, lane in eras:
+        bx, bw = x0 + s * span, (e - s) * span
+        by = 12 + lane * 28
+        delay = 0.15 + s * 1.1
         out.append(
-            f'<circle cx="{f(sx)}" cy="28" r="3.2" fill="{AMBER}" '
-            f'style="animation:stpulse 9s ease-in-out infinite;animation-delay:{f(i * 1.5)}s;opacity:.35"/>'
+            f'<rect x="{f(bx)}" y="{by}" width="{f(bw)}" height="20" rx="4" fill="{AMBER}" fill-opacity="0.14" '
+            f'stroke="{AMBER}" stroke-opacity="0.55" '
+            f'style="animation:erabar .7s cubic-bezier(.3,.6,.3,1) both;animation-delay:{f(delay)}s;'
+            f'transform-origin:{f(bx)}px 0"/>'
         )
-        anchor = "start" if i == 0 else "end" if i == n - 1 else "middle"
-        ax = sx if anchor != "start" else sx - 16
-        ax = ax if anchor != "end" else sx + 16
-        out.append(f'<text x="{f(ax)}" y="50" font-size="10.5" fill="{SLATE}" text-anchor="{anchor}">{lbl}</text>')
-    return shell(W, H, css, "".join(out), "Timeline: blender games, minecraft plugins, unity and c sharp, uOttawa, gadget, reciped", shift)
+        out.append(
+            f'<text x="{f(bx + 9)}" y="{by + 14}" font-size="10.5" fill="{AMBER}" '
+            f'style="animation:eralbl .4s both;animation-delay:{f(delay + 0.35)}s">{label}</text>'
+        )
+
+    out.append(f'<text x="{x0}" y="92" font-size="10" fill="{SLATE2}">age 9</text>')
+    out.append(f'<circle cx="{x1 - 34}" cy="88.5" r="3" fill="{AMBER}" style="animation:nowpulse 2s ease-in-out infinite"/>')
+    out.append(f'<text x="{x1}" y="92" font-size="10" fill="{SLATE}" text-anchor="end">now</text>')
+    label = ("Timeline from age nine to now: blender games, then unity and c sharp, minecraft plugins "
+             "overlapping them, then uOttawa with gadget running alongside it into the present.")
+    return shell(W, H, css, "".join(out), label, shift)
 
 
 # ------------------------------------------------------------- main
