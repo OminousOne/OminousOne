@@ -6,10 +6,13 @@ No JavaScript, no GIFs: each graphic is a single SVG whose animation is baked
 into CSS keyframes, which GitHub preserves inside <img>-embedded SVGs.
 
 Outputs:
-  assets/hero.svg          mission-control board, one animated module per project
+  assets/hero-header.svg   pixel wordmark strip
+  assets/mod-*.svg         one animated hero module per project
   assets/banner-*.svg      one slim animated banner per project section
-  assets/stats.svg         contribution heatmap + language mix from real data
-                           (refresh tools/github-data.json to update the numbers)
+  assets/story.svg         the timeline above the story section
+
+The stat cards are NOT built here: they are rendered live from the GitHub API
+by the Vercel functions in api/ (see api/_render.py).
 
 Usage:  python3 tools/build.py [--shift SECONDS]
         --shift is a dev flag: it fast-forwards every animation so a headless
@@ -454,20 +457,6 @@ def build_hero_header(shift=None):
     return shell(W, H, css, "".join(out), "Julien DeWolfe, software engineer at gadget.dev, software engineering student at uOttawa", shift)
 
 
-def build_hero_footer(gh, shift=None):
-    W, H = 900, 44
-    css, out = [], [frame(W, H, rx=10)]
-    total = f"{gh['total_contributions_past_year']:,}"
-    out.append(
-        f'<text x="24" y="27" font-size="11.5" fill="{SLATE}">past year on github: '
-        f'<tspan fill="{AMBER}">{total}</tspan> contributions · busiest day: <tspan fill="{AMBER}">{gh["busiest_day"]}</tspan></text>'
-    )
-    css.append("@keyframes hpulse{0%,100%{opacity:1}50%{opacity:.25}}")
-    out.append(f'<circle cx="745" cy="23" r="3" fill="{AMBER}" style="animation:hpulse 2s ease-in-out infinite"/>')
-    out.append(f'<text x="{W - 24}" y="27" font-size="11.5" fill="{SLATE}" text-anchor="end">selected projects</text>')
-    return shell(W, H, css, "".join(out), f"Past year on GitHub: {total} contributions, busiest day {gh['busiest_day']}", shift)
-
-
 HERO_MODULES = [
     ("mod-reciped", mod_reciped, "Reciped: three build progress bars filling. Links to the Reciped section below."),
     ("mod-uschedule", mod_uschedule, "uschedule.ca: a timetable assembling itself. Links to uschedule.ca."),
@@ -596,241 +585,6 @@ def banner_earlier(shift=None):
                         "Earlier work banner with pixel blocks stacking up", shift)
 
 
-# ------------------------------------------------------------- stats
-
-def build_stats(gh, shift=None):
-    W, H = 830, 172
-    css, out = [], [frame(W, H, rx=10)]
-    weeks = gh["weeks"]
-    nz = sorted(c for w in weeks for c in w if c > 0)
-
-    def level(c):
-        if c == 0:
-            return None
-        idx = min(3, int(4 * nz.index(c) / len(nz)))
-        return (0.25, 0.45, 0.7, 1.0)[idx]
-
-    step, cell = 14.75, 11.5
-    gx, gy = 24, 22
-    css.append("@keyframes cellin{from{opacity:0}to{opacity:1}}")
-    for wi, week in enumerate(weeks):
-        col = []
-        for di, c in enumerate(week):
-            a = level(c)
-            if a is None:
-                col.append(f'<rect x="{f(gx + wi * step)}" y="{f(gy + di * step)}" width="{cell}" height="{cell}" rx="2" fill="#151B22"/>')
-            else:
-                col.append(f'<rect x="{f(gx + wi * step)}" y="{f(gy + di * step)}" width="{cell}" height="{cell}" rx="2" fill="{AMBER}" opacity="{f(a)}"/>')
-        out.append(f'<g style="animation:cellin .5s both;animation-delay:{f(wi * 0.022)}s">' + "".join(col) + "</g>")
-
-    ty = gy + 7 * step + 26
-    total = f"{gh['total_contributions_past_year']:,}"
-    out.append(f'<text x="24" y="{f(ty)}" font-size="12" fill="{SLATE}"><tspan fill="{AMBER}" font-size="15">{total}</tspan> contributions in the past year</text>')
-    out.append(f'<text x="{W - 24}" y="{f(ty)}" font-size="12" fill="{SLATE}" text-anchor="end">busiest day: <tspan fill="{AMBER}" font-size="15">{gh["busiest_day"]}</tspan></text>')
-
-    label = (f"GitHub activity: {total} contributions in the past year shown as a heatmap, "
-             f"busiest day {gh['busiest_day']}.")
-    return shell(W, H, css, "".join(out), label, shift)
-
-
-# ------------------------------------------------------------- fun cards
-
-SW, SH = 268, 170  # stat cards match the hero modules
-
-
-def build_stat_clock(gh, shift=None):
-    hours = gh["commit_hours"]
-    total = gh["commit_hours_total"]
-    peak = hours.index(max(hours))
-    evening = round(sum(v for h, v in enumerate(hours) if h >= 18 or h < 4) / total * 100)
-    css, out = [], [module_box(0, 0, SW, SH, "COMMIT CLOCK", "BY HOUR")]
-
-    cx, cy, r0 = 70, 96, 20
-    vmax = max(hours)
-    css.append("@keyframes cbar{from{transform:scaleY(0)}to{transform:scaleY(1)}}")
-    out.append(f'<circle cx="{cx}" cy="{cy}" r="{r0 - 4}" fill="none" stroke="{LINE}"/>')
-    for h, v in enumerate(hours):
-        ln = 3 + 22 * v / vmax
-        a = 0.28 + 0.72 * v / vmax
-        w_ = 3.2 if h == peak else 2.2
-        out.append(
-            f'<g transform="translate({cx},{cy}) rotate({h * 15})">'
-            f'<line x1="0" y1="{-r0}" x2="0" y2="{f(-r0 - ln)}" stroke="{AMBER}" stroke-opacity="{f(a)}" '
-            f'stroke-width="{w_}" style="animation:cbar .6s cubic-bezier(.3,.6,.3,1) both;'
-            f'animation-delay:{f(0.04 * h)}s;transform-origin:0px {-r0}px"/></g>'
-        )
-    out.append(f'<text x="{cx}" y="{cy - 49}" font-size="7" fill="{SLATE2}" text-anchor="middle">00</text>')
-    out.append(f'<text x="{cx}" y="{cy + 55}" font-size="7" fill="{SLATE2}" text-anchor="middle">12</text>')
-
-    # quietest stretch: the longest circular run of hours under 10% of peak
-    lo = [v < 0.1 * vmax for v in hours]
-    best_len = best_start = 0
-    for start in range(24):
-        ln = 0
-        while ln < 24 and lo[(start + ln) % 24]:
-            ln += 1
-        if ln > best_len:
-            best_len, best_start = ln, start
-    q0, q1 = best_start, (best_start + best_len) % 24
-    hr = lambda h: f"{h % 12 if h % 12 else 12}"
-    quiet = f"{hr(q0)} to {hr(q1)} {'am' if q1 < 12 else 'pm'}"
-
-    fx = 134
-    ampm = lambda h: f"{h % 12 if h % 12 else 12} {'am' if h < 12 else 'pm'}"
-    out.append(f'<text x="{fx}" y="66" font-size="11" fill="{SLATE}">peak: <tspan fill="{AMBER}" font-size="14">{ampm(peak)}</tspan></text>')
-    out.append(f'<text x="{fx}" y="94" font-size="11" fill="{SLATE}"><tspan fill="{AMBER}" font-size="14">{evening}%</tspan> after 6 pm</text>')
-    out.append(f'<text x="{fx}" y="122" font-size="11" fill="{SLATE}">quiet: <tspan fill="{AMBER}">{quiet}</tspan></text>')
-    out.append(f'<text x="12" y="{SH - 12}" font-size="10" fill="{SLATE2}">{total:,} commits, by hour of day</text>')
-    label = f"Commit clock: a 24 hour dial of {total:,} commits. Peak hour {ampm(peak)}, {evening} percent after 6 pm."
-    return shell(SW, SH, css, "".join(out), label, shift)
-
-
-def odometer(x, y, value, size, dur, prefix, css):
-    """digits roll up to their final value once, odometer style."""
-    out, dx = [], 0
-    ch_w = size * 0.62
-    for ci, ch in enumerate(str(value)):
-        d = int(ch)
-        p = f"{prefix}{ci}"
-        if d > 0:
-            css.append(f"@keyframes {p}{{from{{transform:translateY(0)}}to{{transform:translateY({f(-d * size * 1.15)}px)}}}}")
-            anim = f"animation:{p} {f(dur)}s steps({d}) both;animation-delay:{f(0.15 * ci + 0.1)}s"
-        else:
-            anim = ""
-        strip = "".join(
-            f'<text x="{f(x + dx)}" y="{f(y + k * size * 1.15)}" font-size="{size}" fill="{AMBER}">{k}</text>'
-            for k in range(d + 1)
-        )
-        out.append(
-            f'<clipPath id="{p}c"><rect x="{f(x + dx - 1)}" y="{f(y - size + 2)}" width="{f(ch_w + 2)}" height="{f(size + 4)}"/></clipPath>'
-            f'<g clip-path="url(#{p}c)"><g style="{anim}">{strip}</g></g>'
-        )
-        dx += ch_w
-    return "".join(out)
-
-
-def build_stat_streaks(gh, shift=None):
-    s = gh["streaks"]
-    css, out = [], [module_box(0, 0, SW, SH, "STREAKS", "PAST YEAR")]
-    out.append(f'<text x="16" y="52" font-size="11" fill="{SLATE}">longest streak</text>')
-    out.append(odometer(16, 90, s["longest"], 30, 0.9, "odl_", css))
-    out.append(f'<text x="{16 + len(str(s["longest"])) * 19 + 8}" y="90" font-size="11" fill="{SLATE2}">days in a row</text>')
-    out.append(f'<text x="16" y="124" font-size="11" fill="{SLATE}">active days</text>')
-    out.append(odometer(102, 124, s["active_days"], 16, 0.7, "oda_", css))
-    out.append(f'<text x="{102 + len(str(s["active_days"])) * 10 + 8}" y="124" font-size="11" fill="{SLATE2}">of {s["window_days"]}</text>')
-    out.append(f'<text x="12" y="{SH - 12}" font-size="10" fill="{SLATE2}">from the contribution calendar</text>')
-    label = f"Streaks: longest streak {s['longest']} days, {s['active_days']} active days of {s['window_days']}."
-    return shell(SW, SH, css, "".join(out), label, shift)
-
-
-def build_stat_weekdays(gh, shift=None):
-    vals = gh["commit_days_mon_sun"]
-    total = sum(vals)
-    weekend = round((vals[5] + vals[6]) / total * 100)
-    vmax = max(vals)
-    peak_i = vals.index(vmax)
-    css, out = [], [module_box(0, 0, SW, SH, "WEEKDAYS", "COMMITS")]
-    css.append("@keyframes wbar{from{transform:scaleY(0)}to{transform:scaleY(1)}}")
-    bx, base, bw = 26, 122, 22
-    for i, v in enumerate(vals):
-        h_ = 8 + 66 * v / vmax
-        a = 1.0 if i == peak_i else 0.45 + 0.3 * v / vmax
-        out.append(
-            f'<rect x="{bx + i * 31}" y="{f(base - h_)}" width="{bw}" height="{f(h_)}" rx="2" fill="{AMBER}" '
-            f'opacity="{f(a)}" style="animation:wbar .55s cubic-bezier(.3,.6,.3,1) both;'
-            f'animation-delay:{f(0.06 * i)}s;transform-origin:0px {base}px"/>'
-        )
-        out.append(f'<text x="{bx + i * 31 + bw / 2}" y="136" font-size="8" fill="{SLATE2}" text-anchor="middle">{"mtwtfss"[i]}</text>')
-    daynames = ["mondays", "tuesdays", "wednesdays", "thursdays", "fridays", "saturdays", "sundays"]
-    out.append(f'<text x="12" y="{SH - 12}" font-size="10" fill="{SLATE2}">{daynames[peak_i]} lead · weekends get {weekend}%</text>')
-    label = f"Commits by weekday: {daynames[peak_i]} lead, weekends get {weekend} percent."
-    return shell(SW, SH, css, "".join(out), label, shift)
-
-
-def build_stat_langs(gh, shift=None):
-    import math as _m
-    langs = gh["languages_active_projects"]
-    css, out = [], [module_box(0, 0, SW, SH, "LANGUAGES", "ACTIVE REPOS")]
-    cx, cy, r = 64, 96, 34
-    circ = 2 * _m.pi * r
-    ops = {"TypeScript": 1.0, "JavaScript": 0.45, "Dart": 0.3, "GraphQL": 0.2, "other": None}
-    css.append("@keyframes din{from{opacity:0;transform:rotate(-40deg)}to{opacity:1;transform:rotate(0deg)}}")
-    segs = []
-    acc = 0.0
-    for name, pct_ in langs.items():
-        seg = circ * pct_ / 100
-        color = f'stroke="{AMBER}" stroke-opacity="{ops[name]}"' if ops[name] else 'stroke="#2A333C"'
-        segs.append(
-            f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="none" {color} stroke-width="11" '
-            f'stroke-dasharray="{f(max(seg - 2, 1))} {f(circ - max(seg - 2, 1))}" '
-            f'stroke-dashoffset="{f(-acc)}" transform="rotate(-90 {cx} {cy})"/>'
-        )
-        acc += seg
-    out.append(
-        f'<g style="animation:din .9s cubic-bezier(.3,.6,.3,1) both;transform-origin:{cx}px {cy}px">'
-        + "".join(segs) + "</g>"
-    )
-    top = max(langs, key=lambda k: langs[k] if k != "other" else 0)
-    out.append(f'<text x="{cx}" y="{cy + 4}" font-size="12" fill="{AMBER}" text-anchor="middle">{f(round(langs[top]))}%</text>')
-    ry = 56
-    for name, pct_ in langs.items():
-        if name == "other":
-            continue
-        sw = f'fill="{AMBER}" opacity="{ops[name]}"'
-        out.append(f'<rect x="128" y="{ry - 8}" width="9" height="9" rx="2" {sw}/>')
-        out.append(f'<text x="144" y="{ry}" font-size="10.5" fill="{SLATE}">{name.lower()} <tspan fill="{SLATE2}">{f(round(pct_))}%</tspan></text>')
-        ry += 24
-    out.append(f'<text x="12" y="{SH - 12}" font-size="10" fill="{SLATE2}">by lines of code, repos I work in now</text>')
-    lbl = ", ".join(f"{n} {round(p)} percent" for n, p in langs.items() if n != "other")
-    return shell(SW, SH, css, "".join(out), f"Languages across active repos by lines of code: {lbl}.", shift)
-
-
-def build_stat_commits(gh, shift=None):
-    words = gh["commit_words"]
-    vmax = max(words.values())
-    css, out = [], [module_box(0, 0, SW, SH, "COMMIT MESSAGES", "FIRST WORD")]
-    css.append("@keyframes rbar{from{transform:scaleX(0)}to{transform:scaleX(1)}}")
-    ry = 48
-    for i, (word, v) in enumerate(words.items()):
-        bw = 6 + 104 * v / vmax
-        out.append(f'<text x="14" y="{ry + 4}" font-size="10" fill="{SLATE}">{word}</text>')
-        out.append(
-            f'<rect x="76" y="{ry - 5}" width="{f(bw)}" height="9" rx="2" fill="{AMBER}" opacity="0.85" '
-            f'style="animation:rbar .6s cubic-bezier(.3,.6,.3,1) both;animation-delay:{f(0.09 * i)}s;'
-            f'transform-origin:76px 0"/>'
-        )
-        out.append(f'<text x="{f(80 + bw + 4)}" y="{ry + 4}" font-size="9" fill="{AMBER}" opacity="0.9">{v}</text>')
-        ry += 21
-    out.append(f'<text x="12" y="{SH - 12}" font-size="10" fill="{SLATE2}">{gh["commit_mention_fix_pct"]}% of all {gh["commit_words_total"]:,} mention a fix</text>')
-    top = ", ".join(f"{w} {v}" for w, v in words.items())
-    label = (f"How my commit messages start: {top}. "
-             f"{gh['commit_mention_fix_pct']} percent of all {gh['commit_words_total']:,} mention a fix.")
-    return shell(SW, SH, css, "".join(out), label, shift)
-
-
-def build_stat_numbers(gh, shift=None):
-    s = gh["streaks"]
-    avg = gh["total_contributions_past_year"] / s["active_days"]
-    css, out = [], [module_box(0, 0, SW, SH, "BY THE NUMBERS", "MISC")]
-    css.append("@keyframes numin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}")
-    rows = [
-        (f"{gh['lines_active_projects']:,}", "lines of code in active projects"),
-        (f(round(avg, 1)), "contributions per active day"),
-        (str(gh["busiest_day"]), "contributions on the busiest day"),
-    ]
-    ry = 62
-    for i, (num, lbl) in enumerate(rows):
-        out.append(
-            f'<g style="animation:numin .5s cubic-bezier(.3,.6,.3,1) both;animation-delay:{f(0.15 * i)}s">'
-            f'<text x="16" y="{ry}" font-size="17" fill="{AMBER}">{num}</text>'
-            f'<text x="16" y="{ry + 15}" font-size="9.5" fill="{SLATE2}">{lbl}</text></g>'
-        )
-        ry += 40
-    label = (f"By the numbers: {gh['lines_active_projects']:,} lines of code in active projects, "
-             f"{f(round(avg, 1))} contributions per active day, {gh['busiest_day']} on the busiest day.")
-    return shell(SW, SH, css, "".join(out), label, shift)
-
-
 def build_story(shift=None):
     W, H = 830, 64
     stops = ["blender games", "minecraft plugins", "unity + c#", "uottawa", "gadget", "reciped"]
@@ -865,17 +619,8 @@ def main():
         i = args.index("--shift")
         shift = float(args[i + 1])
 
-    gh = json.load(open(os.path.join(ROOT, "tools", "github-data.json")))
     outputs = {
         "hero-header": build_hero_header(shift),
-        "hero-footer": build_hero_footer(gh, shift),
-        "stats": build_stats(gh, shift),
-        "stat-clock": build_stat_clock(gh, shift),
-        "stat-streaks": build_stat_streaks(gh, shift),
-        "stat-weekdays": build_stat_weekdays(gh, shift),
-        "stat-langs": build_stat_langs(gh, shift),
-        "stat-commits": build_stat_commits(gh, shift),
-        "stat-numbers": build_stat_numbers(gh, shift),
         "story": build_story(shift),
     }
     outputs.update(build_hero_modules(shift))
