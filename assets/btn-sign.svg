@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="212" height="36" viewBox="0 0 212 36" role="img" aria-label="sign the guestbook">
+  <rect x="0.75" y="0.75" width="210.5" height="34.5" rx="4" fill="#0E1116" stroke="#FFB300" stroke-opacity="0.45"/>
+  <path d="M5 9 V5 H9 M203 5 H207 V9 M207 27 V31 H203 M9 31 H5 V27" fill="none" stroke="#FFB300" stroke-opacity="0.7" stroke-width="1.4"/>
+  <text x="106" y="22.5" text-anchor="middle" font-family="ui-monospace,'SF Mono',Menlo,Consolas,monospace" font-size="13" fill="#FFB300">[ sign the guestbook ]</text>
+</svg>

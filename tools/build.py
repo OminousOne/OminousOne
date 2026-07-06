@@ -8,7 +8,7 @@ into CSS keyframes, which GitHub preserves inside <img>-embedded SVGs.
 Outputs:
   assets/hero-header.svg   pixel wordmark strip
   assets/mod-*.svg         one animated hero module per project
-  assets/banner-*.svg      one slim animated banner per project section
+  assets/card-*.svg        project cards for the grid in the Projects section
   assets/story.svg         the timeline above the story section
 
 The stat cards are NOT built here: they are rendered live from the GitHub API
@@ -475,114 +475,169 @@ def build_hero_modules(shift=None):
     return pieces
 
 
-# ------------------------------------------------------------- banners
+# ------------------------------------------------------------- project cards
+# the projects section: one featured card plus six half-width cards in a grid.
+# descriptions are baked into the SVGs; the README wraps site cards in links.
 
-def banner_shell(name, title, status, motif, motif_css, label, shift=None):
-    W, H = 830, 64
+def project_card(name, w, h, title, status, desc, motif, motif_css, caption, label, shift=None):
     css = list(motif_css)
-    out = [frame(W, H, rx=8)]
-    out.append(f'<text x="18" y="39" font-size="14" letter-spacing="2" fill="{AMBER}">{title}</text>')
-    out.append(f'<text x="{W - 18}" y="39" font-size="10" letter-spacing="1" fill="{SLATE2}" text-anchor="end">{status}</text>')
-    out.append(f'<g transform="translate(-118,0)">{motif}</g>')
-    return name, shell(W, H, css, "".join(out), label, shift)
+    out = [module_box(0, 0, w, h, title, status)]
+    y = 48
+    for ln in desc:
+        out.append(f'<text x="16" y="{y}" font-size="10.5" fill="{SLATE}">{ln}</text>')
+        y += 18
+    out.append(motif)
+    out.append(f'<text x="16" y="{h - 12}" font-size="10" fill="{SLATE2}">{caption}</text>')
+    return name, shell(w, h, css, "".join(out), label, shift)
 
 
-def banner_reciped(shift=None):
+def card_reciped(shift=None):
     css, out = [], []
+    labels = ("api", "web", "mobile")
     for i, to in enumerate((0.86, 0.76, 0.44)):
-        by = 20 + i * 9
-        p = f"brc{i}"
-        out.append(f'<rect x="560" y="{by}" width="150" height="4" rx="1.5" fill="{BARBG}"/>')
-        out.append(f'<rect x="560" y="{by}" width="150" height="4" rx="1.5" fill="{AMBER}" opacity="0.9" class="{p}" style="transform:scaleX({f(to)});transform-origin:560px 0"/>')
+        by = 56 + i * 16
+        p = f"crc{i}"
+        out.append(f'<text x="656" y="{by + 6}" font-size="9.5" fill="{SLATE2}" text-anchor="end">{labels[i]}</text>')
+        out.append(f'<rect x="666" y="{by}" width="124" height="5" rx="2" fill="{BARBG}"/>')
+        out.append(f'<rect x="666" y="{by}" width="124" height="5" rx="2" fill="{AMBER}" opacity="0.9" class="{p}" style="transform:scaleX({f(to)});transform-origin:666px 0"/>')
         css.append(f"@keyframes {p}{{0%,{6 + i * 5}%{{transform:scaleX(0)}}{30 + i * 5}%,88%{{transform:scaleX({f(to)})}}96%,100%{{transform:scaleX(0)}}}}")
         css.append(f".{p}{{animation:{p} 9s cubic-bezier(.3,.6,.3,1) infinite;}}")
-    return banner_shell("banner-reciped", "RECIPED", "IN DEVELOPMENT", "".join(out), css,
-                        "Reciped banner with three build progress bars", shift)
+    desc = [
+        "My current focus: a social recipe app. Import a recipe from any website,",
+        "keep your collection in one place, and share what you cook. One GraphQL API",
+        "serves the Next.js web app and the Flutter app, with a local LLM parsing recipes.",
+    ]
+    return project_card("card-reciped", 830, 150, "RECIPED", "IN DEVELOPMENT", desc,
+                        "".join(out), css, "the repo stays private until launch",
+                        "Reciped, in development: a social recipe app with recipe import, one GraphQL API, "
+                        "a Next.js web app, a Flutter mobile app, and local language model parsing.", shift)
 
 
-def banner_uschedule(shift=None):
+def card_uschedule(shift=None):
     css, out = [], []
     for i in range(8):
-        p = f"bus{i}"
-        bx = 560 + (i % 4) * 40
-        by = 16 + (i // 4) * 18
+        p = f"cus{i}"
+        bx = 230 + (i % 4) * 40
+        by = 106 + (i // 4) * 18
         css.append(f"@keyframes {p}{{0%,{5 + i * 6}%{{opacity:0}}{9 + i * 6}%,86%{{opacity:1}}93%,100%{{opacity:0}}}}")
         css.append(f".{p}{{animation:{p} 10s linear infinite;}}")
         out.append(f'<rect x="{bx}" y="{by}" width="34" height="14" rx="2" fill="{AMBER}" fill-opacity="0.28" stroke="{AMBER}" stroke-opacity="0.8" class="{p}"/>')
-    return banner_shell("banner-uschedule", "USCHEDULE.CA", "LIVE", "".join(out), css,
-                        "uschedule.ca banner with course blocks filling a timetable", shift)
+    desc = [
+        "A timetable builder for uOttawa students. Set your",
+        "preferences, get every conflict-free schedule, ranked.",
+        "Professor ratings and calendar export are built in.",
+    ]
+    return project_card("card-uschedule", 404, 170, "USCHEDULE.CA", "LIVE", desc,
+                        "".join(out), css, "open uschedule.ca ↗",
+                        "uschedule.ca, live: a timetable builder for uOttawa students with preference-based "
+                        "conflict-free schedule generation, professor ratings, and calendar export.", shift)
 
 
-def banner_factory(shift=None):
+def card_factory(shift=None):
     css, out = [], []
-    xs = [566, 630, 694, 758]
+    xs = [154, 218, 282, 346]
     labels = ["plan", "code", "review", "PR"]
     for nx, lb in zip(xs, labels):
-        out.append(f'<rect x="{nx}" y="22" width="44" height="20" rx="3" fill="{SCREEN}" stroke="#2A333C"/>')
-        out.append(f'<text x="{nx + 22}" y="35" font-size="9" fill="{SLATE}" text-anchor="middle">{lb}</text>')
+        out.append(f'<rect x="{nx}" y="114" width="44" height="20" rx="3" fill="{SCREEN}" stroke="#2A333C"/>')
+        out.append(f'<text x="{nx + 22}" y="127" font-size="9" fill="{SLATE}" text-anchor="middle">{lb}</text>')
     for i in range(3):
-        out.append(f'<line x1="{xs[i] + 44}" y1="32" x2="{xs[i + 1]}" y2="32" stroke="#232B33"/>')
+        out.append(f'<line x1="{xs[i] + 44}" y1="124" x2="{xs[i + 1]}" y2="124" stroke="#232B33"/>')
     css.append(
-        f"@keyframes bsf{{0%{{transform:translateX(610px);opacity:0}}6%{{opacity:1}}"
-        f"30%{{transform:translateX(630px)}}45%{{transform:translateX(674px)}}"
-        f"66%{{transform:translateX(694px)}}80%{{transform:translateX(738px)}}"
-        f"92%{{transform:translateX(758px);opacity:1}}100%{{opacity:0}}}}"
+        "@keyframes csf{0%{transform:translateX(198px);opacity:0}6%{opacity:1}"
+        "30%{transform:translateX(218px)}45%{transform:translateX(262px)}"
+        "66%{transform:translateX(282px)}80%{transform:translateX(326px)}"
+        "92%{transform:translateX(346px);opacity:1}100%{opacity:0}}"
     )
-    css.append(".bsf{animation:bsf 4.5s linear infinite;}")
-    out.append(f'<circle cy="32" r="2.4" fill="{AMBER}" class="bsf" opacity="0"/>')
-    return banner_shell("banner-factory", "SOFTWARE FACTORY", "AI DEV PIPELINE", "".join(out), css,
-                        "Software Factory banner with work flowing from plan to code to review to PR", shift)
+    css.append(".csf{animation:csf 4.5s linear infinite;}")
+    out.append(f'<circle cy="124" r="2.4" fill="{AMBER}" class="csf" opacity="0"/>')
+    desc = [
+        "AI agents working as a small dev team. A manager plans",
+        "the work, workers write the code, a reviewer checks it,",
+        "and the results come back to me as pull requests.",
+    ]
+    return project_card("card-factory", 404, 170, "SOFTWARE FACTORY", "AI DEV PIPELINE", desc,
+                        "".join(out), css, "personal tool · private repo",
+                        "Software Factory: AI agents working as a dev team, with a manager, workers, and a "
+                        "reviewer, delivering results as pull requests.", shift)
 
 
-def banner_polybot(shift=None):
+def card_polybot(shift=None):
     css, out = [], []
-    css.append("@keyframes bpb{from{transform:translateX(0)}to{transform:translateX(-230px)}}")
+    css.append("@keyframes cpb{from{transform:translateX(0)}to{transform:translateX(-230px)}}")
     out.append(
-        '<clipPath id="bpbc"><rect x="560" y="14" width="230" height="36"/></clipPath>'
-        f'<g clip-path="url(#bpbc)"><g transform="translate(560,32)">'
-        f'<path d="{spark_path(seed=23, width=230, amp=9)}" fill="none" stroke="{AMBER}" stroke-width="1.2" opacity="0.75" style="animation:bpb 16s linear infinite"/></g></g>'
+        '<clipPath id="cpbc"><rect x="160" y="106" width="230" height="36"/></clipPath>'
+        f'<g clip-path="url(#cpbc)"><g transform="translate(160,124)">'
+        f'<path d="{spark_path(seed=23, width=230, amp=9)}" fill="none" stroke="{AMBER}" stroke-width="1.2" opacity="0.75" style="animation:cpb 16s linear infinite"/></g></g>'
     )
-    return banner_shell("banner-polybot", "POLYBOT", "PAPER TRADING", "".join(out), css,
-                        "Polybot banner with a scrolling market sparkline", shift)
+    desc = [
+        "A lab for testing prediction market strategies on",
+        "Polymarket. Six strategies, each in its own Docker",
+        "container, reporting to one live dashboard.",
+    ]
+    return project_card("card-polybot", 404, 170, "POLYBOT", "PAPER TRADING", desc,
+                        "".join(out), css, "no wallet keys · no real money",
+                        "Polybot: a lab for testing prediction market trading strategies on Polymarket, six "
+                        "strategies in Docker containers with one dashboard, paper trading only.", shift)
 
 
-def banner_navsim(shift=None):
+def card_navsim(shift=None):
     coast = [ring[::2] for ring in _coast() if len(ring) >= 12]
-    body, css = globe(700, 32, 25, 48, 12, "bng", coast, meridian_step=60,
+    body, css = globe(330, 118, 25, 48, 12, "cng", coast, meridian_step=60,
                       coast_width=0.7, routes=ROUTES[:2], dots=False)
-    return banner_shell("banner-navsim", "NAV CANADA SIMULATOR", "AIR TRAFFIC CONTROL", body, css,
-                        "NAV Canada simulator banner with a small rotating 3D globe", shift)
+    desc = [
+        "Air traffic control on a 3D globe: 1,000 real Canadian",
+        "flights, weather overlays, and conflict scenarios to",
+        "resolve before they become close calls.",
+    ]
+    return project_card("card-navsim", 404, 170, "NAV CANADA SIMULATOR", "SIMULATION", desc,
+                        body, css, "try it live ↗",
+                        "NAV Canada simulator: air traffic control on a rotating 3D globe with 1,000 real "
+                        "Canadian flights, weather, and conflict resolution. Click to open the live simulator.", shift)
 
 
-def banner_netcode(shift=None):
+def card_netcode(shift=None):
     css, out = [], []
-    out.append(f'<rect x="560" y="14" width="230" height="36" fill="{SCREEN}" stroke="{LINE}"/>')
-    out.append(f'<line x1="675" y1="18" x2="675" y2="46" stroke="{LINE}" stroke-dasharray="2 4"/>')
+    out.append(f'<rect x="160" y="102" width="230" height="42" fill="{SCREEN}" stroke="{LINE}"/>')
+    out.append(f'<line x1="275" y1="106" x2="275" y2="140" stroke="{LINE}" stroke-dasharray="2 4"/>')
     css.append(
-        "@keyframes bnc{0%{transform:translate(572px,40px)}25%{transform:translate(640px,20px)}"
-        "50%{transform:translate(778px,34px)}75%{transform:translate(690px,46px)}100%{transform:translate(572px,40px)}}"
+        "@keyframes cnc{0%{transform:translate(172px,132px)}25%{transform:translate(240px,108px)}"
+        "50%{transform:translate(378px,126px)}75%{transform:translate(290px,140px)}100%{transform:translate(172px,132px)}}"
     )
-    css.append(".bnc{animation:bnc 4.6s linear infinite;}")
-    out.append(f'<rect x="-2" y="-2" width="4" height="4" fill="{AMBER}" class="bnc" style="transform:translate(572px,40px)"/>')
-    css.append("@keyframes bncl{0%,100%{transform:translateY(38px)}40%{transform:translateY(24px)}}")
-    css.append("@keyframes bncr{0%,100%{transform:translateY(30px)}50%{transform:translateY(36px)}}")
-    out.append(f'<rect x="566" y="-7" width="3" height="14" fill="{AMBER}" style="animation:bncl 4.6s ease-in-out infinite;transform:translateY(38px)"/>')
-    out.append(f'<rect x="783" y="-7" width="3" height="14" fill="{AMBER}" style="animation:bncr 4.6s ease-in-out infinite;transform:translateY(30px)"/>')
-    return banner_shell("banner-netcode", "MULTIPLAYER NETCODE", "C# · KUBERNETES", "".join(out), css,
-                        "Multiplayer netcode banner with a miniature pong rally", shift)
+    css.append(".cnc{animation:cnc 4.6s linear infinite;}")
+    out.append(f'<rect x="-2" y="-2" width="4" height="4" fill="{AMBER}" class="cnc" style="transform:translate(172px,132px)"/>')
+    css.append("@keyframes cncl{0%,100%{transform:translateY(128px)}40%{transform:translateY(112px)}}")
+    css.append("@keyframes cncr{0%,100%{transform:translateY(120px)}50%{transform:translateY(128px)}}")
+    out.append(f'<rect x="166" y="-7" width="3" height="14" fill="{AMBER}" style="animation:cncl 4.6s ease-in-out infinite;transform:translateY(128px)"/>')
+    out.append(f'<rect x="383" y="-7" width="3" height="14" fill="{AMBER}" style="animation:cncr 4.6s ease-in-out infinite;transform:translateY(120px)"/>')
+    desc = [
+        "Multiplayer networking from scratch in C#: prediction,",
+        "reconciliation, and interpolation, so games feel instant",
+        "while the server stays in charge of the truth.",
+    ]
+    return project_card("card-netcode", 404, 170, "MULTIPLAYER NETCODE", "C# · KUBERNETES", desc,
+                        "".join(out), css, "plus game servers that survive crashes",
+                        "Multiplayer netcode: client prediction, server reconciliation, and interpolation in "
+                        "C#, plus Kubernetes game servers built to survive crashes.", shift)
 
 
-def banner_earlier(shift=None):
+def card_earlier(shift=None):
     css, out = [], []
     cells = [(0, 2), (1, 2), (2, 2), (3, 2), (4, 2), (5, 2), (1, 1), (2, 1), (4, 1), (2, 0)]
     for i, (c, r) in enumerate(cells):
-        p = f"bev{i}"
+        p = f"cev{i}"
         css.append(f"@keyframes {p}{{0%,{4 + i * 5}%{{opacity:0}}{8 + i * 5}%,88%{{opacity:1}}94%,100%{{opacity:0}}}}")
         css.append(f".{p}{{animation:{p} 12s linear infinite;}}")
         op = 0.9 if r == 2 else 0.65 if r == 1 else 0.45
-        out.append(f'<rect x="{620 + c * 15}" y="{18 + (2 - r) * 11}" width="13" height="9" fill="{AMBER}" opacity="{op}" class="{p}"/>')
-    return banner_shell("banner-earlier", "EARLIER WORK", "2018 TO 2024", "".join(out), css,
-                        "Earlier work banner with pixel blocks stacking up", shift)
+        out.append(f'<rect x="{250 + c * 15}" y="{104 + (2 - r) * 11}" width="13" height="9" fill="{AMBER}" opacity="{op}" class="{p}"/>')
+    desc = [
+        "Years of Minecraft server plugins in Java and Kotlin,",
+        "including Conway's Game of Life running inside the",
+        "game itself, and Tailor, a tool for flashing OSes.",
+    ]
+    return project_card("card-earlier", 404, 170, "EARLIER WORK", "2018 TO 2024", desc,
+                        "".join(out), css, "where I learned to program · repos ↗",
+                        "Earlier work, 2018 to 2024: Minecraft server plugins in Java and Kotlin including "
+                        "Conway's Game of Life inside Minecraft, and Tailor, an OS flashing tool. Click for my repos.", shift)
 
 
 def build_story(shift=None):
@@ -624,8 +679,8 @@ def main():
         "story": build_story(shift),
     }
     outputs.update(build_hero_modules(shift))
-    for fn in (banner_reciped, banner_uschedule, banner_factory, banner_polybot,
-               banner_navsim, banner_netcode, banner_earlier):
+    for fn in (card_reciped, card_uschedule, card_factory, card_polybot,
+               card_navsim, card_netcode, card_earlier):
         name, svg = fn(shift)
         outputs[name] = svg
 

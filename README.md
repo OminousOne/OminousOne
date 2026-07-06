@@ -18,37 +18,17 @@ I'm Julien DeWolfe. I study software engineering at the University of Ottawa and
 
 ## Projects
 
+<div align="center">
+
 <a name="reciped"></a>
-<img src="./assets/banner-reciped.svg" width="100%" alt="Reciped, in development" />
+<img src="./assets/card-reciped.svg" width="100%" alt="Reciped, in development. My current focus: a social recipe app. Import a recipe from any website, keep your collection in one place, and share what you cook. One GraphQL API serves a Next.js web app and a Flutter mobile app, with recipe parsing handled by a local language model." />
+<a href="https://uschedule.ca/" title="open uschedule.ca"><img src="./assets/card-uschedule.svg" width="49.4%" alt="uschedule.ca, live: a timetable builder for uOttawa students. Set preferences, get every conflict-free schedule ranked, with professor ratings and calendar export. Click to open." /></a> <a name="software-factory"></a><img src="./assets/card-factory.svg" width="49.4%" alt="Software Factory: AI agents working as a small dev team. A manager plans, workers write the code, a reviewer checks it, and results come back as pull requests." />
+<a name="polybot"></a><img src="./assets/card-polybot.svg" width="49.4%" alt="Polybot: a lab for testing prediction market strategies on Polymarket. Six strategies in their own Docker containers, one live dashboard, paper trading only." /> <a href="https://nav-canada-simulator.vercel.app" title="open the NAV Canada simulator"><img src="./assets/card-navsim.svg" width="49.4%" alt="NAV Canada simulator: air traffic control on a rotating 3D globe with 1,000 real Canadian flights, weather overlays, and conflict scenarios. Click to try it live." /></a>
+<a name="netcode"></a><img src="./assets/card-netcode.svg" width="49.4%" alt="Multiplayer netcode: networking from scratch in C# with client prediction, server reconciliation, and interpolation, plus Kubernetes game servers that survive crashes." /> <a href="https://github.com/OminousOne?tab=repositories" title="my repositories"><img src="./assets/card-earlier.svg" width="49.4%" alt="Earlier work, 2018 to 2024: years of Minecraft server plugins in Java and Kotlin, including Conway's Game of Life inside Minecraft, and Tailor, an OS flashing tool. Click for my repos." /></a>
 
-My current focus. A social recipe app: import a recipe from any website, keep your collection in one place, and share what you cook. One GraphQL API serves a Next.js web app and a Flutter mobile app, with recipe parsing handled by a local language model. The repo stays private until launch.
+</div>
 
-<img src="./assets/banner-uschedule.svg" width="100%" alt="uschedule.ca, live" />
-
-A timetable builder for uOttawa students, live at [uschedule.ca](https://uschedule.ca/). Pick your courses, set preferences like no morning classes or Fridays off, and it generates every conflict-free schedule and ranks them. Professor ratings and calendar export are built in.
-
-<a name="software-factory"></a>
-<img src="./assets/banner-factory.svg" width="100%" alt="Software Factory, an AI dev pipeline" />
-
-A personal tool that turns AI agents into a small dev team. I describe work in a browser terminal, a manager agent splits it into tasks, worker agents write the code, a reviewer agent checks it, and the results come back to me as pull requests.
-
-<a name="polybot"></a>
-<img src="./assets/banner-polybot.svg" width="100%" alt="Polybot, paper trading" />
-
-A lab for testing prediction market trading strategies on Polymarket. Six strategies run side by side, each in its own Docker container, all reporting to one live dashboard. Paper trading only: no wallet keys, no real orders, no real money.
-
-<img src="./assets/banner-navsim.svg" width="100%" alt="NAV Canada simulator, air traffic control, with a small rotating 3D globe" />
-
-An air traffic control simulator: 1,000 real Canadian flights moving across a 3D globe, with weather overlays and conflict scenarios you have to resolve before they become close calls. [Try it here](https://nav-canada-simulator.vercel.app).
-
-<a name="netcode"></a>
-<img src="./assets/banner-netcode.svg" width="100%" alt="Multiplayer netcode, C# and Kubernetes" />
-
-Multiplayer networking written from scratch in C#: client prediction, server reconciliation, and interpolation, so the game feels instant while the server stays in charge of the truth. Alongside it, a Kubernetes lab for running game servers that survive crashes and restarts.
-
-<img src="./assets/banner-earlier.svg" width="100%" alt="Earlier work, 2018 to 2024" />
-
-Years of Minecraft server plugins in Java and Kotlin, including [Conway's Game of Life running inside Minecraft](https://github.com/OminousOne/NotchsGameOfLife), and [Tailor](https://github.com/OminousOne/Tailor), a tool for flashing operating systems to USB drives. This is where I learned to program.
+Live: [uschedule.ca](https://uschedule.ca/) · [NAV Canada simulator](https://nav-canada-simulator.vercel.app). From the Minecraft years: [Game of Life inside Minecraft](https://github.com/OminousOne/NotchsGameOfLife) · [Tailor](https://github.com/OminousOne/Tailor).
 
 ## A year on GitHub
 
@@ -71,8 +51,22 @@ For a few years most of my code ran on Minecraft servers. Writing plugins in Jav
 
 Today I study software engineering at the University of Ottawa and build the platform at Gadget that other developers ship their apps on. The throughline has not changed since I was nine: I like building systems with real users and real constraints, where making something feel effortless takes actual engineering.
 
+## Guestbook
+
+<img src="https://readme-ominousones-projects.vercel.app/live/guestbook.svg" width="100%" alt="Guestbook signed by visitors through GitHub issues, showing the most recent signatures." />
+
+<div align="center">
+
+<a href="https://github.com/OminousOne/OminousOne/issues/new?title=guestbook%3A+your+message+here&body=Put+your+message+after+%22guestbook%3A%22+in+the+title+above%2C+up+to+60+characters%2C+plain+text%2C+no+links.+Then+submit%3A+the+page+updates+within+a+few+minutes." title="sign the guestbook"><img src="./assets/btn-sign.svg" height="36" alt="sign the guestbook" /></a>
+
+</div>
+
 <br/>
 
 <div align="center">
-<sub>every graphic on this page is a hand-built SVG, generated by <a href="./tools/build.py">tools/build.py</a> · refresh to replay</sub>
+
+<img src="https://readme-ominousones-projects.vercel.app/live/visitors.svg" width="100%" alt="Live visitor counter. Loading the page increments it." />
+
+<sub>every graphic on this page is a hand-built SVG, generated by <a href="./tools/build.py">tools/build.py</a> or rendered live by <a href="./api/_render.py">api/_render.py</a> · refresh to replay</sub>
+
 </div>

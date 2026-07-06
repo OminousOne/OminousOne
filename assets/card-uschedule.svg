@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="404" height="170" viewBox="0 0 404 170" role="img" aria-label="uschedule.ca, live: a timetable builder for uOttawa students with preference-based conflict-free schedule generation, professor ratings, and calendar export.">
+<style><![CDATA[
+text{font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;}
+@keyframes cus0{0%,5%{opacity:0}9%,86%{opacity:1}93%,100%{opacity:0}}
+.cus0{animation:cus0 10s linear infinite;}
+@keyframes cus1{0%,11%{opacity:0}15%,86%{opacity:1}93%,100%{opacity:0}}
+.cus1{animation:cus1 10s linear infinite;}
+@keyframes cus2{0%,17%{opacity:0}21%,86%{opacity:1}93%,100%{opacity:0}}
+.cus2{animation:cus2 10s linear infinite;}
+@keyframes cus3{0%,23%{opacity:0}27%,86%{opacity:1}93%,100%{opacity:0}}
+.cus3{animation:cus3 10s linear infinite;}
+@keyframes cus4{0%,29%{opacity:0}33%,86%{opacity:1}93%,100%{opacity:0}}
+.cus4{animation:cus4 10s linear infinite;}
+@keyframes cus5{0%,35%{opacity:0}39%,86%{opacity:1}93%,100%{opacity:0}}
+.cus5{animation:cus5 10s linear infinite;}
+@keyframes cus6{0%,41%{opacity:0}45%,86%{opacity:1}93%,100%{opacity:0}}
+.cus6{animation:cus6 10s linear infinite;}
+@keyframes cus7{0%,47%{opacity:0}51%,86%{opacity:1}93%,100%{opacity:0}}
+.cus7{animation:cus7 10s linear infinite;}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;}}
+]]></style>
+
+<defs>
+  <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <pattern id="scan" width="3" height="3" patternUnits="userSpaceOnUse">
+    <rect width="3" height="1" y="2" fill="#000"/>
+  </pattern>
+</defs>
+<rect x="0.75" y="0.75" width="402.5" height="168.5" rx="8" fill="#0A0D10" stroke="#262E36" stroke-width="1.5"/><text x="12" y="19" font-size="11" letter-spacing="1.4" fill="#FFB300">USCHEDULE.CA</text><text x="392" y="19" font-size="9" letter-spacing="0.8" fill="#46525E" text-anchor="end">LIVE</text><text x="16" y="48" font-size="10.5" fill="#6C7986">A timetable builder for uOttawa students. Set your</text><text x="16" y="66" font-size="10.5" fill="#6C7986">preferences, get every conflict-free schedule, ranked.</text><text x="16" y="84" font-size="10.5" fill="#6C7986">Professor ratings and calendar export are built in.</text><rect x="230" y="106" width="34" height="14" rx="2" fill="#FFB300" fill-opacity="0.28" stroke="#FFB300" stroke-opacity="0.8" class="cus0"/><rect x="270" y="106" width="34" height="14" rx="2" fill="#FFB300" fill-opacity="0.28" stroke="#FFB300" stroke-opacity="0.8" class="cus1"/><rect x="310" y="106" width="34" height="14" rx="2" fill="#FFB300" fill-opacity="0.28" stroke="#FFB300" stroke-opacity="0.8" class="cus2"/><rect x="350" y="106" width="34" height="14" rx="2" fill="#FFB300" fill-opacity="0.28" stroke="#FFB300" stroke-opacity="0.8" class="cus3"/><rect x="230" y="124" width="34" height="14" rx="2" fill="#FFB300" fill-opacity="0.28" stroke="#FFB300" stroke-opacity="0.8" class="cus4"/><rect x="270" y="124" width="34" height="14" rx="2" fill="#FFB300" fill-opacity="0.28" stroke="#FFB300" stroke-opacity="0.8" class="cus5"/><rect x="310" y="124" width="34" height="14" rx="2" fill="#FFB300" fill-opacity="0.28" stroke="#FFB300" stroke-opacity="0.8" class="cus6"/><rect x="350" y="124" width="34" height="14" rx="2" fill="#FFB300" fill-opacity="0.28" stroke="#FFB300" stroke-opacity="0.8" class="cus7"/><text x="16" y="158" font-size="10" fill="#46525E">open uschedule.ca ↗</text>
+<rect x="1" y="1" width="402" height="168" rx="10" fill="url(#scan)" opacity="0.14"/>
+</svg>

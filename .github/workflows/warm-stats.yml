@@ -17,7 +17,8 @@ jobs:
     steps:
       - name: ping stat endpoints
         run: |
-          for card in stats streaks weekdays langs footer; do
+          # visitors.svg is deliberately NOT warmed: it counts real page views
+          for card in stats streaks weekdays langs footer guestbook; do
             curl -sS -o /dev/null --max-time 25 \
               "https://readme-ominousones-projects.vercel.app/live/$card.svg" \
               && echo "$card warm" || echo "$card FAILED"

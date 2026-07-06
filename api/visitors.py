@@ -8,7 +8,7 @@ from _render import render_card
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        svg, cache = render_card("langs")
+        svg, cache = render_card("visitors")
         self.send_response(200)
         self.send_header("Content-Type", "image/svg+xml; charset=utf-8")
         if cache:

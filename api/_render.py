@@ -303,25 +303,92 @@ def render_footer(user):
     return shell(W, H, css, "".join(out), f"Past year on GitHub, live: {total} contributions, busiest day {busiest}.")
 
 
+def _kv_incr(key):
+    """increment a counter in the attached Upstash/Vercel KV store."""
+    url = os.environ.get("KV_REST_API_URL") or os.environ.get("UPSTASH_REDIS_REST_URL")
+    token = os.environ.get("KV_REST_API_TOKEN") or os.environ.get("UPSTASH_REDIS_REST_TOKEN")
+    if not url or not token:
+        return None
+    req = urllib.request.Request(f"{url}/incr/{key}", headers={"Authorization": f"Bearer {token}"})
+    with urllib.request.urlopen(req, timeout=5) as resp:
+        return json.loads(resp.read())["result"]
+
+
+def render_visitors(_user=None):
+    W, H = 830, 64
+    count = _kv_incr("profile_views")
+    css, out = [], [frame(W, H, rx=8)]
+    out.append(f'<text x="18" y="39" font-size="14" letter-spacing="2" fill="{AMBER}">VISITORS</text>')
+    if count is None:
+        out.append(f'<text x="{W / 2}" y="39" font-size="14" fill="{SLATE2}" text-anchor="middle">------</text>')
+        out.append(f'<text x="{W - 18}" y="39" font-size="10" fill="{SLATE2}" text-anchor="end">counter warming up</text>')
+        return shell(W, H, css, "".join(out), "Visitor counter is warming up.")
+    digits = str(count).zfill(6)
+    x = (W - len(digits) * 26 * 0.62) / 2
+    out.append(f'<rect x="{f(x - 12)}" y="12" width="{f(len(digits) * 26 * 0.62 + 24)}" height="40" rx="4" fill="{PANEL}" stroke="#232B33"/>')
+    for ci, ch in enumerate(digits):
+        out.append(odometer(x + ci * 26 * 0.62, 44, int(ch), 26, 0.7 + ci * 0.12, f"vc{ci}_", css))
+    out.append(f'<text x="{W - 18}" y="39" font-size="10" fill="{SLATE2}" text-anchor="end">you just made this number go up</text>')
+    return shell(W, H, css, "".join(out), f"Live visitor counter: you are visitor {count:,}.")
+
+
+def render_guestbook(_user=None):
+    W = 830
+    req = urllib.request.Request(
+        f"https://raw.githubusercontent.com/{LOGIN}/{LOGIN}/main/data/guestbook.json",
+        headers={"User-Agent": f"{LOGIN}-profile-stats"},
+    )
+    with urllib.request.urlopen(req, timeout=8) as resp:
+        entries = json.loads(resp.read())
+    import html as _html
+    n_rows = max(len(entries[-8:]), 1)
+    H = 58 + n_rows * 22 + 16
+    css, out = [], [frame(W, H, rx=8)]
+    out.append(f'<text x="18" y="29" font-size="12" letter-spacing="1.6" fill="{AMBER}">GUESTBOOK</text>')
+    out.append(f'<text x="{W - 18}" y="29" font-size="10" fill="{SLATE2}" text-anchor="end">signed by visitors, via github issues</text>')
+    out.append(f'<line x1="18" y1="40" x2="{W - 18}" y2="40" stroke="{LINE}"/>')
+    css.append("@keyframes gbin{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:translateX(0)}}")
+    recent = list(reversed(entries[-8:]))
+    if not recent:
+        out.append(f'<text x="{W / 2}" y="70" font-size="12" fill="{SLATE2}" text-anchor="middle">nobody has signed yet · be the first</text>')
+    ry = 64
+    for i, e in enumerate(recent):
+        user = _html.escape(str(e.get("user", ""))[:30])
+        msg = _html.escape(str(e.get("msg", ""))[:60])
+        date = _html.escape(str(e.get("date", ""))[:10])
+        out.append(
+            f'<g style="animation:gbin .4s cubic-bezier(.3,.6,.3,1) both;animation-delay:{f(0.07 * i)}s">'
+            f'<text x="18" y="{ry}" font-size="11" fill="{AMBER}">{user}</text>'
+            f'<text x="150" y="{ry}" font-size="11" fill="{SLATE}">{msg}</text>'
+            f'<text x="{W - 18}" y="{ry}" font-size="10" fill="{SLATE2}" text-anchor="end">{date}</text></g>'
+        )
+        ry += 22
+    label = f"Guestbook with {len(entries)} signatures, showing the most recent."
+    return shell(W, H, css, "".join(out), label)
+
+
 def render_fallback(w, h):
     out = [frame(w, h)]
     out.append(f'<text x="{w / 2}" y="{h / 2 + 4}" font-size="11" fill="{SLATE2}" text-anchor="middle">stats are napping · back in a minute</text>')
     return shell(w, h, [], "".join(out), "Live stats temporarily unavailable.")
 
 
+# name: (renderer, width, height, needs_github_fetch, cache_seconds)
 CARDS = {
-    "stats": (render_stats, 830, 172),
-    "streaks": (render_streaks, 268, 170),
-    "weekdays": (render_weekdays, 268, 170),
-    "langs": (render_langs, 268, 170),
-    "footer": (render_footer, 900, 44),
+    "stats": (render_stats, 830, 172, True, 600),
+    "streaks": (render_streaks, 268, 170, True, 600),
+    "weekdays": (render_weekdays, 268, 170, True, 600),
+    "langs": (render_langs, 268, 170, True, 600),
+    "footer": (render_footer, 900, 44, True, 600),
+    "visitors": (render_visitors, 830, 64, False, 0),
+    "guestbook": (render_guestbook, 830, 236, False, 300),
 }
 
 
 def render_card(name):
     """returns (svg, cache_seconds). Falls back to a styled card on any error."""
-    fn, w, h = CARDS[name]
+    fn, w, h, needs_gh, cache = CARDS[name]
     try:
-        return fn(fetch()), 600
+        return fn(fetch() if needs_gh else None), cache
     except Exception:
         return render_fallback(w, h), 60
