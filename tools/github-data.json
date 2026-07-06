@@ -524,5 +524,63 @@
   121,
   109,
   142
- ]
+ ],
+ "monthly": [
+  {
+   "month": "2025-08",
+   "count": 19
+  },
+  {
+   "month": "2025-09",
+   "count": 6
+  },
+  {
+   "month": "2025-10",
+   "count": 26
+  },
+  {
+   "month": "2025-11",
+   "count": 34
+  },
+  {
+   "month": "2025-12",
+   "count": 4
+  },
+  {
+   "month": "2026-01",
+   "count": 31
+  },
+  {
+   "month": "2026-02",
+   "count": 10
+  },
+  {
+   "month": "2026-03",
+   "count": 69
+  },
+  {
+   "month": "2026-04",
+   "count": 19
+  },
+  {
+   "month": "2026-05",
+   "count": 524
+  },
+  {
+   "month": "2026-06",
+   "count": 841
+  },
+  {
+   "month": "2026-07",
+   "count": 42
+  }
+ ],
+ "repo_commits": {
+  "reciped": 667,
+  "software-factory": 182,
+  "uschedule": 165,
+  "gadget": 52,
+  "polybot": 35
+ },
+ "lines_active_projects": 360173
 }

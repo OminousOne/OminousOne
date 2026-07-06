@@ -52,14 +52,19 @@ Years of Minecraft server plugins in Java and Kotlin, including [Conway's Game o
 
 ## A year on GitHub
 
-<img src="./assets/stats.svg" width="100%" alt="Heatmap of 1,629 contributions in the past year with a snake slowly eating the active days, busiest day 119, and a language bar showing mostly TypeScript with JavaScript, Dart and GraphQL." />
-<img src="./assets/clock.svg" width="49.4%" alt="Commit clock: a 24 hour dial of 1,113 commits. Peak hour 2 pm, 40 percent after 6 pm, quiet from 4 am to 9 am." /> <img src="./assets/streaks.svg" width="49.4%" alt="Streaks: longest streak 24 days, 139 active days of 366, most commits land on mondays." />
+<div align="center">
 
-The heatmap and streaks come from my GitHub contribution calendar. The clock comes from the timestamps of 1,113 commits in the repos I am working on right now. The snake is just having lunch.
+<img src="./assets/stats.svg" width="100%" alt="Heatmap of 1,629 contributions in the past year, busiest day 119, and a language bar showing mostly TypeScript with JavaScript, Dart and GraphQL." />
+<img src="./assets/stat-clock.svg" width="32.6%" alt="Commit clock: a 24 hour dial of 1,113 commits. Peak hour 2 pm, 40 percent after 6 pm." /> <img src="./assets/stat-streaks.svg" width="32.6%" alt="Streaks: longest streak 24 days, 139 active days of 366." /> <img src="./assets/stat-weekdays.svg" width="32.6%" alt="Commits by weekday: Monday is the biggest day, weekends get 23 percent." />
+<img src="./assets/stat-repos.svg" width="32.6%" alt="Commits by repo: reciped leads with 667, then software-factory, uschedule, gadget, polybot." /> <img src="./assets/stat-months.svg" width="32.6%" alt="Contributions by month over the past year. The june spike is Reciped at 841." /> <img src="./assets/stat-numbers.svg" width="32.6%" alt="By the numbers: 360,173 lines of code in active projects, 11.7 contributions per active day, 119 on the busiest day." />
+
+</div>
+
+The heatmap, streaks and monthly chart come from my GitHub contribution calendar. The clock, weekday and repo charts come from the timestamps of 1,113 commits in the repos I am working on right now.
 
 ## My story
 
-<img src="./assets/story.svg" width="100%" alt="Timeline: blender at nine, minecraft plugins, unity and c sharp, uOttawa, gadget, reciped." />
+<img src="./assets/story.svg" width="100%" alt="Timeline: blender games, minecraft plugins, unity and c sharp, uOttawa, gadget, reciped." />
 
 I got into programming at nine years old through Blender's node based game engine, because I wanted to make games and had no idea the thing I was wiring together was called logic. Nodes led to Unity and C#, and game jams led to the question that still drives most of my projects: how do you make software feel instant for people who are far apart?
 

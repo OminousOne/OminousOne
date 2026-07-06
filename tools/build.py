@@ -616,52 +616,12 @@ def build_stats(gh, shift=None):
     for wi, week in enumerate(weeks):
         col = []
         for di, c in enumerate(week):
-            # every cell gets a dark slot; active days get their amber drawn in
-            # the snake layer below, so the snake can eat them down to the slot
-            col.append(f'<rect x="{f(gx + wi * step)}" y="{f(gy + di * step)}" width="{cell}" height="{cell}" rx="2" fill="#151B22"/>')
+            a = level(c)
+            if a is None:
+                col.append(f'<rect x="{f(gx + wi * step)}" y="{f(gy + di * step)}" width="{cell}" height="{cell}" rx="2" fill="#151B22"/>')
+            else:
+                col.append(f'<rect x="{f(gx + wi * step)}" y="{f(gy + di * step)}" width="{cell}" height="{cell}" rx="2" fill="{AMBER}" opacity="{f(a)}"/>')
         out.append(f'<g style="animation:cellin .5s both;animation-delay:{f(wi * 0.022)}s">' + "".join(col) + "</g>")
-
-    # a snake roams the real heatmap, eating the year one day at a time
-    order = []
-    for wi in range(len(weeks)):
-        rng = range(7) if wi % 2 == 0 else range(6, -1, -1)
-        for di in rng:
-            if di < len(weeks[wi]):
-                order.append((wi, di))
-    n = len(order)
-    DUR, T0, T1 = 46.0, 2.0, 90.0
-    head_kf = [f"0%{{transform:translate({f(gx + order[0][0] * step)}px,{f(gy + order[0][1] * step)}px)}}"]
-    for i, (wi, di) in enumerate(order):
-        t = T0 + (T1 - T0) * i / (n - 1)
-        head_kf.append(f"{f(t)}%{{transform:translate({f(gx + wi * step)}px,{f(gy + di * step)}px)}}")
-    head_kf.append(f"100%{{transform:translate({f(gx + order[-1][0] * step)}px,{f(gy + order[-1][1] * step)}px)}}")
-    css.append("@keyframes snake{" + "".join(head_kf) + "}")
-    eat_i = 0
-    for i, (wi, di) in enumerate(order):
-        a = level(weeks[wi][di])
-        if a is None:
-            continue
-        t = T0 + (T1 - T0) * i / (n - 1)
-        p = f"sk{eat_i}"
-        eat_i += 1
-        css.append(
-            f"@keyframes {p}{{0%,{f(t - 0.05)}%{{opacity:{f(a)}}}{f(t)}%,92%{{opacity:0.1}}"
-            f"96%,100%{{opacity:{f(a)}}}}}"
-        )
-        css.append(f".{p}{{animation:{p} {f(DUR)}s linear infinite;}}")
-        out.append(
-            f'<g style="animation:cellin .5s both;animation-delay:{f(wi * 0.022)}s">'
-            f'<rect x="{f(gx + wi * step)}" y="{f(gy + di * step)}" width="{cell}" height="{cell}" rx="2" fill="{AMBER}" opacity="{f(a)}" class="{p}"/></g>'
-        )
-    seg_dt = (T1 - T0) / 100 * DUR / n
-    for k in range(5):
-        op = (1.0, 0.72, 0.5, 0.32, 0.18)[k]
-        glow = ' filter="url(#glow)"' if k == 0 else ""
-        out.append(
-            f'<rect x="0" y="0" width="{cell}" height="{cell}" rx="2" fill="{AMBER}" opacity="{f(op)}"{glow} '
-            f'style="animation:snake {f(DUR)}s linear infinite;animation-delay:{f(-1.4 * k * seg_dt)}s;'
-            f'transform:translate({f(gx)}px,{f(gy)}px)"/>'
-        )
 
     ty = gy + 7 * step + 26
     total = f"{gh['total_contributions_past_year']:,}"
@@ -690,42 +650,41 @@ def build_stats(gh, shift=None):
 
 # ------------------------------------------------------------- fun cards
 
-def build_clock(gh, shift=None):
-    W, H = 410, 170
+SW, SH = 268, 170  # stat cards match the hero modules
+
+
+def build_stat_clock(gh, shift=None):
     hours = gh["commit_hours"]
     total = gh["commit_hours_total"]
     peak = hours.index(max(hours))
     evening = round(sum(v for h, v in enumerate(hours) if h >= 18 or h < 4) / total * 100)
-    css, out = [], [module_box(0, 0, W, H, "COMMIT CLOCK", "LOCAL GIT HISTORY")]
+    css, out = [], [module_box(0, 0, SW, SH, "COMMIT CLOCK", "BY HOUR")]
 
-    cx, cy, r0 = 90, 97, 24
+    cx, cy, r0 = 70, 96, 20
     vmax = max(hours)
     css.append("@keyframes cbar{from{transform:scaleY(0)}to{transform:scaleY(1)}}")
     out.append(f'<circle cx="{cx}" cy="{cy}" r="{r0 - 4}" fill="none" stroke="{LINE}"/>')
     for h, v in enumerate(hours):
-        ln = 3 + 28 * v / vmax
+        ln = 3 + 22 * v / vmax
         a = 0.28 + 0.72 * v / vmax
-        w_ = 3.4 if h == peak else 2.4
+        w_ = 3.2 if h == peak else 2.2
         out.append(
             f'<g transform="translate({cx},{cy}) rotate({h * 15})">'
             f'<line x1="0" y1="{-r0}" x2="0" y2="{f(-r0 - ln)}" stroke="{AMBER}" stroke-opacity="{f(a)}" '
             f'stroke-width="{w_}" style="animation:cbar .6s cubic-bezier(.3,.6,.3,1) both;'
             f'animation-delay:{f(0.04 * h)}s;transform-origin:0px {-r0}px"/></g>'
         )
-    import math as _m
-    for lbl, ang in (("00", 0), ("06", 90), ("12", 180), ("18", 270)):
-        lx = cx + 63 * _m.sin(_m.radians(ang))
-        ly = cy - 63 * _m.cos(_m.radians(ang))
-        out.append(f'<text x="{f(lx)}" y="{f(ly + 3)}" font-size="8" fill="{SLATE2}" text-anchor="middle">{lbl}</text>')
+    out.append(f'<text x="{cx}" y="{cy - 49}" font-size="7" fill="{SLATE2}" text-anchor="middle">00</text>')
+    out.append(f'<text x="{cx}" y="{cy + 55}" font-size="7" fill="{SLATE2}" text-anchor="middle">12</text>')
 
-    fx = 196
+    fx = 134
     ampm = lambda h: f"{h % 12 if h % 12 else 12} {'am' if h < 12 else 'pm'}"
-    out.append(f'<text x="{fx}" y="60" font-size="12" fill="{SLATE}">peak hour: <tspan fill="{AMBER}" font-size="15">{ampm(peak)}</tspan></text>')
-    out.append(f'<text x="{fx}" y="88" font-size="12" fill="{SLATE}"><tspan fill="{AMBER}" font-size="15">{evening}%</tspan> after 6 pm</text>')
-    out.append(f'<text x="{fx}" y="116" font-size="12" fill="{SLATE}">quiet: <tspan fill="{AMBER}">4 am to 9 am</tspan></text>')
-    out.append(f'<text x="{fx}" y="{H - 24}" font-size="10" fill="{SLATE2}">{total:,} commits, by hour of day</text>')
-    label = f"Commit clock: a 24 hour dial of {total:,} commits. Peak hour {ampm(peak)}, {evening} percent after 6 pm, quiet from 4 am to 9 am."
-    return shell(W, H, css, "".join(out), label, shift)
+    out.append(f'<text x="{fx}" y="66" font-size="11" fill="{SLATE}">peak: <tspan fill="{AMBER}" font-size="14">{ampm(peak)}</tspan></text>')
+    out.append(f'<text x="{fx}" y="94" font-size="11" fill="{SLATE}"><tspan fill="{AMBER}" font-size="14">{evening}%</tspan> after 6 pm</text>')
+    out.append(f'<text x="{fx}" y="122" font-size="11" fill="{SLATE}">quiet: <tspan fill="{AMBER}">4 to 9 am</tspan></text>')
+    out.append(f'<text x="12" y="{SH - 12}" font-size="10" fill="{SLATE2}">{total:,} commits, by hour of day</text>')
+    label = f"Commit clock: a 24 hour dial of {total:,} commits. Peak hour {ampm(peak)}, {evening} percent after 6 pm."
+    return shell(SW, SH, css, "".join(out), label, shift)
 
 
 def odometer(x, y, value, size, dur, prefix, css):
@@ -752,30 +711,114 @@ def odometer(x, y, value, size, dur, prefix, css):
     return "".join(out)
 
 
-def build_streaks(gh, shift=None):
-    W, H = 410, 170
+def build_stat_streaks(gh, shift=None):
     s = gh["streaks"]
-    days = ["mondays", "tuesdays", "wednesdays", "thursdays", "fridays", "saturdays", "sundays"]
-    busiest = days[gh["commit_days_mon_sun"].index(max(gh["commit_days_mon_sun"]))]
-    css, out = [], [module_box(0, 0, W, H, "STREAKS", "PAST YEAR")]
-    tiles = [
-        (16, "longest streak", s["longest"], "days in a row"),
-        (216, "active days", s["active_days"], f"of {s['window_days']}"),
+    css, out = [], [module_box(0, 0, SW, SH, "STREAKS", "PAST YEAR")]
+    out.append(f'<text x="16" y="52" font-size="11" fill="{SLATE}">longest streak</text>')
+    out.append(odometer(16, 90, s["longest"], 30, 0.9, "odl_", css))
+    out.append(f'<text x="{16 + len(str(s["longest"])) * 19 + 8}" y="90" font-size="11" fill="{SLATE2}">days in a row</text>')
+    out.append(f'<text x="16" y="124" font-size="11" fill="{SLATE}">active days</text>')
+    out.append(odometer(102, 124, s["active_days"], 16, 0.7, "oda_", css))
+    out.append(f'<text x="{102 + len(str(s["active_days"])) * 10 + 8}" y="124" font-size="11" fill="{SLATE2}">of {s["window_days"]}</text>')
+    out.append(f'<text x="12" y="{SH - 12}" font-size="10" fill="{SLATE2}">from the contribution calendar</text>')
+    label = f"Streaks: longest streak {s['longest']} days, {s['active_days']} active days of {s['window_days']}."
+    return shell(SW, SH, css, "".join(out), label, shift)
+
+
+def build_stat_weekdays(gh, shift=None):
+    vals = gh["commit_days_mon_sun"]
+    total = sum(vals)
+    weekend = round((vals[5] + vals[6]) / total * 100)
+    vmax = max(vals)
+    peak_i = vals.index(vmax)
+    css, out = [], [module_box(0, 0, SW, SH, "WEEKDAYS", "COMMITS")]
+    css.append("@keyframes wbar{from{transform:scaleY(0)}to{transform:scaleY(1)}}")
+    bx, base, bw = 26, 122, 22
+    for i, v in enumerate(vals):
+        h_ = 8 + 66 * v / vmax
+        a = 1.0 if i == peak_i else 0.45 + 0.3 * v / vmax
+        out.append(
+            f'<rect x="{bx + i * 31}" y="{f(base - h_)}" width="{bw}" height="{f(h_)}" rx="2" fill="{AMBER}" '
+            f'opacity="{f(a)}" style="animation:wbar .55s cubic-bezier(.3,.6,.3,1) both;'
+            f'animation-delay:{f(0.06 * i)}s;transform-origin:0px {base}px"/>'
+        )
+        out.append(f'<text x="{bx + i * 31 + bw / 2}" y="136" font-size="8" fill="{SLATE2}" text-anchor="middle">{"mtwtfss"[i]}</text>')
+    out.append(f'<text x="12" y="{SH - 12}" font-size="10" fill="{SLATE2}">mondays lead · weekends get {weekend}%</text>')
+    label = f"Commits by weekday: Monday is the biggest day, weekends get {weekend} percent."
+    return shell(SW, SH, css, "".join(out), label, shift)
+
+
+def build_stat_repos(gh, shift=None):
+    repos = gh["repo_commits"]
+    vmax = max(repos.values())
+    css, out = [], [module_box(0, 0, SW, SH, "WHERE COMMITS GO", "BY REPO")]
+    css.append("@keyframes rbar{from{transform:scaleX(0)}to{transform:scaleX(1)}}")
+    ry = 48
+    for i, (name, v) in enumerate(repos.items()):
+        bw = 6 + 110 * v / vmax
+        out.append(f'<text x="14" y="{ry + 4}" font-size="9.5" fill="{SLATE}">{name}</text>')
+        out.append(
+            f'<rect x="106" y="{ry - 5}" width="{f(bw)}" height="9" rx="2" fill="{AMBER}" opacity="0.85" '
+            f'style="animation:rbar .6s cubic-bezier(.3,.6,.3,1) both;animation-delay:{f(0.09 * i)}s;'
+            f'transform-origin:106px 0"/>'
+        )
+        out.append(f'<text x="{f(110 + bw + 4)}" y="{ry + 4}" font-size="9" fill="{AMBER}" opacity="0.9">{v}</text>')
+        ry += 21
+    out.append(f'<text x="12" y="{SH - 12}" font-size="10" fill="{SLATE2}">my commits, current repos</text>')
+    label = "Commits by repo: reciped leads with 667, then software-factory, uschedule, gadget, polybot."
+    return shell(SW, SH, css, "".join(out), label, shift)
+
+
+def build_stat_months(gh, shift=None):
+    monthly = gh["monthly"]
+    vmax = max(m["count"] for m in monthly)
+    peak = max(monthly, key=lambda m: m["count"])
+    names = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+    css, out = [], [module_box(0, 0, SW, SH, "MONTH BY MONTH", "12 MONTHS")]
+    css.append("@keyframes mbar{from{transform:scaleY(0)}to{transform:scaleY(1)}}")
+    bx, base, bw = 24, 122, 14
+    for i, m in enumerate(monthly):
+        h_ = 4 + 74 * m["count"] / vmax
+        mi = int(m["month"][5:]) - 1
+        a = 1.0 if m is peak else 0.4 + 0.5 * m["count"] / vmax
+        out.append(
+            f'<rect x="{bx + i * 19}" y="{f(base - h_)}" width="{bw}" height="{f(h_)}" rx="2" fill="{AMBER}" '
+            f'opacity="{f(a)}" style="animation:mbar .55s cubic-bezier(.3,.6,.3,1) both;'
+            f'animation-delay:{f(0.05 * i)}s;transform-origin:0px {base}px"/>'
+        )
+        out.append(f'<text x="{bx + i * 19 + bw / 2}" y="136" font-size="7" fill="{SLATE2}" text-anchor="middle">{names[mi][0]}</text>')
+    peak_name = names[int(peak["month"][5:]) - 1]
+    out.append(f'<text x="12" y="{SH - 12}" font-size="10" fill="{SLATE2}">the {peak_name} spike is reciped</text>')
+    label = f"Contributions by month over the past year. The {peak_name} spike is Reciped at {peak['count']}."
+    return shell(SW, SH, css, "".join(out), label, shift)
+
+
+def build_stat_numbers(gh, shift=None):
+    s = gh["streaks"]
+    avg = gh["total_contributions_past_year"] / s["active_days"]
+    css, out = [], [module_box(0, 0, SW, SH, "BY THE NUMBERS", "MISC")]
+    css.append("@keyframes numin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}")
+    rows = [
+        (f"{gh['lines_active_projects']:,}", "lines of code in active projects"),
+        (f(round(avg, 1)), "contributions per active day"),
+        (str(gh["busiest_day"]), "contributions on the busiest day"),
     ]
-    for i, (tx, lbl, val, sub) in enumerate(tiles):
-        out.append(f'<text x="{tx}" y="52" font-size="11" fill="{SLATE}">{lbl}</text>')
-        out.append(odometer(tx, 92, val, 30, 0.9, f"od{i}_", css))
-        out.append(f'<text x="{tx + len(str(val)) * 19 + 8}" y="92" font-size="11" fill="{SLATE2}">{sub}</text>')
-    out.append(f'<text x="16" y="128" font-size="12" fill="{SLATE}">most commits land on <tspan fill="{AMBER}">{busiest}</tspan></text>')
-    out.append(f'<text x="12" y="{H - 12}" font-size="10" fill="{SLATE2}">counted from the contribution calendar</text>')
-    label = (f"Streaks: longest streak {s['longest']} days, {s['active_days']} active days of "
-             f"{s['window_days']}, most commits land on {busiest}.")
-    return shell(W, H, css, "".join(out), label, shift)
+    ry = 62
+    for i, (num, lbl) in enumerate(rows):
+        out.append(
+            f'<g style="animation:numin .5s cubic-bezier(.3,.6,.3,1) both;animation-delay:{f(0.15 * i)}s">'
+            f'<text x="16" y="{ry}" font-size="17" fill="{AMBER}">{num}</text>'
+            f'<text x="16" y="{ry + 15}" font-size="9.5" fill="{SLATE2}">{lbl}</text></g>'
+        )
+        ry += 40
+    label = (f"By the numbers: {gh['lines_active_projects']:,} lines of code in active projects, "
+             f"{f(round(avg, 1))} contributions per active day, {gh['busiest_day']} on the busiest day.")
+    return shell(SW, SH, css, "".join(out), label, shift)
 
 
 def build_story(shift=None):
     W, H = 830, 64
-    stops = ["blender at nine", "minecraft plugins", "unity + c#", "uottawa", "gadget", "reciped"]
+    stops = ["blender games", "minecraft plugins", "unity + c#", "uottawa", "gadget", "reciped"]
     css, out = [], [frame(W, H, rx=8)]
     n = len(stops)
     xs = [40 + i * (W - 80) / (n - 1) for i in range(n)]
@@ -795,7 +838,7 @@ def build_story(shift=None):
         ax = sx if anchor != "start" else sx - 16
         ax = ax if anchor != "end" else sx + 16
         out.append(f'<text x="{f(ax)}" y="50" font-size="10.5" fill="{SLATE}" text-anchor="{anchor}">{lbl}</text>')
-    return shell(W, H, css, "".join(out), "Timeline: blender at nine, minecraft plugins, unity and c sharp, uOttawa, gadget, reciped", shift)
+    return shell(W, H, css, "".join(out), "Timeline: blender games, minecraft plugins, unity and c sharp, uOttawa, gadget, reciped", shift)
 
 
 # ------------------------------------------------------------- main
@@ -812,8 +855,12 @@ def main():
         "hero-header": build_hero_header(shift),
         "hero-footer": build_hero_footer(gh, shift),
         "stats": build_stats(gh, shift),
-        "clock": build_clock(gh, shift),
-        "streaks": build_streaks(gh, shift),
+        "stat-clock": build_stat_clock(gh, shift),
+        "stat-streaks": build_stat_streaks(gh, shift),
+        "stat-weekdays": build_stat_weekdays(gh, shift),
+        "stat-repos": build_stat_repos(gh, shift),
+        "stat-months": build_stat_months(gh, shift),
+        "stat-numbers": build_stat_numbers(gh, shift),
         "story": build_story(shift),
     }
     outputs.update(build_hero_modules(shift))
