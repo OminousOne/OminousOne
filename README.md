@@ -57,7 +57,7 @@ Today I study software engineering at the University of Ottawa and build the pla
 
 <div align="center">
 
-<a href="https://github.com/OminousOne/OminousOne/issues/new?title=guestbook%3A+your+message+here&body=Put+your+message+after+%22guestbook%3A%22+in+the+title+above%2C+up+to+60+characters%2C+plain+text%2C+no+links.+Then+submit%3A+the+page+updates+within+a+few+minutes." title="sign the guestbook"><img src="./assets/btn-sign.svg" height="36" alt="sign the guestbook" /></a>
+<a href="https://github.com/OminousOne/OminousOne/issues/new?title=guestbook%3A+your+message+here&body=This+is+a+guestbook+entry.+Write+your+message+in+the+title+above%2C+up+to+60+characters%2C+plain+text%2C+no+links.+Then+submit%3A+the+page+updates+within+a+few+minutes." title="sign the guestbook"><img src="./assets/btn-sign.svg" height="36" alt="sign the guestbook" /></a>
 
 </div>
 
