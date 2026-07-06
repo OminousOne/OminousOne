@@ -381,7 +381,7 @@ CARDS = {
     "langs": (render_langs, 268, 170, True, 600),
     "footer": (render_footer, 900, 44, True, 600),
     "visitors": (render_visitors, 830, 64, False, 0),
-    "guestbook": (render_guestbook, 830, 236, False, 300),
+    "guestbook": (render_guestbook, 830, 236, False, 120),
 }
 
 
