@@ -1,14 +1,14 @@
 {
  "name": "BLOB",
  "hunger": 13,
- "mood": 64,
+ "mood": 89,
  "care": {
-  "OminousOne": 1
+  "OminousOne": 2
  },
- "total_care": 1,
+ "total_care": 2,
  "born": "2026-07-07",
  "last_care_by": "@OminousOne",
  "cd": {
-  "OminousOne": 1783457280424
+  "OminousOne": 1783464004065
  }
 }
