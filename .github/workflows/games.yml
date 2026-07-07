@@ -52,9 +52,14 @@ jobs:
               return 0;
             }
 
-            const NAMES = ["THE LATENCY DRAGON", "MERGE CONFLICT HYDRA", "SEGFAULT GOLEM",
-              "NULLPOINTER WRAITH", "THE RACE CONDITION", "HEISENBUG PRIME",
-              "THE MEMORY LEAK", "DEADLOCK COLOSSUS"];
+            const DESCRIPTORS = ["LATENCY", "MERGE CONFLICT", "SEGFAULT", "NULLPOINTER",
+              "RACE CONDITION", "HEISENBUG", "MEMORY LEAK", "DEADLOCK", "OFF BY ONE",
+              "STACK OVERFLOW", "LEGACY CODE", "REGEX", "TIMEZONE", "UNDEFINED BEHAVIOR",
+              "PACKET LOSS", "CACHE MISS", "INFINITE LOOP", "PROD OUTAGE"];
+            const MONSTERS = ["DRAGON", "HYDRA", "GOLEM", "WRAITH", "COLOSSUS", "KRAKEN",
+              "BASILISK", "LICH", "TITAN", "CHIMERA", "SERPENT", "GARGOYLE", "REVENANT",
+              "BEHEMOTH", "SPECTER", "OGRE"];
+            const bossName = () => `THE ${DESCRIPTORS[Math.floor(Math.random() * DESCRIPTORS.length)]} ${MONSTERS[Math.floor(Math.random() * MONSTERS.length)]}`;
 
             let res = null;
 
@@ -75,7 +80,7 @@ jobs:
                   st.boss_num += 1;
                   st.max_hp = Math.round(st.max_hp * 1.35);
                   st.hp = st.max_hp;
-                  st.name = NAMES[(st.boss_num - 1) % NAMES.length];
+                  st.name = bossName();
                   msg += ` THE KILLING BLOW! It falls. From the wreckage rises boss #${st.boss_num}: ${st.name}, ${st.max_hp.toLocaleString()} hp.`;
                 } else {
                   msg += ` ${Math.max(st.hp, 0).toLocaleString()} hp remains.`;
@@ -86,16 +91,16 @@ jobs:
               const feeding = /^feed\b/.test(t);
               res = await withState('data/games/pet.json', st => {
                 const wait = onCooldown(st, 30 * MIN);
-                if (wait) return { changed: false, msg: `BIT needs a little space, @${user}. Come back in ${wait} minutes.` };
+                if (wait) return { changed: false, msg: `BLOB needs a little space, @${user}. Come back in ${wait} minutes.` };
                 if (feeding) st.hunger = Math.max(0, st.hunger - 30);
                 else st.mood = Math.min(100, st.mood + 25);
                 st.total_care += 1;
                 st.care[user] = (st.care[user] || 0) + 1;
                 st.last_care_by = '@' + user;
                 const msg = feeding
-                  ? `You fed BIT, @${user}. It does a little hop. Food is at ${100 - st.hunger}%.`
-                  : `You pet BIT, @${user}. Its mood rises to ${st.mood}%.`;
-                return { changed: true, commit: `games: ${user} cares for BIT`, msg };
+                  ? `You fed BLOB, @${user}. It does a happy squish. Food is at ${100 - st.hunger}%.`
+                  : `You pet BLOB, @${user}. Its mood rises to ${st.mood}%.`;
+                return { changed: true, commit: `games: ${user} cares for BLOB`, msg };
               });
             } else if (/^pixel\s*:/.test(t)) {
               const m = raw.match(/^pixel\s*:\s*(\d+)\s*[, ]\s*(\d+)[\s,]+(amber|white|slate|off)/i);

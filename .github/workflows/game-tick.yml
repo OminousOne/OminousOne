@@ -1,7 +1,7 @@
 name: game tick
 
 # The hourly heartbeat of the Fun and games section: the boss slowly
-# regenerates, BIT gets hungrier and a little bored, and the Life garden
+# regenerates, BLOB gets hungrier and a little bored, and the Life garden
 # advances one Conway generation. All three files land in a single commit
 # via the git data API to keep history tidy.
 
@@ -72,7 +72,7 @@ jobs:
               })),
             });
             const commit = await github.rest.git.createCommit({
-              owner, repo, message: `game tick: gen ${life.generation}, boss ${boss.hp} hp, BIT fed ${100 - pet.hunger}%`,
+              owner, repo, message: `game tick: gen ${life.generation}, boss ${boss.hp} hp, BLOB fed ${100 - pet.hunger}%`,
               tree: tree.data.sha, parents: [baseSha],
             });
             await github.rest.git.updateRef({ owner, repo, ref: 'heads/main', sha: commit.data.sha });

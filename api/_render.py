@@ -492,8 +492,8 @@ def render_boss(_user=None):
 
 PET_SPRITES = {
     "egg":      ["..xxxx..", ".xxxxxx.", "xxxOxxxx", "xxxxxxxx", ".xxxxxx.", "..xxxx.."],
-    "hatchling": ["..xxxx..", ".xExxEx.", ".xxxxxx.", "xxxxxxxx", ".x.xx.x.", ".x....x."],
-    "critter":  ["w.xxxx.w", "wxExxExw", ".xxxxxx.", "xxxxxxxx", ".x.xx.x.", ".x....x."],
+    "blobling": ["..xxxx..", ".xxxxxx.", ".xExxEx.", "xxxxxxxx", "xxxxxxxx", ".xxxxxx."],
+    "blob":     ["..xxxx..", ".xxxxxx.", "xxExxExx", "xxxxxxxx", "xxxxxxxx", ".xxxxxx.", "d.d..d.d"],
 }
 
 
@@ -501,10 +501,10 @@ def render_pet(_user=None):
     W, H = 404, 190
     st = _gh_json("data/games/pet.json")
     total = st["total_care"]
-    stage = "egg" if total < 10 else ("hatchling" if total < 50 else "critter")
+    stage = "egg" if total < 10 else ("blobling" if total < 50 else "blob")
     hungry, sad = st["hunger"] > 75, st["mood"] < 30
     css, out = [], [module_box(W, H, f"{st['name']} THE README PET", stage.upper())]
-    css.append("@keyframes hop{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}")
+    css.append("@keyframes squish{0%,100%{transform:scale(1,1)}50%{transform:scale(1.07,.9)}}")
     css.append("@keyframes blink{0%,92%,100%{opacity:1}95%{opacity:0}}")
     px = 9
     sprite = []
@@ -519,12 +519,13 @@ def render_pet(_user=None):
                 sprite.append(f'<rect x="{x0}" y="{y0}" width="{px - 1}" height="{px - 1}" fill="#EDE6D6" opacity=".8"/>')
             elif ch == "E":
                 sprite.append(f'<g style="animation:blink 4s linear infinite"><rect x="{x0}" y="{y0 + (2 if sad else 0)}" width="{px - 1}" height="{px - 1}" fill="#EDE6D6"/></g>')
-            elif ch == "w":
-                sprite.append(f'<rect x="{x0}" y="{y0}" width="{px - 1}" height="{px - 1}" fill="{AMBER}" opacity=".35"/>')
+            elif ch == "d":
+                sprite.append(f'<rect x="{x0 + 2}" y="{y0 - 2}" width="{px - 5}" height="{px - 3}" fill="{AMBER}" opacity=".4"/>')
     if hungry and stage != "egg":
         sprite.append(f'<rect x="{24 + 3 * px}" y="{58 + 4 * px - 3}" width="{2 * px - 1}" height="3" fill="#05070A"/>')
-    speed = "3.2" if sad or hungry else "1.6"
-    out.append(f'<g style="animation:hop {speed}s ease-in-out infinite">{"".join(sprite)}</g>')
+    speed = "3.4" if sad or hungry else "1.8"
+    base_h = len(PET_SPRITES[stage]) * px + 58
+    out.append(f'<g style="animation:squish {speed}s ease-in-out infinite;transform-origin:{24 + 4 * px}px {base_h}px">{"".join(sprite)}</g>')
 
     def bar(y, lbl, v, invert=False):
         val = 100 - v if invert else v
