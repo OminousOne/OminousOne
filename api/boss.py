@@ -12,7 +12,7 @@ class handler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-Type", "image/svg+xml; charset=utf-8")
         if cache:
-            self.send_header("Cache-Control", f"public, max-age={min(cache, 600)}, s-maxage={cache}, stale-while-revalidate=3600")
+            self.send_header("Cache-Control", f"public, max-age={min(cache, 60)}, s-maxage={cache}, stale-while-revalidate=3600")
         else:
             self.send_header("Cache-Control", "max-age=0, no-cache, no-store, must-revalidate")
         self.end_headers()

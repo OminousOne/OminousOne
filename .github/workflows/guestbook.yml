@@ -71,3 +71,7 @@ jobs:
                 : `Thanks @${user}, but that message could not be added. Keep it short, plain text, and link-free, then open a new issue to try again.`,
             });
             await github.rest.issues.update({ owner, repo, issue_number, state: 'closed' });
+            if (ok) {
+              await new Promise(r => setTimeout(r, 1500));
+              await fetch('https://readme-ominousones-projects.vercel.app/live/guestbook.svg?v=4').catch(() => {});
+            }

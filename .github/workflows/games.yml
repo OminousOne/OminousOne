@@ -149,4 +149,14 @@ jobs:
             if (res) {
               await github.rest.issues.createComment({ owner, repo, issue_number, body: res.msg });
               await github.rest.issues.update({ owner, repo, issue_number, state: 'closed' });
+              // re-warm the card so the play is visible on the next refresh
+              const card = /^attack\b/.test(t) ? 'boss'
+                : (/^feed\b/.test(t) || /^pet\b/.test(t)) ? 'pet'
+                : /^pixel\s*:/.test(t) ? 'canvas'
+                : /^cell\s*:/.test(t) ? 'life' : null;
+              if (card && res.changed !== false) {
+                await new Promise(r => setTimeout(r, 1500));
+                await fetch(`https://readme-ominousones-projects.vercel.app/live/${card}.svg?v=4&warm=1`).catch(() => {});
+                await fetch(`https://readme-ominousones-projects.vercel.app/live/${card}.svg?v=4`).catch(() => {});
+              }
             }

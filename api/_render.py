@@ -399,12 +399,7 @@ def render_visitors(_user=None):
 
 def render_guestbook(_user=None):
     W = 830
-    req = urllib.request.Request(
-        f"https://raw.githubusercontent.com/{LOGIN}/{LOGIN}/main/data/guestbook.json",
-        headers={"User-Agent": f"{LOGIN}-profile-stats"},
-    )
-    with urllib.request.urlopen(req, timeout=8) as resp:
-        entries = json.loads(resp.read())
+    entries = _gh_json("data/guestbook.json")
     import html as _html
     n_rows = max(len(entries[-8:]), 1)
     H = 58 + n_rows * 22 + 16
@@ -676,11 +671,11 @@ CARDS = {
     "langs": (render_langs, 268, 170, True, 600),
     "footer": (render_footer, 900, 44, True, 600),
     "visitors": (render_visitors, 830, 64, False, 0),
-    "guestbook": (render_guestbook, 830, 236, False, 120),
-    "boss": (render_boss, 404, 190, False, 60),
-    "pet": (render_pet, 404, 190, False, 60),
-    "canvas": (render_canvas, 830, 268, False, 60),
-    "life": (render_life, 830, 268, False, 60),
+    "guestbook": (render_guestbook, 830, 236, False, 30),
+    "boss": (render_boss, 404, 190, False, 15),
+    "pet": (render_pet, 404, 190, False, 15),
+    "canvas": (render_canvas, 830, 268, False, 15),
+    "life": (render_life, 830, 268, False, 15),
 }
 
 
