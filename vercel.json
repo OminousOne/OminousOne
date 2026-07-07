@@ -1,5 +1,12 @@
 {
   "rewrites": [
-    { "source": "/live/:name.svg", "destination": "/api/:name" }
+    {
+      "source": "/live/:name.svg",
+      "destination": "/api/:name"
+    },
+    {
+      "source": "/play",
+      "destination": "/play/index.html"
+    }
   ]
 }

@@ -469,8 +469,19 @@ HERO_MODULES = [
 
 def build_hero_modules(shift=None):
     pieces = {}
-    for name, fn, label in HERO_MODULES:
+    for i, (name, fn, label) in enumerate(HERO_MODULES):
         body, css = fn(0, 0, 268, 170)
+        # power-on: the board boots left to right, each module flickering
+        # alive like a CRT warming up
+        delay = 0.1 + i * 0.16
+        css = list(css)
+        css.append(
+            "@keyframes pwr{0%{opacity:0}18%{opacity:.85}38%{opacity:.15}"
+            "62%{opacity:1}100%{opacity:1}}"
+        )
+        body = (
+            f'<g style="animation:pwr .55s linear both;animation-delay:{f(delay)}s">{body}</g>'
+        )
         pieces[name] = shell(268, 170, css, body, label, shift)
     return pieces
 
@@ -615,9 +626,10 @@ def card_netcode(shift=None):
         "while the server stays in charge of the truth.",
     ]
     return project_card("card-netcode", 404, 170, "MULTIPLAYER NETCODE", "C# · KUBERNETES", desc,
-                        "".join(out), css, "plus game servers that survive crashes",
+                        "".join(out), css, "insert coin: play pong with real lag ↗",
                         "Multiplayer netcode: client prediction, server reconciliation, and interpolation in "
-                        "C#, plus Kubernetes game servers built to survive crashes.", shift)
+                        "C#, plus Kubernetes game servers. Click to play pong with simulated lag and "
+                        "toggleable client prediction.", shift)
 
 
 def card_earlier(shift=None):
@@ -684,6 +696,95 @@ def build_story(shift=None):
     return shell(W, H, css, "".join(out), label, shift)
 
 
+# ------------------------------------------------------------- 3d skyline
+# the contribution year extruded into a bar city, rendered in real 3D the
+# same way as the globe: rotate, project, painter-sort, bake frames.
+
+def build_skyline(shift=None):
+    data = json.load(open(os.path.join(ROOT, "tools", "skyline-data.json")))
+    weeks = data["weeks"]
+    vmax = max(c for w in weeks for c in w) or 1
+
+    W, H = 830, 250
+    cx, cy = W / 2, 150
+    N, DUR = 44, 9.0
+    TILT = math.radians(26)
+    ct, st = math.cos(TILT), math.sin(TILT)
+    ux, uz = 13.0, 15.0          # week and weekday spacing
+    bw, bd = 9.0, 10.0           # bar footprint
+    x_off, z_off = (len(weeks) - 1) / 2, 3.0
+
+    def project(x, y, z, phi):
+        cp, sp = math.cos(phi), math.sin(phi)
+        x2 = x * cp + z * sp
+        z2 = -x * sp + z * cp
+        py = y * ct - z2 * st
+        depth = y * st + z2 * ct
+        return cx + x2, cy - py, depth
+
+    bars = []
+    for wi, week in enumerate(weeks):
+        for di, c in enumerate(week):
+            if c > 0:
+                h = 5 + 52 * math.sqrt(c / vmax)
+                bars.append(((wi - x_off) * ux, (di - z_off) * uz, h))
+
+    def face(corners, phi, cls):
+        pts = [project(x, y, z, phi) for x, y, z in corners]
+        d = "M" + "L".join(f"{round(px)},{round(py)}" for px, py, _ in pts) + "Z"
+        return f'<path class="{cls}" d="{d}"/>'
+
+    css = [
+        f".kt{{fill:{AMBER};fill-opacity:.9}}",
+        f".kl{{fill:{AMBER};fill-opacity:.42}}",
+        f".kr{{fill:{AMBER};fill-opacity:.2}}",
+    ]
+    out = [frame(W, H, rx=10)]
+    out.append(f'<text x="18" y="29" font-size="12" letter-spacing="1.6" fill="{AMBER}">SKYLINE</text>')
+    out.append(f'<text x="{W - 18}" y="29" font-size="10" fill="{SLATE2}" text-anchor="end">the same year, extruded</text>')
+
+    px2, pz2 = x_off * ux + 16, z_off * uz + 14
+    frames = []
+    for fi in range(N):
+        # swing between 10 and 46 degrees: always oblique, never edge-on
+        phi = math.radians(28 + 18 * math.sin(2 * math.pi * fi / N))
+        el = []
+        plat = [(-px2, 0, -pz2), (px2, 0, -pz2), (px2, 0, pz2), (-px2, 0, pz2)]
+        pts = [project(x, y, z, phi) for x, y, z in plat]
+        d = "M" + "L".join(f"{round(px)},{round(py)}" for px, py, _ in pts) + "Z"
+        el.append(f'<path d="{d}" fill="{PANEL}" stroke="#232B33"/>')
+        for bx, bz, h in sorted(bars, key=lambda b: project(b[0], 0, b[1], phi)[2]):
+            x0, x1 = bx - bw / 2, bx + bw / 2
+            z0, z1 = bz - bd / 2, bz + bd / 2
+            el.append(face([(x0, h, z1), (x1, h, z1), (x1, 0, z1), (x0, 0, z1)], phi, "kl"))
+            if phi > 0.001:
+                el.append(face([(x0, h, z0), (x0, h, z1), (x0, 0, z1), (x0, 0, z0)], phi, "kr"))
+            elif phi < -0.001:
+                el.append(face([(x1, h, z1), (x1, h, z0), (x1, 0, z0), (x1, 0, z1)], phi, "kr"))
+            el.append(face([(x0, h, z0), (x1, h, z0), (x1, h, z1), (x0, h, z1)], phi, "kt"))
+        frames.append("".join(el))
+
+    for fi, content in enumerate(frames):
+        p = f"skf{fi}"
+        t0, t1 = fi / N * 100, (fi + 1) / N * 100
+        if fi == 0:
+            css.append(f"@keyframes {p}{{0%{{opacity:1}}{f(t1 - 0.004)}%{{opacity:1}}{f(t1)}%{{opacity:0}}100%{{opacity:0}}}}")
+            base = 1
+        else:
+            css.append(
+                f"@keyframes {p}{{0%,{f(t0 - 0.004)}%{{opacity:0}}{f(t0)}%{{opacity:1}}"
+                f"{f(t1 - 0.004)}%{{opacity:1}}{f(t1)}%{{opacity:0}}100%{{opacity:0}}}}"
+            )
+            base = 0
+        css.append(f".{p}{{animation:{p} {f(DUR)}s linear infinite;}}")
+        out.append(f'<g class="{p}" opacity="{base}">{content}</g>')
+
+    out.append(f'<text x="18" y="{H - 14}" font-size="10" fill="{SLATE2}">{data["total"]:,} contributions as a city · one tower per day</text>')
+    label = (f"Skyline: the contribution year as a rotating 3D bar city, one tower per active day, "
+             f"{data['total']:,} contributions total.")
+    return shell(W, H, css, "".join(out), label, shift)
+
+
 # ------------------------------------------------------------- main
 
 def main():
@@ -696,6 +797,7 @@ def main():
     outputs = {
         "hero-header": build_hero_header(shift),
         "story": build_story(shift),
+        "skyline": build_skyline(shift),
     }
     outputs.update(build_hero_modules(shift))
     for fn in (card_reciped, card_uschedule, card_factory, card_polybot,

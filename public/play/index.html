@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pong.srv · feel the lag</title>
+<style>
+  :root { --amber: #FFB300; --slate: #6C7986; --slate2: #46525E; --bg: #0E1116; --panel: #0A0D10; --line: #1E262E; }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    background: var(--bg); color: var(--slate);
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+    padding: 24px 12px; gap: 14px;
+  }
+  .top { width: min(792px, 100%); display: flex; justify-content: space-between; align-items: baseline; }
+  .top h1 { color: var(--amber); font-size: 15px; letter-spacing: 2px; font-weight: 600; }
+  .top span { color: var(--slate2); font-size: 11px; }
+  .frame { position: relative; border: 1.5px solid #262E36; border-radius: 10px; background: var(--panel); padding: 15px; }
+  canvas { display: block; background: #05070A; border: 1px solid var(--line); max-width: 100%; height: auto; touch-action: none; cursor: none; }
+  .frame::after {
+    content: ""; position: absolute; inset: 0; border-radius: 10px; pointer-events: none;
+    background: repeating-linear-gradient(to bottom, transparent 0 2px, rgba(0,0,0,.16) 2px 3px);
+  }
+  .controls { width: min(792px, 100%); display: flex; flex-wrap: wrap; gap: 18px; align-items: center; font-size: 12px; }
+  .controls label { display: flex; align-items: center; gap: 8px; color: var(--slate); }
+  .controls .val { color: var(--amber); min-width: 58px; }
+  input[type=range] { accent-color: var(--amber); width: 160px; }
+  input[type=checkbox] { accent-color: var(--amber); width: 15px; height: 15px; }
+  button {
+    background: var(--bg); color: var(--amber); border: 1px solid rgba(255,179,0,.45); border-radius: 4px;
+    font: inherit; font-size: 12px; padding: 6px 14px; cursor: pointer;
+  }
+  button:hover { border-color: var(--amber); }
+  .note { width: min(792px, 100%); font-size: 11.5px; color: var(--slate2); line-height: 1.6; }
+  .note b { color: var(--slate); font-weight: 600; }
+  a { color: var(--amber); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+  <div class="top">
+    <h1>PONG.SRV</h1>
+    <span>server authoritative &middot; 60 tick/s &middot; you are the left paddle</span>
+  </div>
+
+  <div class="frame"><canvas id="c" width="760" height="420"></canvas></div>
+
+  <div class="controls">
+    <label>latency <input id="lag" type="range" min="0" max="300" step="10" value="150">
+      <span class="val" id="lagval">150 ms</span></label>
+    <label><input id="pred" type="checkbox"> client prediction</label>
+    <button id="serve">serve</button>
+    <span id="score" style="color:var(--amber)">0 : 0</span>
+  </div>
+
+  <div class="note">
+    Your inputs travel to the server and the world travels back, each taking half the
+    latency. With <b>client prediction off</b>, the paddle you see is the server's delayed
+    version of you: move the mouse and wait for it. Turn <b>prediction on</b> and your paddle
+    obeys you instantly while the server catches up. One honest detail: the ball always bounces
+    off the <b>server's</b> idea of your paddle, not the one you see. Making that gap
+    unnoticeable is what netcode is.
+    <br><br>
+    <a href="https://github.com/OminousOne">&larr; back to github.com/OminousOne</a>
+  </div>
+
+<script>
+(() => {
+  const W = 760, H = 420, PW = 10, PH = 72, BALL = 8, PX = 26;
+  const cv = document.getElementById("c"), ctx = cv.getContext("2d");
+  const lagEl = document.getElementById("lag"), lagVal = document.getElementById("lagval");
+  const predEl = document.getElementById("pred"), scoreEl = document.getElementById("score");
+
+  let rtt = +lagEl.value;
+  lagEl.oninput = () => { rtt = +lagEl.value; lagVal.textContent = rtt + " ms"; };
+
+  // ---- client input ----
+  let mouseY = H / 2, keys = {};
+  cv.addEventListener("pointermove", e => {
+    const r = cv.getBoundingClientRect();
+    mouseY = (e.clientY - r.top) * (H / r.height);
+  });
+  addEventListener("keydown", e => { keys[e.key] = true; });
+  addEventListener("keyup", e => { keys[e.key] = false; });
+
+  // ---- authoritative server, 60 Hz, fed by delayed inputs ----
+  const srv = {
+    ball: { x: W / 2, y: H / 2, vx: 0, vy: 0 },
+    left: H / 2, right: H / 2, scoreL: 0, scoreR: 0, tick: 0, live: false,
+  };
+  const inputQ = [], snapQ = [];
+
+  function serve() {
+    const dir = Math.random() < 0.5 ? 1 : -1;
+    srv.ball = { x: W / 2, y: H / 2, vx: dir * 4.6, vy: (Math.random() * 2 - 1) * 3 };
+    srv.live = true;
+  }
+  document.getElementById("serve").onclick = serve;
+
+  function srvTick(now) {
+    srv.tick++;
+    // consume the newest input that has "arrived"
+    while (inputQ.length && inputQ[0].t <= now - rtt / 2) srv.left = inputQ.shift().y;
+    // rustic AI: tracks the ball with a speed cap and a little laziness
+    const target = srv.ball.vx > 0 ? srv.ball.y : H / 2;
+    srv.right += Math.max(-4.4, Math.min(4.4, (target - srv.right) * 0.12));
+
+    if (srv.live) {
+      const b = srv.ball;
+      b.x += b.vx; b.y += b.vy;
+      if (b.y < BALL / 2 || b.y > H - BALL / 2) { b.vy *= -1; b.y = Math.max(BALL / 2, Math.min(H - BALL / 2, b.y)); }
+      const hit = (px, py) => Math.abs(b.x - px) < PW / 2 + BALL / 2 && Math.abs(b.y - py) < PH / 2 + BALL / 2;
+      if (b.vx < 0 && hit(PX, srv.left)) { b.vx = Math.abs(b.vx) * 1.04; b.vy += (b.y - srv.left) * 0.06; b.x = PX + PW / 2 + BALL / 2; }
+      if (b.vx > 0 && hit(W - PX, srv.right)) { b.vx = -Math.abs(b.vx) * 1.04; b.vy += (b.y - srv.right) * 0.06; b.x = W - PX - PW / 2 - BALL / 2; }
+      if (b.x < -20) { srv.scoreR++; srv.live = false; }
+      if (b.x > W + 20) { srv.scoreL++; srv.live = false; }
+      if (!srv.live) { scoreEl.textContent = srv.scoreL + " : " + srv.scoreR; setTimeout(serve, 900); }
+    }
+    snapQ.push({ t: now, ball: { ...srv.ball }, left: srv.left, right: srv.right, tick: srv.tick });
+    while (snapQ.length > 400) snapQ.shift();
+  }
+
+  // ---- client render: interpolate snapshots that have "arrived" ----
+  function snapshotAt(time) {
+    let a = null, b = null;
+    for (let i = snapQ.length - 1; i >= 0; i--) {
+      if (snapQ[i].t <= time) { a = snapQ[i]; b = snapQ[i + 1] || a; break; }
+    }
+    if (!a) return snapQ[0];
+    const span = b.t - a.t || 1, u = Math.max(0, Math.min(1, (time - a.t) / span));
+    return {
+      ball: { x: a.ball.x + (b.ball.x - a.ball.x) * u, y: a.ball.y + (b.ball.y - a.ball.y) * u },
+      left: a.left + (b.left - a.left) * u,
+      right: a.right + (b.right - a.right) * u,
+      tick: a.tick,
+    };
+  }
+
+  let acc = 0, last = performance.now();
+  function frame(now) {
+    // capture input
+    if (keys.ArrowUp) mouseY -= 7;
+    if (keys.ArrowDown) mouseY += 7;
+    mouseY = Math.max(PH / 2, Math.min(H - PH / 2, mouseY));
+    inputQ.push({ t: now, y: mouseY });
+
+    // run the server at a fixed 60 Hz
+    acc += now - last; last = now;
+    while (acc >= 1000 / 60) { acc -= 1000 / 60; srvTick(now); }
+
+    const seen = snapshotAt(now - rtt / 2 - 25);
+    if (!seen) { requestAnimationFrame(frame); return; }
+    const myY = predEl.checked ? mouseY : seen.left;
+
+    // draw
+    ctx.clearRect(0, 0, W, H);
+    ctx.strokeStyle = "#1E262E"; ctx.setLineDash([4, 7]);
+    ctx.beginPath(); ctx.moveTo(W / 2, 8); ctx.lineTo(W / 2, H - 8); ctx.stroke(); ctx.setLineDash([]);
+
+    ctx.fillStyle = "#46525E"; ctx.font = "11px ui-monospace, Menlo, monospace";
+    ctx.fillText("YOU", PX - 8, 18);
+    ctx.fillText("SRV AI", W - PX - 30, 18);
+    ctx.fillText("rtt " + rtt + " ms · tick " + seen.tick + " · prediction " + (predEl.checked ? "on" : "off"), 12, H - 12);
+
+    ctx.shadowColor = "#FFB300"; ctx.shadowBlur = 9; ctx.fillStyle = "#FFB300";
+    ctx.fillRect(PX - PW / 2, myY - PH / 2, PW, PH);
+    ctx.fillRect(W - PX - PW / 2, seen.right - PH / 2, PW, PH);
+    ctx.fillRect(seen.ball.x - BALL / 2, seen.ball.y - BALL / 2, BALL, BALL);
+    ctx.shadowBlur = 0;
+
+    // ghost: where the server thinks you are, when prediction hides it
+    if (predEl.checked && Math.abs(seen.left - myY) > 3) {
+      ctx.strokeStyle = "rgba(255,179,0,.4)"; ctx.setLineDash([3, 3]);
+      ctx.strokeRect(PX - PW / 2, seen.left - PH / 2, PW, PH); ctx.setLineDash([]);
+    }
+
+    ctx.fillStyle = "rgba(255,179,0,.75)"; ctx.font = "20px ui-monospace, Menlo, monospace";
+    ctx.fillText(srv.scoreL + "   " + srv.scoreR, W / 2 - 34, 30);
+
+    requestAnimationFrame(frame);
+  }
+
+  serve();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
