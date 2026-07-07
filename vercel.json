@@ -8,5 +8,6 @@
       "source": "/play",
       "destination": "/play/index.html"
     }
-  ]
+  ],
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- api/ public/ vercel.json"
 }

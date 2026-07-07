@@ -2,24 +2,31 @@ name: keep live stats warm
 
 # The stat cards are rendered by Vercel functions on demand. GitHub's image
 # proxy (camo) times out after a few seconds, so a cold function means a
-# broken image for the first visitor. Pinging the endpoints every 5 minutes
-# keeps the edge cache inside its 10 minute s-maxage window, so camo always
-# gets an instant cached response.
+# broken image for the first visitor. Pinging the endpoints keeps the edge
+# cache inside its s-maxage window, so camo always gets an instant response.
+# Runs on a schedule AND on every push, because deployments reset the cache.
 
 on:
   schedule:
     - cron: "*/5 * * * *"
+  push:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
   warm:
     runs-on: ubuntu-latest
     steps:
-      - name: ping stat endpoints
+      - name: wait out a possible deploy, then ping endpoints
         run: |
+          # a push may have triggered a Vercel build; give it time to finish
+          if [ "${{ github.event_name }}" = "push" ]; then sleep 75; fi
           # visitors.svg is deliberately NOT warmed: it counts real page views
           for card in stats streaks weekdays langs footer guestbook; do
-            curl -sS -o /dev/null --max-time 25 \
-              "https://readme-ominousones-projects.vercel.app/live/$card.svg?v=2" \
-              && echo "$card warm" || echo "$card FAILED"
+            for attempt in 1 2 3; do
+              curl -sS -o /dev/null --max-time 25 \
+                "https://readme-ominousones-projects.vercel.app/live/$card.svg?v=2" \
+                && echo "$card warm (attempt $attempt)" && break
+              sleep 5
+            done
           done
