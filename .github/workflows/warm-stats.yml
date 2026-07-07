@@ -25,7 +25,7 @@ jobs:
           for card in stats streaks weekdays langs footer guestbook boss pet canvas life; do
             for attempt in 1 2 3; do
               curl -sS -o /dev/null --max-time 25 \
-                "https://readme-ominousones-projects.vercel.app/live/$card.svg?v=2" \
+                "https://readme-ominousones-projects.vercel.app/live/$card.svg?v=3" \
                 && echo "$card warm (attempt $attempt)" && break
               sleep 5
             done

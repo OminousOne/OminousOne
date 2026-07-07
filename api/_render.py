@@ -83,7 +83,8 @@ BOOT_HOLD = 7.4  # the page boot: cards stay dark until the terminal finishes
 def shell(w, h, css, body, label):
     css = list(css)
     css.append("@keyframes bootrev{0%{opacity:0}30%{opacity:.8}55%{opacity:.15}100%{opacity:1}}")
-    body = f'<g style="animation:bootrev .5s linear both;animation-delay:{BOOT_HOLD}s">{body}</g>'
+    scan = f'<rect x="1" y="1" width="{w - 2}" height="{h - 2}" rx="10" fill="url(#scan)" opacity="0.14"/>'
+    body = f'<g style="animation:bootrev .5s linear both;animation-delay:{BOOT_HOLD}s">{body}{scan}</g>'
     return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}" role="img" aria-label="{label}">
 <style><![CDATA[
 text{{font-family:{MONO};}}
@@ -96,7 +97,6 @@ text{{font-family:{MONO};}}
   </pattern>
 </defs>
 {body}
-<rect x="1" y="1" width="{w - 2}" height="{h - 2}" rx="10" fill="url(#scan)" opacity="0.14"/>
 </svg>"""
 
 

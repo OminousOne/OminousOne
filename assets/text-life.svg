@@ -14,6 +14,6 @@ text{font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospa
     <rect width="3" height="1" y="2" fill="#000"/>
   </pattern>
 </defs>
-<g style="animation:bootrev .5s linear both;animation-delay:7.4s"><rect x="0.75" y="0.75" width="828.5" height="86.5" rx="8" fill="#0E1116" stroke="#262E36" stroke-width="1.5"/><text x="22" y="34" font-size="12.5" fill="#6C7986">I made Conway's Game of Life run inside Minecraft as a teenager.</text><text x="22" y="53" font-size="12.5" fill="#6C7986">Now it runs inside my GitHub profile, and you are all gardening it.</text></g>
-<rect x="1" y="1" width="828" height="86" rx="10" fill="url(#scan)" opacity="0.14"/>
+<g style="animation:bootrev .5s linear both;animation-delay:7.4s"><rect x="0.75" y="0.75" width="828.5" height="86.5" rx="8" fill="#0E1116" stroke="#262E36" stroke-width="1.5"/><text x="22" y="34" font-size="12.5" fill="#6C7986">I made Conway's Game of Life run inside Minecraft as a teenager.</text><text x="22" y="53" font-size="12.5" fill="#6C7986">Now it runs inside my GitHub profile, and you are all gardening it.</text><rect x="1" y="1" width="828" height="86" rx="10" fill="url(#scan)" opacity="0.14"/></g>
+
 </svg>

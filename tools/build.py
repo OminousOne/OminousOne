@@ -91,10 +91,13 @@ def pixel_width(text, u):
 
 def shell(w, h, css, body, label, shift=None, hold=None, overlay=True):
     dev = f"<style>*{{animation-delay:-{f(shift)}s !important}}</style>" if shift else ""
+    scan = f'<rect x="1" y="1" width="{w - 2}" height="{h - 2}" rx="10" fill="url(#scan)" opacity="0.14"/>' if overlay else ""
     if hold:
         css = list(css)
         css.append("@keyframes bootrev{0%{opacity:0}30%{opacity:.8}55%{opacity:.15}100%{opacity:1}}")
-        body = f'<g style="animation:bootrev .5s linear both;animation-delay:{f(hold)}s">{body}</g>'
+        # the scanline overlay hides with the body, or it ghosts during boot
+        body = f'<g style="animation:bootrev .5s linear both;animation-delay:{f(hold)}s">{body}{scan}</g>'
+        scan = ""
     return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}" role="img" aria-label="{label}">
 <style><![CDATA[
 text{{font-family:{MONO};}}
@@ -112,7 +115,7 @@ text{{font-family:{MONO};}}
   </pattern>
 </defs>
 {body}
-{('<rect x="1" y="1" width="%d" height="%d" rx="10" fill="url(#scan)" opacity="0.14"/>' % (w - 2, h - 2)) if overlay else ''}
+{scan}
 </svg>"""
 
 
@@ -462,6 +465,11 @@ def build_hero_header(shift=None):
         return f"animation:pop .01s linear both;animation-delay:{f(t)}s"
 
     css.append("@keyframes pop{from{opacity:0}to{opacity:1}}")
+    css.append("@keyframes poweron{0%{transform:scaleX(0);opacity:1}55%{transform:scaleX(1);opacity:1}100%{transform:scaleX(1);opacity:0}}")
+    out.append(
+        f'<rect x="20" y="124" width="{W - 40}" height="2.5" fill="#EDE6D6" filter="url(#glow)" '
+        f'style="animation:poweron .55s cubic-bezier(.2,.8,.3,1) both;transform-origin:{W / 2}px 0"/>'
+    )
     css.append("@keyframes gone{from{opacity:1}to{opacity:0}}")
     css.append("@keyframes cursor{0%,49%{opacity:1}50%,100%{opacity:0}}")
 
@@ -482,9 +490,15 @@ def build_hero_header(shift=None):
         (3.90, "feed BLOB", "SQUISH", SLATE, 4.15),
         (4.20, "wake raid boss", "GRRRR", SLATE, 4.45),
         (4.50, "count crowd", "+1 (you)", SLATE, 4.75),
-        (5.05, "integrity check", "PASS", SLATE, 5.30),
+        (5.02, "integrity check", "PASS", SLATE, 5.55),
     ]
     spew = []
+    # a bright band rolls down the terminal while it boots
+    css.append("@keyframes sweep{from{transform:translateY(-30px)}to{transform:translateY(255px)}}")
+    spew.append(
+        f'<rect x="10" y="0" width="{W - 20}" height="24" fill="{AMBER}" opacity=".05" '
+        f'style="animation:sweep 2.3s linear infinite"/>'
+    )
     y = 34
     kernel_y = None
     for t, txt, stamp, color, t_stamp in LINES:
@@ -505,6 +519,22 @@ def build_hero_header(shift=None):
     spew.append(f'<rect x="220" y="{kernel_y - 9}" width="150" height="8" rx="2" fill="{AMBER}" style="animation:pop .01s both, kload .45s linear both;animation-delay:1.08s;transform-origin:220px 0"/>')
     spew.append(f'<text x="382" y="{kernel_y}" font-size="11" fill="{AMBER}" style="{at(1.5)}">100%</text>')
 
+    # line one types itself out: a panel-colored cover retreats in steps
+    css.append("@keyframes typed{from{transform:scaleX(1)}to{transform:scaleX(0)}}")
+    spew.append(
+        f'<rect x="30" y="24" width="440" height="13" fill="{BG}" '
+        f'style="animation:typed .85s steps(30) both;animation-delay:.12s;transform-origin:470px 0"/>'
+    )
+
+    # spinner while the integrity check runs
+    css.append("@keyframes spin4{0%,24%{opacity:1}25%,100%{opacity:0}}")
+    spinner = "".join(
+        f'<text x="{W - 340}" y="{y - 13}" font-size="11" fill="{AMBER}" '
+        f'style="animation:spin4 .32s steps(1) infinite;animation-delay:{f(i * 0.08)}s" opacity="0">{ch}</text>'
+        for i, ch in enumerate(("|", "/", "-", "\\"))
+    )
+    spew.append(f'<g style="animation:pop .01s both 5.02s, gone .01s both 5.5s">{spinner}</g>')
+
     # blinking cursor riding the bottom of the spew
     spew.append(f'<rect x="24" y="{y - 2}" width="7" height="11" fill="{AMBER}" style="animation:cursor .7s steps(1) infinite"/>')
 
@@ -516,7 +546,11 @@ def build_hero_header(shift=None):
         f'<text x="{W / 2}" y="136" font-size="22" letter-spacing="6" fill="{AMBER}" text-anchor="middle" filter="url(#glow)">ACCESS GRANTED</text></g>'
     )
     css.append("@media (prefers-reduced-motion:reduce){.spew{display:none}}")
-    out.append(f'<g class="spew" style="animation:gone .35s linear both;animation-delay:6.15s">{"".join(spew)}</g>')
+    css.append("@keyframes shake{0%,100%{transform:translate(0,0)}20%{transform:translate(-3px,2px)}40%{transform:translate(3px,-2px)}60%{transform:translate(-2px,-1px)}80%{transform:translate(2px,1px)}}")
+    css.append("@keyframes flash{0%{opacity:0}30%{opacity:.18}100%{opacity:0}}")
+    spew.append(f'<rect x="2" y="2" width="{W - 4}" height="{H - 4}" rx="9" fill="#EDE6D6" opacity="0" style="animation:flash .22s linear both;animation-delay:5.52s"/>')
+    out.append(f'<g class="spew" style="animation:gone .35s linear both;animation-delay:6.15s">'
+               f'<g style="animation:shake .3s linear both;animation-delay:5.55s">{"".join(spew)}</g></g>')
 
     # ---- the permanent header state: wordmark boots in after the wipe
     css.append("@keyframes wmboot{0%{opacity:0}20%{opacity:.9}40%{opacity:.2}70%{opacity:1}100%{opacity:1}}")
@@ -531,6 +565,7 @@ def build_hero_header(shift=None):
     final.append(f'<circle cx="24" cy="226" r="3" fill="{AMBER}" style="animation:pop .01s both;animation-delay:7s"/>')
     final.append(f'<text x="34" y="230" font-size="11" fill="{SLATE2}" style="{at(7.0)}">boot complete in 7.0s · all systems nominal · scroll down</text>')
     final.append(f'<text x="{W - 24}" y="230" font-size="11" fill="{SLATE2}" text-anchor="end" style="{at(7.0)}">refresh to reboot</text>')
+    final.append(f'<g style="{at(7.1)}"><rect x="352" y="221" width="6" height="10" fill="{AMBER}" style="animation:cursor .8s steps(1) infinite"/></g>')
     out.append("".join(final))
 
     label = ("Boot terminal: a seven second initialization sequence with BIOS checks, netlinks coming "
