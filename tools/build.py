@@ -700,20 +700,25 @@ def build_story(shift=None):
 # the contribution year extruded into a bar city, rendered in real 3D the
 # same way as the globe: rotate, project, painter-sort, bake frames.
 
-def build_skyline(shift=None):
+def build_skyline(shift=None, camera="flyover", fly_phi=48, fly_tilt=35):
     data = json.load(open(os.path.join(ROOT, "tools", "skyline-data.json")))
     weeks = data["weeks"]
     counts = sorted(c for w in weeks for c in w if c > 0)
     vmax = counts[-1] if counts else 1
 
     W, H = 830, 260
-    cx, cy = W / 2, 158
+    cx, cy = W / 2, 170 if camera == "flyover" else 158
     N, DUR = 44, 10.0
-    TILT = math.radians(26)
+    TILT = math.radians(fly_tilt if camera == "flyover" else 26)
     ct, st = math.cos(TILT), math.sin(TILT)
     ux, uz = 13.0, 15.0          # week and weekday spacing
     bw, bd = 8.6, 9.4            # bar footprint, gapped so towers read apart
     x_off, z_off = (len(weeks) - 1) / 2, 3.0
+
+    # a full turntable brings the long axis toward the camera, which needs
+    # a smaller scale to stay inside the card; the flyover renders larger
+    # than the card and lets the camera glide along it
+    scale = {"turntable": 0.78, "flyover": 1.42}.get(camera, 1.0)
 
     def project(x, y, z, phi):
         cp, sp = math.cos(phi), math.sin(phi)
@@ -721,7 +726,7 @@ def build_skyline(shift=None):
         z2 = -x * sp + z * cp
         py = y * ct - z2 * st
         depth = y * st + z2 * ct
-        return cx + x2, cy - py, depth
+        return cx + x2 * scale, cy - py * scale, depth
 
     def bucket(c):
         return min(3, int(4 * counts.index(c) / len(counts)))
@@ -754,56 +759,166 @@ def build_skyline(shift=None):
     css.append("@keyframes skyrise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}")
 
     out = [frame(W, H, rx=10)]
-    out.append(f'<text x="18" y="29" font-size="12" letter-spacing="1.6" fill="{AMBER}">SKYLINE</text>')
-    out.append(f'<text x="{W - 18}" y="29" font-size="10" fill="{SLATE2}" text-anchor="end">the same year, extruded</text>')
     out.append('<g style="animation:skyrise .8s cubic-bezier(.25,.6,.3,1) both;animation-delay:.15s">')
 
     px2, pz2 = x_off * ux + 15, z_off * uz + 13
-    frames = []
-    for fi in range(N):
-        # swing between 10 and 46 degrees: always oblique, never edge-on
-        phi = math.radians(28 + 18 * math.sin(2 * math.pi * fi / N))
+
+    def render_frame(phi, mid_extra=""):
+        """one fully-culled render of the city at rotation phi (any angle).
+        mid_extra is injected between the platform and the towers, so things
+        like street traffic pass behind the buildings."""
+        cp, sp = math.cos(phi), math.sin(phi)
         el = []
 
-        # platform: a slab with thickness, its front skirt facing the viewer
+        # platform slab: top plus whichever two skirts face the camera
         top = [(-px2, 0, -pz2), (px2, 0, -pz2), (px2, 0, pz2), (-px2, 0, pz2)]
-        base = [(x, -7, z) for x, z in ((-px2, pz2), (px2, pz2), (px2, -pz2), (-px2, -pz2))]
+        skirts = [
+            (cp, [top[3], top[2], (px2, -7, pz2), (-px2, -7, pz2)]),       # +z
+            (-cp, [top[1], top[0], (-px2, -7, -pz2), (px2, -7, -pz2)]),    # -z
+            (-sp, [top[2], top[1], (px2, -7, -pz2), (px2, -7, pz2)]),      # +x
+            (sp, [top[0], top[3], (-px2, -7, pz2), (-px2, -7, -pz2)]),     # -x
+        ]
+        for vis, quad in skirts:
+            if vis > 0.001:
+                pts = [project(*p, phi) for p in quad]
+                d = "M" + "L".join(f"{round(px)},{round(py)}" for px, py, _ in pts) + "Z"
+                el.append(f'<path d="{d}" fill="#0B0E12" stroke="#232B33" stroke-width=".6"/>')
         tp = [project(*p, phi) for p in top]
         d = "M" + "L".join(f"{round(px)},{round(py)}" for px, py, _ in tp) + "Z"
-        skirt = [top[3], top[2], (px2, -7, pz2), (-px2, -7, pz2)]
-        sp_ = [project(*p, phi) for p in skirt]
-        ds = "M" + "L".join(f"{round(px)},{round(py)}" for px, py, _ in sp_) + "Z"
-        side = [top[2], top[1], (px2, -7, -pz2), (px2, -7, pz2)]
-        vp = [project(*p, phi) for p in side]
-        dv = "M" + "L".join(f"{round(px)},{round(py)}" for px, py, _ in vp) + "Z"
-        el.append(f'<path d="{ds}" fill="#0B0E12" stroke="#232B33" stroke-width=".6"/>')
-        el.append(f'<path d="{dv}" fill="#080B0E" stroke="#232B33" stroke-width=".6"/>')
         el.append(f'<path d="{d}" fill="{PANEL}" stroke="#2A333C" stroke-width=".8"/>')
-        # quarter lines etched into the platform
         for qw in (13, 26, 39):
             qx = (qw - x_off) * ux
             a = project(qx, 0.3, -pz2 + 3, phi)
             b = project(qx, 0.3, pz2 - 3, phi)
             el.append(f'<line x1="{round(a[0])}" y1="{round(a[1])}" x2="{round(b[0])}" y2="{round(b[1])}" stroke="#1E262E" stroke-width=".7"/>')
+        if mid_extra:
+            el.append(mid_extra)
 
         for bx, bz, h, bk in sorted(bars, key=lambda b: project(b[0], 0, b[1], phi)[2]):
             x0, x1 = bx - bw / 2, bx + bw / 2
             z0, z1 = bz - bd / 2, bz + bd / 2
-            el.append(face([(x0, h, z1), (x1, h, z1), (x1, 0, z1), (x0, 0, z1)], phi, f"kl{bk}"))
-            el.append(face([(x0, h, z0), (x0, h, z1), (x0, 0, z1), (x0, 0, z0)], phi, f"kr{bk}"))
+            zface = [(x0, h, z1), (x1, h, z1), (x1, 0, z1), (x0, 0, z1)] if cp > 0 else \
+                    [(x1, h, z0), (x0, h, z0), (x0, 0, z0), (x1, 0, z0)]
+            xface = [(x0, h, z0), (x0, h, z1), (x0, 0, z1), (x0, 0, z0)] if sp > 0 else \
+                    [(x1, h, z1), (x1, h, z0), (x1, 0, z0), (x1, 0, z1)]
+            if abs(cp) > 0.001:
+                el.append(face(zface, phi, f"kl{bk}"))
+            if abs(sp) > 0.001:
+                el.append(face(xface, phi, f"kr{bk}"))
             el.append(face([(x0, h, z0), (x1, h, z0), (x1, h, z1), (x0, h, z1)], phi, f"kt{bk}"))
+        return el
 
+    def tag(phi):
         # tag the tallest tower, clamped so it never leaves the card
         tx, tz, th, _ = tallest
         tp1 = project(tx, th, tz, phi)
         tipy = max(round(tp1[1]) - 18, 40)
-        el.append(
+        return (
             f'<line x1="{round(tp1[0])}" y1="{round(tp1[1])}" x2="{round(tp1[0])}" y2="{tipy + 2}" stroke="{AMBER}" stroke-opacity=".6" stroke-width=".8"/>'
             f'<circle cx="{round(tp1[0])}" cy="{tipy}" r="1.6" fill="{AMBER}"/>'
             f'<text x="{round(tp1[0]) - 6}" y="{tipy + 3}" font-size="9" fill="{SLATE}" text-anchor="end">{vmax} in one day</text>'
         )
-        frames.append("".join(el))
 
+    if camera == "flyover":
+        # one fixed-angle render, then the CAMERA moves: pure CSS pan and
+        # zoom, browser-interpolated, so motion is smooth with no frames
+        PHI = math.radians(34)
+
+        # street traffic: cars run the lanes between tower rows, drawn under
+        # the buildings so they disappear behind them
+        cars = []
+        lanes = [(-2.5, 11.0, 1), (-0.5, 14.0, -1), (1.5, 9.5, 1), (3.4, 12.5, -1)]
+        for li, (lane, dur, direction) in enumerate(lanes):
+            zl = lane * uz
+            a = project(-px2 + 6, 0.8, zl, PHI)
+            bpt = project(px2 - 6, 0.8, zl, PHI)
+            if direction < 0:
+                a, bpt = bpt, a
+            dx, dy = bpt[0] - a[0], bpt[1] - a[1]
+            for ci in range(2):
+                p = f"car{li}_{ci}"
+                css.append(f"@keyframes {p}{{from{{transform:translate(0,0)}}to{{transform:translate({f(dx)}px,{f(dy)}px)}}}}")
+                delay = -(dur * (0.13 + 0.47 * ci + 0.19 * li))
+                op = 0.9 if (li + ci) % 2 == 0 else 0.55
+                cars.append(
+                    f'<circle cx="{f(a[0])}" cy="{f(a[1])}" r="1.7" fill="{AMBER}" opacity="{op}" '
+                    f'style="animation:{p} {f(dur)}s linear infinite;animation-delay:{f(delay)}s"/>'
+                )
+
+        # the tag reads at the wide shot but smears at zoom, so it sits the
+        # flight out and returns for the pull-back
+        css.append("@keyframes tagfade{0%,13%{opacity:1}17%,80%{opacity:0}88%,100%{opacity:1}}")
+        scene = ("".join(render_frame(PHI, mid_extra="".join(cars)))
+                 + f'<g style="animation:tagfade 28s linear infinite">{tag(PHI)}</g>')
+
+        # a slow beacon on the tallest tower
+        css.append("@keyframes beacon{0%,100%{opacity:1}50%{opacity:.15}}")
+        tx_, tz_, th_, _ = tallest
+        bp = project(tx_, th_ + 2, tz_, PHI)
+        scene += f'<circle cx="{f(bp[0])}" cy="{f(bp[1])}" r="1.5" fill="{AMBER}" style="animation:beacon 2.4s ease-in-out infinite"/>'
+
+        # camera path: whole city, dive to the quiet end, glide the year,
+        # hold on downtown, pull back out. focus points are computed, not guessed
+        s = 1.8
+        C = (W / 2, 145)
+        jan = project((2 - x_off) * ux, 16, 0, PHI)
+        jun = project((47 - x_off) * ux, 30, 0, PHI)
+        focus = {13: jan, 17: jan, 63: jun, 71: jun}
+        stops = [
+            (0, True, "ease-in-out"), (13, False, "ease-in-out"), (17, False, "linear"),
+            (63, False, "ease-in-out"), (71, False, "ease-in-out"), (86, True, "ease-in-out"),
+            (100, True, "linear"),
+        ]
+        kf = []
+        for t, whole, ease in stops:
+            if whole:
+                tx, ty, sc = 0, 0, 1.0
+            else:
+                px, py = focus[t][0], focus[t][1]
+                tx, ty, sc = C[0] - s * px, C[1] - s * py, s
+            kf.append(f"{t}%{{transform:translate({f(tx)}px,{f(ty)}px) scale({f(sc)});animation-timing-function:{ease}}}")
+        css.append("@keyframes flyover{" + "".join(kf) + "}")
+        out.append(f'<clipPath id="skclip"><rect x="8" y="36" width="{W - 16}" height="{H - 62}" rx="6"/></clipPath>')
+        out.append(f'<g clip-path="url(#skclip)"><g style="animation:flyover 28s infinite">{scene}</g></g>')
+        frames = []
+    elif camera == "fixed":
+        out.append("".join(render_frame(math.radians(34))) + tag(math.radians(34)))
+        frames = []
+    elif camera == "flyover":
+        # one static render, camera motion is a pure CSS glide: perfectly
+        # smooth because nothing is re-rendered, just translated
+        phi = math.radians(fly_phi)
+        cp, sp = math.cos(phi), math.sin(phi)
+        amp = 80.0
+        ax, ay = amp * cp, -amp * sp * st * 0.5
+        css.append(
+            f"@keyframes fly{{0%{{transform:translate({f(ax)}px,{f(ay)}px) scale(1)}}"
+            f"50%{{transform:translate({f(-ax)}px,{f(-ay)}px) scale(1.06)}}"
+            f"100%{{transform:translate({f(ax)}px,{f(ay)}px) scale(1)}}}}"
+        )
+        out.append(f'<clipPath id="skc"><rect x="2" y="2" width="{W - 4}" height="{H - 4}" rx="9"/></clipPath>')
+        out.append(
+            f'<g clip-path="url(#skc)"><g style="animation:fly 30s cubic-bezier(.42,0,.58,1) infinite;'
+            f'transform-origin:{f(cx)}px {f(cy - 30)}px">'
+            + "".join(render_frame(phi)) + tag(phi) + "</g></g>"
+        )
+        frames = []
+    else:
+        if camera == "turntable":
+            N, DUR = 96, 22.0
+        else:
+            N, DUR = 72, 12.0
+        frames = []
+        for fi in range(N):
+            if camera == "turntable":
+                phi = math.radians(28) + 2 * math.pi * fi / N
+            else:
+                # swing between 10 and 46 degrees: always oblique, never edge-on
+                phi = math.radians(28 + 18 * math.sin(2 * math.pi * fi / N))
+            frames.append("".join(render_frame(phi)) + tag(phi))
+
+    # hard frame cuts: partial-opacity blends of line art shimmer, so
+    # smoothness comes from frame count and small angle steps instead
     for fi, content in enumerate(frames):
         p = f"skf{fi}"
         t0, t1 = fi / N * 100, (fi + 1) / N * 100
@@ -820,8 +935,10 @@ def build_skyline(shift=None):
         out.append(f'<g class="{p}" opacity="{base}">{content}</g>')
 
     out.append("</g>")
+    out.append(f'<text x="18" y="29" font-size="12" letter-spacing="1.6" fill="{AMBER}">SKYLINE</text>')
+    out.append(f'<text x="{W - 18}" y="29" font-size="10" fill="{SLATE2}" text-anchor="end">the same year, extruded</text>')
     out.append(f'<text x="18" y="{H - 14}" font-size="10" fill="{SLATE2}">{data["total"]:,} contributions as a city · one tower per day</text>')
-    label = (f"Skyline: the contribution year as a rotating 3D bar city, one tower per active day, "
+    label = (f"Skyline: the contribution year as a 3D bar city, one tower per active day, "
              f"{data['total']:,} contributions total.")
     return shell(W, H, css, "".join(out), label, shift)
 

@@ -38,7 +38,7 @@ Live: [uschedule.ca](https://uschedule.ca/) · [NAV Canada simulator](https://na
 
 <img src="https://readme-ominousones-projects.vercel.app/live/stats.svg?v=2" width="100%" alt="My contribution heatmap for the past year, fetched live from the GitHub API." />
 <img src="https://readme-ominousones-projects.vercel.app/live/streaks.svg?v=2" width="32.6%" alt="Streaks, fetched live: longest streak, active days, and contributions per active day." /> <img src="https://readme-ominousones-projects.vercel.app/live/weekdays.svg?v=2" width="32.6%" alt="Contributions by weekday, fetched live." /> <img src="https://readme-ominousones-projects.vercel.app/live/langs.svg?v=2" width="32.6%" alt="Languages in the repos I pushed to in the last 12 months, fetched live." />
-<img src="./assets/skyline.svg" width="100%" alt="Skyline: the same contribution year rendered as a rotating 3D bar city, one tower per active day." />
+<img src="./assets/skyline.svg" width="100%" alt="Skyline: the same contribution year as a 3D city of amber towers, one per active day, with the camera slowly gliding along it." />
 
 </div>
 
