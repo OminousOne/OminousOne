@@ -548,14 +548,25 @@ def render_pet(_user=None):
 CANVAS_COLORS = {"a": AMBER, "w": "#EDE6D6", "s": SLATE}
 
 
+def _grid_labels(gx, gy, cols, rows_, cell):
+    """coordinate labels every 4th column and row, for aiming plays."""
+    out = []
+    for c in range(0, cols, 4):
+        out.append(f'<text x="{gx + c * cell + cell / 2 - 1}" y="{gy - 4}" font-size="7" fill="{SLATE2}" text-anchor="middle">{c}</text>')
+    for r in range(0, rows_, 4):
+        out.append(f'<text x="{gx - 6}" y="{gy + r * cell + cell / 2 + 2}" font-size="7" fill="{SLATE2}" text-anchor="end">{r}</text>')
+    return "".join(out)
+
+
 def render_canvas(_user=None):
     W = 830
     st = _gh_json("data/games/canvas.json")
     cols, rows_, cell = 64, 16, 12
-    gx, gy = (W - cols * cell) // 2, 42
+    gx, gy = (W - cols * cell) // 2 + 4, 50
     H = gy + rows_ * cell + 34
     css, out = [], [frame(W, H, rx=8)]
     out.append(f'<text x="18" y="27" font-size="12" letter-spacing="1.6" fill="{AMBER}">PIXEL CANVAS</text>')
+    out.append(_grid_labels(gx, gy, cols, rows_, cell))
     out.append(f'<text x="{W - 18}" y="27" font-size="10" fill="{SLATE2}" text-anchor="end">the internet draws here, one pixel at a time</text>')
     for r in range(rows_):
         for c in range(cols):
@@ -572,10 +583,11 @@ def render_life(_user=None):
     W = 830
     st = _gh_json("data/games/life.json")
     cols, rows_, cell = 64, 16, 12
-    gx, gy = (W - cols * cell) // 2, 42
+    gx, gy = (W - cols * cell) // 2 + 4, 50
     H = gy + rows_ * cell + 34
     css, out = [], [frame(W, H, rx=8)]
     out.append(f'<text x="18" y="27" font-size="12" letter-spacing="1.6" fill="{AMBER}">LIFE GARDEN</text>')
+    out.append(_grid_labels(gx, gy, cols, rows_, cell))
     out.append(f'<text x="{W - 18}" y="27" font-size="10" fill="{SLATE2}" text-anchor="end">conway rules · one generation per hour</text>')
     live = {(c, r) for c, r in st["cells"]}
     css.append("@keyframes lifein{from{opacity:0}to{opacity:1}}")
