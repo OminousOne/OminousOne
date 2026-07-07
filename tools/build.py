@@ -448,7 +448,7 @@ def globe(cx, cy, r, n_frames, dur, prefix, coast, meridian_step=45,
 
 def mod_atc(x, y, w, h):
     css, out = [], [module_box(x, y, w, h, "ATC SIMULATOR", "CYOW ↗")]
-    body, gcss = globe(x + w / 2, y + 92, 52, 96, 14, "atc", _coast())
+    body, gcss = globe(x + w / 2, y + 92, 52, 210, 14, "atc", _coast())
     out.append(body)
     css += gcss
     out.append(f'<text x="{x + 12}" y="{y + h - 12}" font-size="10" fill="{SLATE2}">1,000 real flights on a globe</text>')
@@ -796,7 +796,7 @@ def card_polybot(shift=None):
 
 def card_navsim(shift=None):
     coast = [ring[::2] for ring in _coast() if len(ring) >= 12]
-    body, css = globe(330, 118, 25, 48, 12, "cng", coast, meridian_step=60,
+    body, css = globe(330, 118, 25, 144, 12, "cng", coast, meridian_step=60,
                       coast_width=0.7, routes=ROUTES[:2], dots=False)
     desc = [
         "Air traffic control on a 3D globe: 1,000 real Canadian",
