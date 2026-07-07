@@ -1,7 +1,7 @@
 {
  "name": "BIT",
- "hunger": 5,
- "mood": 70,
+ "hunger": 9,
+ "mood": 67,
  "care": {
   "OminousOne": 1
  },
