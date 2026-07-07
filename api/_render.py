@@ -314,22 +314,80 @@ def _kv_incr(key):
         return json.loads(resp.read())["result"]
 
 
+def _person(x, y, i, cls="", fill=AMBER, opacity=None):
+    """a little pixel person. deterministic variety from the index."""
+    r = (i * 2654435761) & 0xFFFF
+    h = 4 + (r % 3)                      # body height varies
+    op = opacity if opacity is not None else (0.4, 0.55, 0.7)[(r >> 4) % 3]
+    g = f'<g{cls} fill="{fill}" opacity="{f(op)}">'
+    g += f'<rect x="{f(x + 1.5)}" y="{f(y + 6 - h)}" width="3" height="3"/>'          # head
+    g += f'<rect x="{f(x + 1)}" y="{f(y + 9.5 - h)}" width="4" height="{f(h)}"/>'     # body
+    g += f'<rect x="{f(x + 1)}" y="{f(y + 9.5)}" width="1.5" height="3"/>'            # legs
+    g += f'<rect x="{f(x + 3.5)}" y="{f(y + 9.5)}" width="1.5" height="3"/>'
+    return g + "</g>"
+
+
 def render_visitors(_user=None):
-    W, H = 830, 64
+    W = 830
     count = _kv_incr("profile_views")
-    css, out = [], [frame(W, H, rx=8)]
-    out.append(f'<text x="18" y="39" font-size="14" letter-spacing="2" fill="{AMBER}">VISITORS</text>')
     if count is None:
+        H = 64
+        css, out = [], [frame(W, H, rx=8)]
+        out.append(f'<text x="18" y="39" font-size="14" letter-spacing="2" fill="{AMBER}">VISITORS</text>')
         out.append(f'<text x="{W / 2}" y="39" font-size="14" fill="{SLATE2}" text-anchor="middle">------</text>')
         out.append(f'<text x="{W - 18}" y="39" font-size="10" fill="{SLATE2}" text-anchor="end">counter warming up</text>')
         return shell(W, H, css, "".join(out), "Visitor counter is warming up.")
+
+    # the crowd: one figure per `unit` visitors, scaled so it always fits
+    unit = 1
+    for u in (1, 2, 5, 10, 25, 50, 100, 250, 500, 1000, 5000):
+        if count // u <= 168:
+            unit = u
+            break
+    else:
+        unit = 10000
+    figures = max(count // unit, 1)
+    per_row = 56
+    rows = (figures + per_row - 1) // per_row
+    crowd_y = 70
+    H = crowd_y + rows * 17 + 30
+
+    css, out = [], [frame(W, H, rx=8)]
+    out.append(f'<text x="18" y="39" font-size="14" letter-spacing="2" fill="{AMBER}">VISITORS</text>')
     digits = str(count).zfill(6)
     x = (W - len(digits) * 26 * 0.62) / 2
     out.append(f'<rect x="{f(x - 12)}" y="12" width="{f(len(digits) * 26 * 0.62 + 24)}" height="40" rx="4" fill="{PANEL}" stroke="#232B33"/>')
     for ci, ch in enumerate(digits):
         out.append(odometer(x + ci * 26 * 0.62, 44, int(ch), 26, 0.7 + ci * 0.12, f"vc{ci}_", css))
     out.append(f'<text x="{W - 18}" y="39" font-size="10" fill="{SLATE2}" text-anchor="end">you just made this number go up</text>')
-    return shell(W, H, css, "".join(out), f"Live visitor counter: you are visitor {count:,}.")
+
+    css.append("@keyframes rowin{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}")
+    css.append("@keyframes newest{0%,100%{opacity:1}50%{opacity:.2}}")
+    margin = (W - per_row * 14) / 2
+    for ri in range(rows):
+        row = []
+        for ci in range(per_row):
+            i = ri * per_row + ci
+            if i >= figures:
+                break
+            if i == figures - 1:
+                fx, fy = margin + ci * 14, crowd_y + ri * 17
+                row.append(_person(fx, fy, i, cls=' style="animation:newest 1.6s ease-in-out infinite"', opacity=1.0))
+                row.append(
+                    f'<rect x="{f(fx - 7.5)}" y="{f(fy - 14)}" width="21" height="11" rx="2.5" fill="{PANEL}" fill-opacity=".95" stroke="#2A333C" stroke-width=".6"/>'
+                    f'<text x="{f(fx + 3)}" y="{f(fy - 6)}" font-size="8" fill="{AMBER}" text-anchor="middle">you</text>'
+                )
+            else:
+                row.append(_person(margin + ci * 14, crowd_y + ri * 17, i))
+        out.append(
+            f'<g style="animation:rowin .5s cubic-bezier(.3,.6,.3,1) both;animation-delay:{f(0.1 + ri * 0.08)}s">'
+            + "".join(row) + "</g>"
+        )
+
+    unit_txt = "each figure is one visitor" if unit == 1 else f"each figure is {unit} visitors"
+    out.append(f'<text x="18" y="{H - 12}" font-size="10" fill="{SLATE2}">{unit_txt} · the blinking one is you</text>')
+    label = f"Live visitor counter: you are visitor {count:,}, shown as the blinking figure joining a crowd of {figures} pixel people."
+    return shell(W, H, css, "".join(out), label)
 
 
 def render_guestbook(_user=None):
