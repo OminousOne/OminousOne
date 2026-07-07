@@ -444,26 +444,73 @@ def _gh_json(path):
         return json.loads(resp.read())
 
 
-def _boss_sprite(x, y, seed, px=7):
-    """procedural symmetric pixel monster, mirrored from a seeded half."""
+def _boss_sprite(x, y, seed, name="", px=7):
+    """procedural symmetric pixel monster, mirrored from a seeded half,
+    wearing species accessories keyed off its name."""
+    n = name.upper()
+    ghostly = any(w in n for w in ("WRAITH", "SPECTER", "LICH", "REVENANT"))
+    serpent = any(w in n for w in ("SERPENT", "BASILISK"))
+    hulking = any(w in n for w in ("GOLEM", "COLOSSUS", "TITAN", "BEHEMOTH", "OGRE"))
+    winged = any(w in n for w in ("DRAGON", "GARGOYLE", "CHIMERA"))
+    hydra = "HYDRA" in n
+    kraken = "KRAKEN" in n
+
+    if serpent:
+        px, rows, half = 6, 5, 9
+    else:
+        rows, half = 7, 6
+    density = 74 if hulking else 62
+    base_op = 0.7 if ghostly else 1.0
+
     out, s = [], seed * 48271 % 2147483647 or 7
-    rows, half = 7, 6
     grid = []
     for r in range(rows):
         row = []
         for c in range(half):
             s = (s * 48271) % 2147483647
-            row.append((s >> 7) % 100 < (62 if 1 <= r <= 5 else 38))
+            hit = (s >> 7) % 100 < (density if 1 <= r <= rows - 2 else 38)
+            if ghostly and r == rows - 1 and c % 2 == 0:
+                hit = False        # tattered, floating hem
+            row.append(hit)
         grid.append(row)
+    W2 = 2 * half
     for r in range(rows):
         for c in range(half):
             if grid[r][c]:
-                op = 0.55 + 0.4 * (((seed + r * half + c) * 2654435761 >> 8) % 100) / 100
-                for cx in (c, 2 * half - 1 - c):
+                op = (0.55 + 0.4 * (((seed + r * half + c) * 2654435761 >> 8) % 100) / 100) * base_op
+                for cx in (c, W2 - 1 - c):
                     out.append(f'<rect x="{f(x + cx * px)}" y="{f(y + r * px)}" width="{px - 1}" height="{px - 1}" fill="{AMBER}" opacity="{f(op)}"/>')
-    ey = y + 2 * px
-    out.append(f'<rect x="{f(x + 3 * px)}" y="{f(ey)}" width="{px - 2}" height="{px - 2}" fill="#EDE6D6"/>')
-    out.append(f'<rect x="{f(x + 8 * px)}" y="{f(ey)}" width="{px - 2}" height="{px - 2}" fill="#EDE6D6"/>')
+
+    def cell(cx, cy_, op=0.6):
+        out.append(f'<rect x="{f(x + cx * px)}" y="{f(y + cy_ * px)}" width="{px - 1}" height="{px - 1}" fill="{AMBER}" opacity="{f(op)}"/>')
+
+    if winged:
+        for side, edge in ((-1, -1), (1, W2)):
+            for i in range(3):
+                cell(edge + side * i, 2.2 - i * 0.9, op=0.45)
+        cell(2, -1, op=0.85)
+        cell(W2 - 3, -1, op=0.85)
+    if hulking:
+        cell(-1, 1.5, op=0.8)
+        cell(W2, 1.5, op=0.8)
+    if kraken:
+        for i, tc in enumerate((0.5, 3, 5.5, 8, 10.5)):
+            for d in range(2 + (i + seed) % 3):
+                cell(tc, rows + d * 0.9, op=0.4)
+    if ghostly:
+        ey = y + 2 * px
+        out.append(f'<rect x="{f(x + 3 * px)}" y="{f(ey)}" width="{px - 2}" height="{px - 2}" fill="none" stroke="{AMBER}" stroke-width="1.4"/>')
+        out.append(f'<rect x="{f(x + 8 * px)}" y="{f(ey)}" width="{px - 2}" height="{px - 2}" fill="none" stroke="{AMBER}" stroke-width="1.4"/>')
+    elif hydra:
+        for hc in (1, 5, 9):
+            cell(hc, -1.6, op=0.9)
+            cell(hc, -0.8, op=0.9)
+            out.append(f'<rect x="{f(x + hc * px + 1.5)}" y="{f(y - 1.3 * px)}" width="3" height="3" fill="#EDE6D6"/>')
+    else:
+        ey = y + (1 if serpent else 2) * px
+        e1, e2 = (3, half + 1) if serpent else (3, 8)
+        out.append(f'<rect x="{f(x + e1 * px)}" y="{f(ey)}" width="{px - 2}" height="{px - 2}" fill="#EDE6D6"/>')
+        out.append(f'<rect x="{f(x + e2 * px)}" y="{f(ey)}" width="{px - 2}" height="{px - 2}" fill="#EDE6D6"/>')
     return "".join(out)
 
 
@@ -475,7 +522,7 @@ def render_boss(_user=None):
     enraged = frac < 0.2
     css, out = [], [module_box(W, H, "RAID BOSS", f"BOSS #{st['boss_num']}" + (" · ENRAGED" if enraged else ""))]
     css.append("@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}")
-    out.append(f'<g style="animation:bob {"1.1" if enraged else "2.6"}s ease-in-out infinite">{_boss_sprite(18, 52, st["boss_num"])}</g>')
+    out.append(f'<g style="animation:bob {"1.1" if enraged else "2.6"}s ease-in-out infinite">{_boss_sprite(20, 56, st["boss_num"], st["name"])}</g>')
     out.append(f'<text x="120" y="48" font-size="12" letter-spacing="1" fill="{AMBER}">{st["name"]}</text>')
     out.append(f'<rect x="120" y="60" width="266" height="11" rx="2" fill="{BARBG}"/>')
     css.append("@keyframes hpin{from{transform:scaleX(0)}to{transform:scaleX(1)}}")

@@ -3,13 +3,13 @@
 <img src="./assets/hero-header.svg?boot=2" width="100%" alt="Julien DeWolfe. Software engineering intern at gadget.dev, software engineering student at uOttawa." />
 <a href="#reciped" title="jump to Reciped"><img src="./assets/mod-reciped.svg?boot=2" width="32.6%" alt="Reciped: build progress bars filling. Click to jump to the Reciped section." /></a> <a href="https://uschedule.ca/" title="open uschedule.ca"><img src="./assets/mod-uschedule.svg?boot=2" width="32.6%" alt="uschedule.ca: a timetable assembling itself. Click to open uschedule.ca." /></a> <a href="#polybot" title="jump to Polybot"><img src="./assets/mod-polybot.svg?boot=2" width="32.6%" alt="Polybot: trading strategy sparklines. Click to jump to the Polybot section." /></a>
 <a href="#netcode" title="jump to multiplayer netcode"><img src="./assets/mod-netcode.svg?boot=2" width="32.6%" alt="Netcode: a miniature multiplayer Pong court. Click to jump to the netcode section." /></a> <a href="#software-factory" title="jump to Software Factory"><img src="./assets/mod-factory.svg?boot=2" width="32.6%" alt="Software Factory: work flowing from plan to code to review to PR. Click to jump to the Software Factory section." /></a> <a href="https://nav-canada-simulator.vercel.app" title="open the NAV Canada simulator"><img src="./assets/mod-atc.svg?boot=3" width="32.6%" alt="ATC simulator: a rotating 3D globe with Canadian flight routes. Click to open the live simulator." /></a>
-<img src="https://readme-ominousones-projects.vercel.app/live/footer.svg?v=3" width="100%" alt="Past year on GitHub, fetched live: total contributions and busiest day." />
+<img src="https://readme-ominousones-projects.vercel.app/live/footer.svg?v=4" width="100%" alt="Past year on GitHub, fetched live: total contributions and busiest day." />
 
 <br/><br/>
 
-<a href="https://www.linkedin.com/in/julien-dewolfe/"><img src="./assets/btn-linkedin.svg?boot=2" height="36" alt="linkedin" /></a>&nbsp;
-<a href="https://uschedule.ca/"><img src="./assets/btn-uschedule.svg?boot=2" height="36" alt="uschedule.ca" /></a>&nbsp;
-<a href="https://gadget.dev/"><img src="./assets/btn-gadget.svg?boot=2" height="36" alt="gadget.dev" /></a>
+<a href="https://www.linkedin.com/in/julien-dewolfe/" title="linkedin"><img src="./assets/chip-linkedin.svg" height="44" alt="LinkedIn: julien-dewolfe" /></a>&nbsp;
+<a href="mailto:JulienDeWolfe@protonmail.com" title="email me"><img src="./assets/chip-email.svg" height="44" alt="Email: JulienDeWolfe at protonmail dot com" /></a>&nbsp;
+<a href="https://uschedule.ca/" title="uschedule.ca"><img src="./assets/chip-uschedule.svg" height="44" alt="uschedule.ca" /></a>
 
 </div>
 
@@ -35,15 +35,15 @@
 
 <div align="center">
 
-<img src="https://readme-ominousones-projects.vercel.app/live/stats.svg?v=3" width="100%" alt="My contribution heatmap for the past year, fetched live from the GitHub API." />
-<img src="https://readme-ominousones-projects.vercel.app/live/streaks.svg?v=3" width="32.6%" alt="Streaks, fetched live: longest streak, active days, and contributions per active day." /> <img src="https://readme-ominousones-projects.vercel.app/live/weekdays.svg?v=3" width="32.6%" alt="Contributions by weekday, fetched live." /> <img src="https://readme-ominousones-projects.vercel.app/live/langs.svg?v=3" width="32.6%" alt="Languages in the repos I pushed to in the last 12 months, fetched live." />
+<img src="https://readme-ominousones-projects.vercel.app/live/stats.svg?v=4" width="100%" alt="My contribution heatmap for the past year, fetched live from the GitHub API." />
+<img src="https://readme-ominousones-projects.vercel.app/live/streaks.svg?v=4" width="32.6%" alt="Streaks, fetched live: longest streak, active days, and contributions per active day." /> <img src="https://readme-ominousones-projects.vercel.app/live/weekdays.svg?v=4" width="32.6%" alt="Contributions by weekday, fetched live." /> <img src="https://readme-ominousones-projects.vercel.app/live/langs.svg?v=4" width="32.6%" alt="Languages in the repos I pushed to in the last 12 months, fetched live." />
 <img src="./assets/skyline.svg?boot=2" width="100%" alt="Skyline: the same contribution year as a 3D city of amber towers, one per active day, with the camera slowly gliding along it." />
 
 </div>
 
 <img src="./assets/sect-guestbook.svg?boot=2" width="100%" alt="Section: guestbook, signed by visitors through GitHub issues." />
 
-<img src="https://readme-ominousones-projects.vercel.app/live/guestbook.svg?v=3" width="100%" alt="Guestbook signed by visitors through GitHub issues, showing the most recent signatures." />
+<img src="https://readme-ominousones-projects.vercel.app/live/guestbook.svg?v=4" width="100%" alt="Guestbook signed by visitors through GitHub issues, showing the most recent signatures." />
 
 <div align="center">
 
@@ -55,21 +55,19 @@
 
 <div align="center">
 
-<img src="https://readme-ominousones-projects.vercel.app/live/boss.svg?v=3" width="49.4%" alt="The raid boss: a procedurally generated pixel monster with an HP bar and a damage leaderboard. Visitors attack it together, one strike per hour each." /> <img src="https://readme-ominousones-projects.vercel.app/live/pet.svg?v=3" width="49.4%" alt="BLOB, the communal readme pet: food and mood bars, cared for by whoever stops by. It gets hungry every hour." />
+<img src="https://readme-ominousones-projects.vercel.app/live/boss.svg?v=4" width="49.4%" alt="The raid boss: a procedurally generated pixel monster with an HP bar and a damage leaderboard. Visitors attack it together, one strike per hour each." /> <img src="https://readme-ominousones-projects.vercel.app/live/pet.svg?v=4" width="49.4%" alt="BLOB, the communal readme pet: food and mood bars, cared for by whoever stops by. It gets hungry every hour." />
 
 <a href="https://github.com/OminousOne/OminousOne/issues/new?title=attack&body=Press+Submit+to+strike+the+boss.+One+attack+per+hour.+Critical+hits+exist." title="attack the boss"><img src="./assets/btn-attack.svg?boot=2" height="36" alt="attack the boss" /></a>&nbsp;<a href="https://github.com/OminousOne/OminousOne/issues/new?title=feed&body=Press+Submit+to+feed+BLOB.+Feeding+and+petting+share+a+30+minute+cooldown." title="feed BLOB"><img src="./assets/btn-feed.svg?boot=2" height="36" alt="feed blob" /></a>&nbsp;<a href="https://github.com/OminousOne/OminousOne/issues/new?title=pet&body=Press+Submit+to+pet+BLOB.+Feeding+and+petting+share+a+30+minute+cooldown." title="pet BLOB"><img src="./assets/btn-pet.svg?boot=2" height="36" alt="pet blob" /></a>
 
-<img src="https://readme-ominousones-projects.vercel.app/live/canvas.svg?v=3" width="100%" alt="The communal pixel canvas: a 64 by 16 grid where anyone can place one pixel every 15 minutes in amber, white, or slate." />
+<img src="https://readme-ominousones-projects.vercel.app/live/canvas.svg?v=4" width="100%" alt="The communal pixel canvas: a 64 by 16 grid where anyone can place one pixel every 15 minutes in amber, white, or slate." />
 
 <a href="https://github.com/OminousOne/OminousOne/issues/new?title=pixel%3A+32%2C8+amber&body=Edit+the+title%3A+pixel%3A+x%2Cy+color.+The+grid+is+64+wide+and+16+tall%2C+top+left+is+0%2C0.+Colors%3A+amber%2C+white%2C+slate%2C+or+off+to+erase.+One+pixel+per+15+minutes." title="place a pixel"><img src="./assets/btn-pixel.svg?boot=2" height="36" alt="place a pixel" /></a>
 
-<img src="https://readme-ominousones-projects.vercel.app/live/life.svg?v=3" width="100%" alt="The Life garden: a communal Conway's Game of Life world. Visitors plant cells and a workflow advances one generation every hour." />
+<img src="https://readme-ominousones-projects.vercel.app/live/life.svg?v=4" width="100%" alt="The Life garden: a communal Conway's Game of Life world. Visitors plant cells and a workflow advances one generation every hour." />
 
 <a href="https://github.com/OminousOne/OminousOne/issues/new?title=cell%3A+20%2C7&body=Edit+the+coordinates+in+the+title+to+plant+a+living+cell.+The+garden+is+64+wide+and+16+tall.+Conway+generations+advance+on+the+hour." title="plant a cell"><img src="./assets/btn-cell.svg?boot=2" height="36" alt="plant a cell" /></a>
 
 </div>
-
-<img src="./assets/text-life.svg?boot=2" width="100%" alt="I made Conway's Game of Life run inside Minecraft as a teenager. Now it runs inside my GitHub profile, and you are all gardening it." />
 
 <br/>
 

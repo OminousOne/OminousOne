@@ -565,7 +565,7 @@ def build_hero_header(shift=None):
     final.append(f'<circle cx="24" cy="226" r="3" fill="{AMBER}" style="animation:pop .01s both;animation-delay:7s"/>')
     final.append(f'<text x="34" y="230" font-size="11" fill="{SLATE2}" style="{at(7.0)}">boot complete in 7.0s · all systems nominal · scroll down</text>')
     final.append(f'<text x="{W - 24}" y="230" font-size="11" fill="{SLATE2}" text-anchor="end" style="{at(7.0)}">refresh to reboot</text>')
-    final.append(f'<g style="{at(7.1)}"><rect x="352" y="221" width="6" height="10" fill="{AMBER}" style="animation:cursor .8s steps(1) infinite"/></g>')
+    final.append(f'<g style="{at(7.1)}"><rect x="416" y="221" width="6" height="10" fill="{AMBER}" style="animation:cursor .8s steps(1) infinite"/></g>')
     out.append("".join(final))
 
     label = ("Boot terminal: a seven second initialization sequence with BIOS checks, netlinks coming "
@@ -650,13 +650,6 @@ def build_text_panels(shift=None):
                           "Section: fun and games. Everyone plays the same board, each move is a pre-filled GitHub "
                           "issue and the page updates within a minute or two."))
 
-    outro = [
-        ("I made Conway's Game of Life run inside Minecraft as a teenager.", 12.5, SLATE),
-        ("Now it runs inside my GitHub profile, and you are all gardening it.", 12.5, SLATE),
-    ]
-    panels.append(_text_panel("text-life", outro,
-                              "I made Conway's Game of Life run inside Minecraft as a teenager. Now it runs inside "
-                              "my GitHub profile, and you are all gardening it.", shift=shift))
     return dict(panels)
 
 
@@ -664,9 +657,6 @@ def build_text_panels(shift=None):
 # every link button, regenerated with the boot hold baked in
 
 BUTTONS = {
-    "btn-linkedin": "[ linkedin ]",
-    "btn-uschedule": "[ uschedule.ca ]",
-    "btn-gadget": "[ gadget.dev ]",
     "btn-sign": "[ sign the guestbook ]",
     "btn-attack": "[ attack the boss ]",
     "btn-feed": "[ feed blob ]",
@@ -674,6 +664,52 @@ BUTTONS = {
     "btn-pixel": "[ place a pixel ]",
     "btn-cell": "[ plant a cell ]",
 }
+
+
+SOCIALS = [
+    # (name, icon, text, width)
+    ("chip-linkedin", "in", "julien-dewolfe", 210),
+    ("chip-email", "mail", "JulienDeWolfe@protonmail.com", 310),
+    ("chip-uschedule", "cal", "uschedule.ca", 196),
+]
+
+
+def _icon(kind, x, y):
+    """small amber line icons, 18x18 box at x,y."""
+    if kind == "in":
+        return (
+            f'<rect x="{x}" y="{y}" width="18" height="18" rx="3.5" fill="none" stroke="{AMBER}" stroke-width="1.6"/>'
+            f'<text x="{x + 9}" y="{y + 13.5}" font-size="11" font-weight="bold" fill="{AMBER}" text-anchor="middle">in</text>'
+        )
+    if kind == "mail":
+        return (
+            f'<rect x="{x}" y="{y + 2}" width="18" height="14" rx="2.5" fill="none" stroke="{AMBER}" stroke-width="1.6"/>'
+            f'<path d="M{x + 1.5} {y + 4.5} L{x + 9} {y + 10} L{x + 16.5} {y + 4.5}" fill="none" stroke="{AMBER}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>'
+        )
+    if kind == "cal":
+        return (
+            f'<rect x="{x}" y="{y + 2}" width="18" height="15" rx="2.5" fill="none" stroke="{AMBER}" stroke-width="1.6"/>'
+            f'<line x1="{x + 4.5}" y1="{y}" x2="{x + 4.5}" y2="{y + 4}" stroke="{AMBER}" stroke-width="1.6"/>'
+            f'<line x1="{x + 13.5}" y1="{y}" x2="{x + 13.5}" y2="{y + 4}" stroke="{AMBER}" stroke-width="1.6"/>'
+            f'<rect x="{x + 4}" y="{y + 8}" width="3" height="3" fill="{AMBER}"/>'
+            f'<rect x="{x + 10}" y="{y + 8}" width="3" height="3" fill="{AMBER}"/>'
+            f'<rect x="{x + 4}" y="{y + 12.2}" width="3" height="2.5" fill="{AMBER}"/>'
+        )
+    return ""
+
+
+def build_socials(shift=None):
+    pieces = {}
+    for name, icon, text, w in SOCIALS:
+        h = 44
+        body = (
+            f'<rect x="0.75" y="0.75" width="{f(w - 1.5)}" height="{h - 1.5}" rx="5" fill="{PANEL}" stroke="{AMBER}" stroke-opacity="0.45"/>'
+            f'<path d="M6 11 V6 H11 M{w - 11} 6 H{w - 6} V11 M{w - 6} {h - 11} V{h - 6} H{w - 11} M11 {h - 6} H6 V{h - 11}" fill="none" stroke="{AMBER}" stroke-opacity="0.7" stroke-width="1.4"/>'
+            + _icon(icon, 14, (h - 18) // 2)
+            + f'<text x="42" y="{h / 2 + 4.5}" font-size="12.5" fill="{AMBER}">{text}</text>'
+        )
+        pieces[name] = shell(w, h, [], body, text, shift, hold=BOOT + 0.5)
+    return pieces
 
 
 def build_buttons(shift=None):
@@ -1163,6 +1199,7 @@ def main():
     }
     outputs.update(build_text_panels(shift))
     outputs.update(build_buttons(shift))
+    outputs.update(build_socials(shift))
     outputs.update(build_hero_modules(shift))
     for fn in (card_reciped, card_uschedule, card_factory, card_polybot,
                card_navsim, card_netcode, card_earlier):

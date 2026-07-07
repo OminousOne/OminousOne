@@ -64,6 +64,22 @@ jobs:
             life.cells = next;
             life.generation += 1;
 
+            // a dead garden reseeds itself with a random methuselah
+            if (life.cells.length < 3) {
+              const PATTERNS = [
+                [[1,0],[2,0],[0,1],[1,1],[1,2]],                                  // r-pentomino
+                [[1,0],[3,1],[0,2],[1,2],[4,2],[5,2],[6,2]],                      // acorn
+                [[1,0],[2,1],[0,2],[1,2],[2,2]],                                  // glider
+                [[1,0],[4,0],[0,1],[0,2],[4,2],[0,3],[1,3],[2,3],[3,3]],          // lwss
+              ];
+              const pat = PATTERNS[Math.floor(Math.random() * PATTERNS.length)];
+              const ox = 4 + Math.floor(Math.random() * 50);
+              const oy = 3 + Math.floor(Math.random() * 8);
+              for (const [px, py] of pat) life.cells.push([(ox + px) % Wd, (oy + py) % Ht]);
+              life.cells.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+              core.info('garden reseeded');
+            }
+
             const tree = await github.rest.git.createTree({
               owner, repo, base_tree: baseCommit.data.tree.sha,
               tree: paths.map(p => ({
