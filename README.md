@@ -9,6 +9,7 @@
 
 <a href="https://www.linkedin.com/in/julien-dewolfe/" title="linkedin"><img src="./assets/chip-linkedin.svg" height="44" alt="LinkedIn: julien-dewolfe" /></a>&nbsp;
 <a href="mailto:JulienDeWolfe@protonmail.com" title="email me"><img src="./assets/chip-email.svg" height="44" alt="Email: JulienDeWolfe at protonmail dot com" /></a>&nbsp;
+<a href="https://x.com/DewolfeJulien" title="x"><img src="./assets/chip-x.svg" height="44" alt="X: DewolfeJulien" /></a>&nbsp;
 <a href="https://uschedule.ca/" title="uschedule.ca"><img src="./assets/chip-uschedule.svg" height="44" alt="uschedule.ca" /></a>
 
 </div>

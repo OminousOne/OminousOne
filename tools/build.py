@@ -671,6 +671,7 @@ SOCIALS = [
     ("chip-linkedin", "in", "julien-dewolfe", 210),
     ("chip-email", "mail", "JulienDeWolfe@protonmail.com", 310),
     ("chip-uschedule", "cal", "uschedule.ca", 196),
+    ("chip-x", "x", "DewolfeJulien", 200),
 ]
 
 
@@ -685,6 +686,12 @@ def _icon(kind, x, y):
         return (
             f'<rect x="{x}" y="{y + 2}" width="18" height="14" rx="2.5" fill="none" stroke="{AMBER}" stroke-width="1.6"/>'
             f'<path d="M{x + 1.5} {y + 4.5} L{x + 9} {y + 10} L{x + 16.5} {y + 4.5}" fill="none" stroke="{AMBER}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>'
+        )
+    if kind == "x":
+        return (
+            f'<rect x="{x}" y="{y}" width="18" height="18" rx="3.5" fill="none" stroke="{AMBER}" stroke-width="1.6"/>'
+            f'<path d="M{x + 4.5} {y + 4.5} L{x + 13.5} {y + 13.5} M{x + 13.5} {y + 4.5} L{x + 4.5} {y + 13.5}" '
+            f'fill="none" stroke="{AMBER}" stroke-width="1.8" stroke-linecap="round"/>'
         )
     if kind == "cal":
         return (
