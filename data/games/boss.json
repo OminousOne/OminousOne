@@ -1,13 +1,13 @@
 {
  "boss_num": 1,
  "name": "THE LATENCY DRAGON",
- "hp": 9990,
+ "hp": 9877,
  "max_hp": 10000,
  "cd": {
-  "OminousOne": 1783457280804
+  "OminousOne": 1783463729037
  },
  "damage": {
-  "OminousOne": 50
+  "OminousOne": 163
  },
  "slain": []
 }
