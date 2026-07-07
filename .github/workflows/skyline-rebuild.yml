@@ -1,0 +1,57 @@
+name: rebuild skyline nightly
+
+# The skyline is a baked 3D render of the contribution calendar, so it
+# drifts as days pass. Every night this fetches fresh data with the
+# SKYLINE_TOKEN secret (a PAT that can see private contributions), rebuilds
+# the SVG, and commits only if the city actually changed. The commit is
+# data-plus-asset only, so it never triggers a Vercel deploy.
+
+on:
+  schedule:
+    - cron: "47 7 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: fetch fresh contribution data
+        env:
+          TOKEN: ${{ secrets.SKYLINE_TOKEN }}
+        run: |
+          curl -sf https://api.github.com/graphql \
+            -H "Authorization: bearer $TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{"query":"query { user(login: \"OminousOne\") { contributionsCollection { contributionCalendar { totalContributions weeks { contributionDays { contributionCount } } } } } }"}' \
+            -o /tmp/gh.json
+          python3 - <<'EOF'
+          import json, datetime
+          d = json.load(open('/tmp/gh.json'))
+          cal = d['data']['user']['contributionsCollection']['contributionCalendar']
+          weeks = [[x['contributionCount'] for x in w['contributionDays']] for w in cal['weeks']]
+          out = {'fetched': datetime.date.today().isoformat(),
+                 'total': cal['totalContributions'], 'weeks': weeks}
+          json.dump(out, open('tools/skyline-data.json', 'w'), separators=(',', ':'))
+          print('total:', out['total'])
+          EOF
+
+      - name: rebuild assets
+        run: python3 tools/build.py
+
+      - name: commit if the city changed
+        run: |
+          git add tools/skyline-data.json assets/skyline.svg
+          if git diff --cached --quiet; then
+            echo "skyline unchanged, nothing to commit"
+          else
+            git config user.name "skyline-bot"
+            git config user.email "actions@github.com"
+            git commit -m "skyline: nightly rebuild"
+            git pull --rebase origin main
+            git push
+          fi
