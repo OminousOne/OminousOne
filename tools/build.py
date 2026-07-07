@@ -860,7 +860,7 @@ def build_skyline(shift=None, camera="flyover", fly_phi=48, fly_tilt=35):
 
         # camera path: whole city, dive to the quiet end, glide the year,
         # hold on downtown, pull back out. focus points are computed, not guessed
-        s = 1.8
+        s = 1.45
         C = (W / 2, 145)
         jan = project((2 - x_off) * ux, 16, 0, PHI)
         jun = project((47 - x_off) * ux, 30, 0, PHI)

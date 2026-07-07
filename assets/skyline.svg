@@ -24,7 +24,7 @@ text{font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospa
 @keyframes car3_0{from{transform:translate(0,0)}to{transform:translate(-817px,316.083px)}}
 @keyframes car3_1{from{transform:translate(0,0)}to{transform:translate(-817px,316.083px)}}
 @keyframes beacon{0%,100%{opacity:1}50%{opacity:.15}}
-@keyframes flyover{0%{transform:translate(0px,0px) scale(1);animation-timing-function:ease-in-out}13%{transform:translate(329.134px,-383.281px) scale(1.8);animation-timing-function:ease-in-out}17%{transform:translate(329.134px,-383.281px) scale(1.8);animation-timing-function:linear}63%{transform:translate(-910.492px,125.621px) scale(1.8);animation-timing-function:ease-in-out}71%{transform:translate(-910.492px,125.621px) scale(1.8);animation-timing-function:ease-in-out}86%{transform:translate(0px,0px) scale(1);animation-timing-function:ease-in-out}100%{transform:translate(0px,0px) scale(1);animation-timing-function:linear}}
+@keyframes flyover{0%{transform:translate(0px,0px) scale(1);animation-timing-function:ease-in-out}13%{transform:translate(345.83px,-280.56px) scale(1.45);animation-timing-function:ease-in-out}17%{transform:translate(345.83px,-280.56px) scale(1.45);animation-timing-function:linear}63%{transform:translate(-652.758px,129.389px) scale(1.45);animation-timing-function:ease-in-out}71%{transform:translate(-652.758px,129.389px) scale(1.45);animation-timing-function:ease-in-out}86%{transform:translate(0px,0px) scale(1);animation-timing-function:ease-in-out}100%{transform:translate(0px,0px) scale(1);animation-timing-function:linear}}
 @media (prefers-reduced-motion:reduce){*{animation:none !important;}}
 ]]></style>
 
