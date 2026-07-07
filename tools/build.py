@@ -809,14 +809,18 @@ def build_skyline(shift=None, camera="flyover", fly_phi=48, fly_tilt=35):
         return el
 
     def tag(phi):
-        # tag the tallest tower, clamped so it never leaves the card
+        # tag the tallest tower: a small backed chip so it reads at any zoom
         tx, tz, th, _ = tallest
         tp1 = project(tx, th, tz, phi)
         tipy = max(round(tp1[1]) - 18, 40)
+        label_txt = f"{vmax} in one day"
+        tw = len(label_txt) * 5.6 + 12
+        bx0 = round(tp1[0]) - 8 - tw
         return (
             f'<line x1="{round(tp1[0])}" y1="{round(tp1[1])}" x2="{round(tp1[0])}" y2="{tipy + 2}" stroke="{AMBER}" stroke-opacity=".6" stroke-width=".8"/>'
             f'<circle cx="{round(tp1[0])}" cy="{tipy}" r="1.6" fill="{AMBER}"/>'
-            f'<text x="{round(tp1[0]) - 6}" y="{tipy + 3}" font-size="9" fill="{SLATE}" text-anchor="end">{vmax} in one day</text>'
+            f'<rect x="{f(bx0)}" y="{tipy - 9}" width="{f(tw)}" height="16" rx="3" fill="{PANEL}" fill-opacity=".92" stroke="#2A333C" stroke-width=".7"/>'
+            f'<text x="{f(bx0 + tw / 2)}" y="{tipy + 3}" font-size="9" fill="{AMBER}" text-anchor="middle">{label_txt}</text>'
         )
 
     if camera == "flyover":
@@ -845,11 +849,8 @@ def build_skyline(shift=None, camera="flyover", fly_phi=48, fly_tilt=35):
                     f'style="animation:{p} {f(dur)}s linear infinite;animation-delay:{f(delay)}s"/>'
                 )
 
-        # the tag reads at the wide shot but smears at zoom, so it sits the
-        # flight out and returns for the pull-back
-        css.append("@keyframes tagfade{0%,13%{opacity:1}17%,80%{opacity:0}88%,100%{opacity:1}}")
-        scene = ("".join(render_frame(PHI, mid_extra="".join(cars)))
-                 + f'<g style="animation:tagfade 28s linear infinite">{tag(PHI)}</g>')
+        # the chip-backed tag stays readable at any zoom, so it flies along
+        scene = "".join(render_frame(PHI, mid_extra="".join(cars))) + tag(PHI)
 
         # a slow beacon on the tallest tower
         css.append("@keyframes beacon{0%,100%{opacity:1}50%{opacity:.15}}")
