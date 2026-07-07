@@ -51,11 +51,16 @@
   [
    41,
    8
+  ],
+  [
+   20,
+   7
   ]
  ],
  "generation": 1,
- "planted": 1,
+ "planted": 2,
  "cd": {
-  "OminousOne": 1783457280710
+  "OminousOne": 1783457280710,
+  "thePianoKid": 1783458038314
  }
 }
