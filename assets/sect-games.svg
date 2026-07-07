@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="830" height="56" viewBox="0 0 830 56" role="img" aria-label="Section: fun and games. Everyone plays the same board, each move is a pre-filled GitHub issue and the page updates within a minute or two.">
+<style><![CDATA[
+text{font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;}
+@keyframes bootrev{0%{opacity:0}30%{opacity:.8}55%{opacity:.15}100%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;}}
+]]></style>
+
+<defs>
+  <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <pattern id="scan" width="3" height="3" patternUnits="userSpaceOnUse">
+    <rect width="3" height="1" y="2" fill="#000"/>
+  </pattern>
+</defs>
+<g style="animation:bootrev .5s linear both;animation-delay:7.4s"><text x="0" y="24" font-size="15" letter-spacing="2.5" fill="#FFB300">FUN AND GAMES</text><text x="830" y="24" font-size="10.5" fill="#46525E" text-anchor="end">everyone plays the same board · moves land in about a minute</text><line x1="0" y1="38" x2="830" y2="38" stroke="#262E36"/><line x1="0" y1="38" x2="120" y2="38" stroke="#FFB300" stroke-opacity=".7" stroke-width="1.5"/></g>
+
+</svg>

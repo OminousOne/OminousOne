@@ -8,17 +8,18 @@
 <br/><br/>
 
 <a href="https://www.linkedin.com/in/julien-dewolfe/"><img src="./assets/btn-linkedin.svg" height="36" alt="linkedin" /></a>&nbsp;
-<a href="https://uschedule.ca/"><img src="./assets/btn-uschedule.svg" height="36" alt="uschedule.ca" /></a>
+<a href="https://uschedule.ca/"><img src="./assets/btn-uschedule.svg" height="36" alt="uschedule.ca" /></a>&nbsp;
+<a href="https://gadget.dev/"><img src="./assets/btn-gadget.svg" height="36" alt="gadget.dev" /></a>
 
 </div>
 
 <br/>
 
-I'm **Julien DeWolfe**, a Software Engineering student at the University of Ottawa who started making games using Blender's node-based engine at age 9. That turned into Unity, C#, game jams, networking rabbit holes, and eventually a fascination with systems and engineering in general. I'm currently an intern at [Gadget](https://gadget.dev) while studying Software Engineering at the University of Ottawa.
+<img src="./assets/text-intro.svg" width="100%" alt="I'm Julien DeWolfe, a Software Engineering student at the University of Ottawa who started making games in Blender's node-based engine at age 9. That turned into Unity, C#, game jams, networking rabbit holes, and eventually a fascination with systems and engineering in general. Right now I'm an intern at gadget.dev while finishing my degree." />
 
 <img src="./assets/story.svg" width="100%" alt="Timeline from the beginning to now: blender games, then unity and c sharp, minecraft plugins overlapping them, then uOttawa with gadget running alongside it into the present." />
 
-## Projects
+<img src="./assets/sect-projects.svg" width="100%" alt="Section: projects. Selected work, most recent first." />
 
 <div align="center">
 
@@ -30,9 +31,7 @@ I'm **Julien DeWolfe**, a Software Engineering student at the University of Otta
 
 </div>
 
-Live: [uschedule.ca](https://uschedule.ca/) · [NAV Canada simulator](https://nav-canada-simulator.vercel.app).
-
-## A year on GitHub
+<img src="./assets/sect-stats.svg" width="100%" alt="Section: a year on GitHub, fetched live from the API on every view." />
 
 <div align="center">
 
@@ -42,7 +41,7 @@ Live: [uschedule.ca](https://uschedule.ca/) · [NAV Canada simulator](https://na
 
 </div>
 
-## Guestbook
+<img src="./assets/sect-guestbook.svg" width="100%" alt="Section: guestbook, signed by visitors through GitHub issues." />
 
 <img src="https://readme-ominousones-projects.vercel.app/live/guestbook.svg?v=2" width="100%" alt="Guestbook signed by visitors through GitHub issues, showing the most recent signatures." />
 
@@ -52,9 +51,7 @@ Live: [uschedule.ca](https://uschedule.ca/) · [NAV Canada simulator](https://na
 
 </div>
 
-## Fun and games
-
-Everyone on the internet plays the same board. Each move is a pre-filled GitHub issue: press submit and the page updates within a minute or two.
+<img src="./assets/sect-games.svg" width="100%" alt="Section: fun and games. Everyone plays the same board. Each move is a pre-filled GitHub issue, and the page updates within a minute or two." />
 
 <div align="center">
 
@@ -72,7 +69,7 @@ Everyone on the internet plays the same board. Each move is a pre-filled GitHub 
 
 </div>
 
-I made Conway's Game of Life run inside Minecraft when I was a teenager. Now it runs inside my GitHub profile, and you are all gardening it.
+<img src="./assets/text-life.svg" width="100%" alt="I made Conway's Game of Life run inside Minecraft as a teenager. Now it runs inside my GitHub profile, and you are all gardening it." />
 
 <br/>
 

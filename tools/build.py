@@ -38,6 +38,10 @@ BARBG = "#1B222A"
 
 MONO = "ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace"
 
+# the page cold-boots: the header plays a terminal initialization sequence
+# and every other graphic stays dark until this moment, then flickers alive
+BOOT = 7.0
+
 
 def f(v):
     s = f"{v:.3f}".rstrip("0").rstrip(".")
@@ -85,8 +89,12 @@ def pixel_width(text, u):
 
 # ------------------------------------------------------------- svg shell
 
-def shell(w, h, css, body, label, shift=None):
+def shell(w, h, css, body, label, shift=None, hold=None, overlay=True):
     dev = f"<style>*{{animation-delay:-{f(shift)}s !important}}</style>" if shift else ""
+    if hold:
+        css = list(css)
+        css.append("@keyframes bootrev{0%{opacity:0}30%{opacity:.8}55%{opacity:.15}100%{opacity:1}}")
+        body = f'<g style="animation:bootrev .5s linear both;animation-delay:{f(hold)}s">{body}</g>'
     return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}" role="img" aria-label="{label}">
 <style><![CDATA[
 text{{font-family:{MONO};}}
@@ -104,7 +112,7 @@ text{{font-family:{MONO};}}
   </pattern>
 </defs>
 {body}
-<rect x="1" y="1" width="{w - 2}" height="{h - 2}" rx="10" fill="url(#scan)" opacity="0.14"/>
+{('<rect x="1" y="1" width="%d" height="%d" rx="10" fill="url(#scan)" opacity="0.14"/>' % (w - 2, h - 2)) if overlay else ''}
 </svg>"""
 
 
@@ -445,16 +453,90 @@ def mod_atc(x, y, w, h):
 
 
 def build_hero_header(shift=None):
-    W, H = 900, 68
+    """the boot terminal: seven seconds of over-the-top initialization,
+    then it wipes and settles into the permanent wordmark header."""
+    W, H = 900, 250
     css, out = [], [frame(W, H, rx=10)]
-    css.append("@keyframes boot{0%{opacity:.1}0.9%{opacity:.9}1.5%{opacity:.25}2.4%{opacity:1}100%{opacity:1}}")
+
+    def at(t, dur=0.06):
+        return f"animation:pop .01s linear both;animation-delay:{f(t)}s"
+
+    css.append("@keyframes pop{from{opacity:0}to{opacity:1}}")
+    css.append("@keyframes gone{from{opacity:1}to{opacity:0}}")
+    css.append("@keyframes cursor{0%,49%{opacity:1}50%,100%{opacity:0}}")
+
+    # ---- the spew: appears line by line, then the whole group wipes at 6.1s
+    LINES = [
+        (0.10, "OMINOUSONE.SYS BIOS v5.0 · phosphor check", "OK", SLATE, 0.30),
+        (0.38, "memory map 0x0000..0xFFFF", "OK", SLATE, 0.55),
+        (0.62, "4a 44 20 62 6f 6f 74 20 73 65 71 75 65 6e 63 65 20 1f 8b 08", None, "#2E3944", None),
+        (0.80, "mount /dev/profile", "OK", SLATE, 1.00),
+        (1.55, "decrypt identity", "OK", SLATE, 1.80),
+        (1.90, "netlink uschedule.ca", "ONLINE", SLATE, 2.15),
+        (2.20, "netlink nav-canada-simulator", "ONLINE", SLATE, 2.45),
+        (2.50, "netlink reciped", "PRIVATE", SLATE, 2.75),
+        (2.80, "e8 03 00 00 c7 45 fc 00 00 00 00 8b 45 fc 3b 45", None, "#2E3944", None),
+        (2.95, "spawn agents [plan] [code] [code] [review]", "OK", SLATE, 3.25),
+        (3.30, "calibrate globe projection 48.0deg", "OK", SLATE, 3.55),
+        (3.60, "charge flux capacitor for skyline flyover", "OK", SLATE, 3.85),
+        (3.90, "feed BLOB", "SQUISH", SLATE, 4.15),
+        (4.20, "wake raid boss", "GRRRR", SLATE, 4.45),
+        (4.50, "count crowd", "+1 (you)", SLATE, 4.75),
+        (5.05, "integrity check", "PASS", SLATE, 5.30),
+    ]
+    spew = []
+    y = 34
+    kernel_y = None
+    for t, txt, stamp, color, t_stamp in LINES:
+        if t == 1.55:
+            kernel_y = y      # the kernel progress line takes this row
+            y += 13
+        spew.append(f'<text x="24" y="{y}" font-size="11" fill="{color}" style="{at(t)}">&gt; {txt}</text>')
+        if stamp:
+            dots = "." * max(2, 58 - len(txt))
+            spew.append(f'<text x="{24 + 9 + len(txt) * 6.7}" y="{y}" font-size="11" fill="#2E3944" style="{at(t)}">{dots}</text>')
+            spew.append(f'<text x="{W - 340}" y="{y}" font-size="11" fill="{AMBER}" style="{at(t_stamp)}">{stamp}</text>')
+        y += 13
+
+    # kernel progress bar between mount and decrypt
+    spew.append(f'<text x="24" y="{kernel_y}" font-size="11" fill="{SLATE}" style="{at(1.05)}">&gt; load kernel dewolfe.ko</text>')
+    spew.append(f'<rect x="220" y="{kernel_y - 9}" width="150" height="8" rx="2" fill="{BARBG}" style="{at(1.05)}"/>')
+    css.append("@keyframes kload{from{transform:scaleX(0)}to{transform:scaleX(1)}}")
+    spew.append(f'<rect x="220" y="{kernel_y - 9}" width="150" height="8" rx="2" fill="{AMBER}" style="animation:pop .01s both, kload .45s linear both;animation-delay:1.08s;transform-origin:220px 0"/>')
+    spew.append(f'<text x="382" y="{kernel_y}" font-size="11" fill="{AMBER}" style="{at(1.5)}">100%</text>')
+
+    # blinking cursor riding the bottom of the spew
+    spew.append(f'<rect x="24" y="{y - 2}" width="7" height="11" fill="{AMBER}" style="animation:cursor .7s steps(1) infinite"/>')
+
+    # ACCESS GRANTED, then the wipe
+    css.append("@keyframes granted{0%{opacity:0;transform:scale(.85)}12%{opacity:1;transform:scale(1.04)}20%{opacity:1;transform:scale(1)}100%{opacity:1;transform:scale(1)}}")
+    spew.append(
+        f'<g style="animation:granted .5s cubic-bezier(.2,.8,.3,1) both;animation-delay:5.5s;transform-origin:{W / 2}px 130px" opacity="0">'
+        f'<rect x="{W / 2 - 160}" y="104" width="320" height="52" rx="6" fill="{PANEL}" stroke="{AMBER}" stroke-opacity=".8"/>'
+        f'<text x="{W / 2}" y="136" font-size="22" letter-spacing="6" fill="{AMBER}" text-anchor="middle" filter="url(#glow)">ACCESS GRANTED</text></g>'
+    )
+    css.append("@media (prefers-reduced-motion:reduce){.spew{display:none}}")
+    out.append(f'<g class="spew" style="animation:gone .35s linear both;animation-delay:6.15s">{"".join(spew)}</g>')
+
+    # ---- the permanent header state: wordmark boots in after the wipe
+    css.append("@keyframes wmboot{0%{opacity:0}20%{opacity:.9}40%{opacity:.2}70%{opacity:1}100%{opacity:1}}")
     name = "JULIEN DEWOLFE"
-    out.append(f'<g filter="url(#glow)">{pixel_text(name, 24, 20, 4, AMBER, cls_prefix="wm")}</g>')
+    u = 5
+    wm_x = (W - pixel_width(name, u)) / 2
+    final = [f'<g filter="url(#glow)">{pixel_text(name, wm_x, 78, u, AMBER, cls_prefix="wm")}</g>']
     for i in range(len(name)):
-        css.append(f".wm{i}{{animation:boot 12s linear infinite;animation-delay:{f(0.06 * i)}s;}}")
-    out.append(f'<text x="{W - 24}" y="32" font-size="12" fill="{SLATE}" text-anchor="end">swe intern @ gadget.dev</text>')
-    out.append(f'<text x="{W - 24}" y="48" font-size="12" fill="{SLATE}" text-anchor="end">software engineering @ uOttawa</text>')
-    return shell(W, H, css, "".join(out), "Julien DeWolfe, software engineering intern at gadget.dev, software engineering student at uOttawa", shift)
+        css.append(f".wm{i}{{animation:wmboot .55s linear both;animation-delay:{f(6.4 + 0.045 * i)}s;}}")
+    final.append(f'<text x="{W / 2}" y="146" font-size="13" fill="{SLATE}" text-anchor="middle" style="{at(6.9)}">swe intern @ gadget.dev · software engineering @ uOttawa</text>')
+    css.append("@keyframes hpulse{0%,100%{opacity:1}50%{opacity:.25}}")
+    final.append(f'<circle cx="24" cy="226" r="3" fill="{AMBER}" style="animation:pop .01s both;animation-delay:7s"/>')
+    final.append(f'<text x="34" y="230" font-size="11" fill="{SLATE2}" style="{at(7.0)}">boot complete in 7.0s · all systems nominal · scroll down</text>')
+    final.append(f'<text x="{W - 24}" y="230" font-size="11" fill="{SLATE2}" text-anchor="end" style="{at(7.0)}">refresh to reboot</text>')
+    out.append("".join(final))
+
+    label = ("Boot terminal: a seven second initialization sequence with BIOS checks, netlinks coming "
+             "online, agents spawning and an access granted stamp, which then wipes into the permanent "
+             "header: Julien DeWolfe, swe intern at gadget.dev, software engineering at uOttawa.")
+    return shell(W, H, css, "".join(out), label, shift)
 
 
 HERO_MODULES = [
@@ -471,9 +553,9 @@ def build_hero_modules(shift=None):
     pieces = {}
     for i, (name, fn, label) in enumerate(HERO_MODULES):
         body, css = fn(0, 0, 268, 170)
-        # power-on: the board boots left to right, each module flickering
-        # alive like a CRT warming up
-        delay = 0.1 + i * 0.16
+        # power-on: after the boot terminal finishes, the board boots left to
+        # right, each module flickering alive like a CRT warming up
+        delay = BOOT + 0.1 + i * 0.16
         css = list(css)
         css.append(
             "@keyframes pwr{0%{opacity:0}18%{opacity:.85}38%{opacity:.15}"
@@ -483,6 +565,92 @@ def build_hero_modules(shift=None):
             f'<g style="animation:pwr .55s linear both;animation-delay:{f(delay)}s">{body}</g>'
         )
         pieces[name] = shell(268, 170, css, body, label, shift)
+    return pieces
+
+
+# ------------------------------------------------------------- text panels
+# the page's prose lives in SVGs too, so the boot blackout owns everything
+
+def _text_panel(name, lines, label, h=None, shift=None, pad_y=34, line_h=19):
+    W = 830
+    H = h or (pad_y + len(lines) * line_h + 16)
+    out = [frame(W, H, rx=8)]
+    y = pad_y
+    for ln, size, fill in lines:
+        out.append(f'<text x="22" y="{y}" font-size="{size}" fill="{fill}">{ln}</text>')
+        y += line_h
+    return name, shell(W, H, [], "".join(out), label, shift, hold=BOOT + 0.4)
+
+
+def build_text_panels(shift=None):
+    panels = []
+    bio = [
+        ("I'm Julien DeWolfe, a Software Engineering student at the University of Ottawa who started", 12.5, SLATE),
+        ("making games in Blender's node-based engine at age 9. That turned into Unity, C#, game jams,", 12.5, SLATE),
+        ("networking rabbit holes, and eventually a fascination with systems and engineering in general.", 12.5, SLATE),
+        ("Right now I'm an intern at gadget.dev while finishing my degree.", 12.5, SLATE),
+    ]
+    panels.append(_text_panel("text-intro", bio,
+                              "Bio: Julien DeWolfe, Software Engineering student at the University of Ottawa, started "
+                              "making games in Blender's node-based engine at age 9, then Unity, C#, game jams and "
+                              "networking rabbit holes. Currently an intern at gadget.dev.", shift=shift))
+
+    def section(name, title, sub, label):
+        W, H = 830, 56
+        out = [
+            f'<text x="0" y="24" font-size="15" letter-spacing="2.5" fill="{AMBER}">{title}</text>',
+            f'<text x="{W}" y="24" font-size="10.5" fill="{SLATE2}" text-anchor="end">{sub}</text>',
+            f'<line x1="0" y1="38" x2="{W}" y2="38" stroke="#262E36"/>',
+            f'<line x1="0" y1="38" x2="120" y2="38" stroke="{AMBER}" stroke-opacity=".7" stroke-width="1.5"/>',
+        ]
+        return name, shell(W, H, [], "".join(out), label, shift, hold=BOOT + 0.4, overlay=False)
+
+    panels.append(section("sect-projects", "PROJECTS", "selected work, most recent first",
+                          "Section: projects. Selected work, most recent first."))
+    panels.append(section("sect-stats", "A YEAR ON GITHUB", "fetched live from the api on every view",
+                          "Section: a year on GitHub, fetched live from the API on every view."))
+    panels.append(section("sect-guestbook", "GUESTBOOK", "signed by visitors, through github issues",
+                          "Section: guestbook, signed by visitors through GitHub issues."))
+    panels.append(section("sect-games", "FUN AND GAMES", "everyone plays the same board · moves land in about a minute",
+                          "Section: fun and games. Everyone plays the same board, each move is a pre-filled GitHub "
+                          "issue and the page updates within a minute or two."))
+
+    outro = [
+        ("I made Conway's Game of Life run inside Minecraft as a teenager.", 12.5, SLATE),
+        ("Now it runs inside my GitHub profile, and you are all gardening it.", 12.5, SLATE),
+    ]
+    panels.append(_text_panel("text-life", outro,
+                              "I made Conway's Game of Life run inside Minecraft as a teenager. Now it runs inside "
+                              "my GitHub profile, and you are all gardening it.", shift=shift))
+    return dict(panels)
+
+
+# ------------------------------------------------------------- buttons
+# every link button, regenerated with the boot hold baked in
+
+BUTTONS = {
+    "btn-linkedin": "[ linkedin ]",
+    "btn-uschedule": "[ uschedule.ca ]",
+    "btn-gadget": "[ gadget.dev ]",
+    "btn-sign": "[ sign the guestbook ]",
+    "btn-attack": "[ attack the boss ]",
+    "btn-feed": "[ feed blob ]",
+    "btn-pet": "[ pet blob ]",
+    "btn-pixel": "[ place a pixel ]",
+    "btn-cell": "[ plant a cell ]",
+}
+
+
+def build_buttons(shift=None):
+    pieces = {}
+    for name, text in BUTTONS.items():
+        w = len(text) * 8 + 36
+        body = (
+            f'<rect x="0.75" y="0.75" width="{f(w - 1.5)}" height="34.5" rx="4" fill="{BG}" stroke="{AMBER}" stroke-opacity="0.45"/>'
+            f'<path d="M5 9 V5 H9 M{w - 9} 5 H{w - 5} V9 M{w - 5} 27 V31 H{w - 9} M9 31 H5 V27" fill="none" stroke="{AMBER}" stroke-opacity="0.7" stroke-width="1.4"/>'
+            f'<text x="{f(w / 2)}" y="22.5" text-anchor="middle" font-size="13" fill="{AMBER}">{text}</text>'
+        )
+        pieces[name] = shell(w, 36, [], body, text.strip("[ ]"), shift, hold=BOOT + 0.5)
     return pieces
 
 
@@ -499,7 +667,7 @@ def project_card(name, w, h, title, status, desc, motif, motif_css, caption, lab
         y += 18
     out.append(motif)
     out.append(f'<text x="16" y="{h - 12}" font-size="10" fill="{SLATE2}">{caption}</text>')
-    return name, shell(w, h, css, "".join(out), label, shift)
+    return name, shell(w, h, css, "".join(out), label, shift, hold=BOOT + 0.3)
 
 
 def card_reciped(shift=None):
@@ -693,7 +861,7 @@ def build_story(shift=None):
     out.append(f'<text x="{x1}" y="92" font-size="10" fill="{SLATE}" text-anchor="end">now</text>')
     label = ("Timeline from the beginning to now: blender games, then unity and c sharp, minecraft plugins "
              "overlapping them, then uOttawa with gadget running alongside it into the present.")
-    return shell(W, H, css, "".join(out), label, shift)
+    return shell(W, H, css, "".join(out), label, shift, hold=BOOT + 0.4)
 
 
 # ------------------------------------------------------------- 3d skyline
@@ -941,7 +1109,7 @@ def build_skyline(shift=None, camera="flyover", fly_phi=48, fly_tilt=35):
     out.append(f'<text x="18" y="{H - 14}" font-size="10" fill="{SLATE2}">{data["total"]:,} contributions as a city · one tower per day</text>')
     label = (f"Skyline: the contribution year as a 3D bar city, one tower per active day, "
              f"{data['total']:,} contributions total.")
-    return shell(W, H, css, "".join(out), label, shift)
+    return shell(W, H, css, "".join(out), label, shift, hold=BOOT + 0.4)
 
 
 # ------------------------------------------------------------- main
@@ -958,6 +1126,8 @@ def main():
         "story": build_story(shift),
         "skyline": build_skyline(shift),
     }
+    outputs.update(build_text_panels(shift))
+    outputs.update(build_buttons(shift))
     outputs.update(build_hero_modules(shift))
     for fn in (card_reciped, card_uschedule, card_factory, card_polybot,
                card_navsim, card_netcode, card_earlier):
