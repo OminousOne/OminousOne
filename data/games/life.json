@@ -51,9 +51,15 @@
   [
    26,
    5
+  ],
+  [
+   50,
+   9
   ]
  ],
  "generation": 0,
- "planted": 0,
- "cd": {}
+ "planted": 1,
+ "cd": {
+  "OminousOne": 1783457280710
+ }
 }
