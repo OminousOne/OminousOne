@@ -703,15 +703,16 @@ def build_story(shift=None):
 def build_skyline(shift=None):
     data = json.load(open(os.path.join(ROOT, "tools", "skyline-data.json")))
     weeks = data["weeks"]
-    vmax = max(c for w in weeks for c in w) or 1
+    counts = sorted(c for w in weeks for c in w if c > 0)
+    vmax = counts[-1] if counts else 1
 
-    W, H = 830, 250
-    cx, cy = W / 2, 150
-    N, DUR = 44, 9.0
+    W, H = 830, 260
+    cx, cy = W / 2, 158
+    N, DUR = 44, 10.0
     TILT = math.radians(26)
     ct, st = math.cos(TILT), math.sin(TILT)
     ux, uz = 13.0, 15.0          # week and weekday spacing
-    bw, bd = 9.0, 10.0           # bar footprint
+    bw, bd = 8.6, 9.4            # bar footprint, gapped so towers read apart
     x_off, z_off = (len(weeks) - 1) / 2, 3.0
 
     def project(x, y, z, phi):
@@ -722,46 +723,85 @@ def build_skyline(shift=None):
         depth = y * st + z2 * ct
         return cx + x2, cy - py, depth
 
+    def bucket(c):
+        return min(3, int(4 * counts.index(c) / len(counts)))
+
     bars = []
+    tallest = None
     for wi, week in enumerate(weeks):
         for di, c in enumerate(week):
             if c > 0:
-                h = 5 + 52 * math.sqrt(c / vmax)
-                bars.append(((wi - x_off) * ux, (di - z_off) * uz, h))
+                h = 5 + 58 * math.sqrt(c / vmax)
+                bar = ((wi - x_off) * ux, (di - z_off) * uz, h, bucket(c))
+                bars.append(bar)
+                if c == vmax and tallest is None:
+                    tallest = bar
 
     def face(corners, phi, cls):
         pts = [project(x, y, z, phi) for x, y, z in corners]
         d = "M" + "L".join(f"{round(px)},{round(py)}" for px, py, _ in pts) + "Z"
         return f'<path class="{cls}" d="{d}"/>'
 
-    css = [
-        f".kt{{fill:{AMBER};fill-opacity:.9}}",
-        f".kl{{fill:{AMBER};fill-opacity:.42}}",
-        f".kr{{fill:{AMBER};fill-opacity:.2}}",
-    ]
+    # lighting: brightness follows the day's count, same scale as the heatmap
+    css = []
+    tops = (0.5, 0.66, 0.83, 1.0)
+    for b, a in enumerate(tops):
+        css.append(f".kt{b}{{fill:{AMBER};fill-opacity:{f(a)}}}")
+        css.append(f".kl{b}{{fill:{AMBER};fill-opacity:{f(a * 0.48)}}}")
+        css.append(f".kr{b}{{fill:{AMBER};fill-opacity:{f(a * 0.22)}}}")
+    sel = ",".join(f".kt{b},.kl{b},.kr{b}" for b in range(4))
+    css.append(f"{sel}{{stroke:#05070A;stroke-width:.6;stroke-linejoin:round}}")
+    css.append("@keyframes skyrise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}")
+
     out = [frame(W, H, rx=10)]
     out.append(f'<text x="18" y="29" font-size="12" letter-spacing="1.6" fill="{AMBER}">SKYLINE</text>')
     out.append(f'<text x="{W - 18}" y="29" font-size="10" fill="{SLATE2}" text-anchor="end">the same year, extruded</text>')
+    out.append('<g style="animation:skyrise .8s cubic-bezier(.25,.6,.3,1) both;animation-delay:.15s">')
 
-    px2, pz2 = x_off * ux + 16, z_off * uz + 14
+    px2, pz2 = x_off * ux + 15, z_off * uz + 13
     frames = []
     for fi in range(N):
         # swing between 10 and 46 degrees: always oblique, never edge-on
         phi = math.radians(28 + 18 * math.sin(2 * math.pi * fi / N))
         el = []
-        plat = [(-px2, 0, -pz2), (px2, 0, -pz2), (px2, 0, pz2), (-px2, 0, pz2)]
-        pts = [project(x, y, z, phi) for x, y, z in plat]
-        d = "M" + "L".join(f"{round(px)},{round(py)}" for px, py, _ in pts) + "Z"
-        el.append(f'<path d="{d}" fill="{PANEL}" stroke="#232B33"/>')
-        for bx, bz, h in sorted(bars, key=lambda b: project(b[0], 0, b[1], phi)[2]):
+
+        # platform: a slab with thickness, its front skirt facing the viewer
+        top = [(-px2, 0, -pz2), (px2, 0, -pz2), (px2, 0, pz2), (-px2, 0, pz2)]
+        base = [(x, -7, z) for x, z in ((-px2, pz2), (px2, pz2), (px2, -pz2), (-px2, -pz2))]
+        tp = [project(*p, phi) for p in top]
+        d = "M" + "L".join(f"{round(px)},{round(py)}" for px, py, _ in tp) + "Z"
+        skirt = [top[3], top[2], (px2, -7, pz2), (-px2, -7, pz2)]
+        sp_ = [project(*p, phi) for p in skirt]
+        ds = "M" + "L".join(f"{round(px)},{round(py)}" for px, py, _ in sp_) + "Z"
+        side = [top[2], top[1], (px2, -7, -pz2), (px2, -7, pz2)]
+        vp = [project(*p, phi) for p in side]
+        dv = "M" + "L".join(f"{round(px)},{round(py)}" for px, py, _ in vp) + "Z"
+        el.append(f'<path d="{ds}" fill="#0B0E12" stroke="#232B33" stroke-width=".6"/>')
+        el.append(f'<path d="{dv}" fill="#080B0E" stroke="#232B33" stroke-width=".6"/>')
+        el.append(f'<path d="{d}" fill="{PANEL}" stroke="#2A333C" stroke-width=".8"/>')
+        # quarter lines etched into the platform
+        for qw in (13, 26, 39):
+            qx = (qw - x_off) * ux
+            a = project(qx, 0.3, -pz2 + 3, phi)
+            b = project(qx, 0.3, pz2 - 3, phi)
+            el.append(f'<line x1="{round(a[0])}" y1="{round(a[1])}" x2="{round(b[0])}" y2="{round(b[1])}" stroke="#1E262E" stroke-width=".7"/>')
+
+        for bx, bz, h, bk in sorted(bars, key=lambda b: project(b[0], 0, b[1], phi)[2]):
             x0, x1 = bx - bw / 2, bx + bw / 2
             z0, z1 = bz - bd / 2, bz + bd / 2
-            el.append(face([(x0, h, z1), (x1, h, z1), (x1, 0, z1), (x0, 0, z1)], phi, "kl"))
-            if phi > 0.001:
-                el.append(face([(x0, h, z0), (x0, h, z1), (x0, 0, z1), (x0, 0, z0)], phi, "kr"))
-            elif phi < -0.001:
-                el.append(face([(x1, h, z1), (x1, h, z0), (x1, 0, z0), (x1, 0, z1)], phi, "kr"))
-            el.append(face([(x0, h, z0), (x1, h, z0), (x1, h, z1), (x0, h, z1)], phi, "kt"))
+            el.append(face([(x0, h, z1), (x1, h, z1), (x1, 0, z1), (x0, 0, z1)], phi, f"kl{bk}"))
+            el.append(face([(x0, h, z0), (x0, h, z1), (x0, 0, z1), (x0, 0, z0)], phi, f"kr{bk}"))
+            el.append(face([(x0, h, z0), (x1, h, z0), (x1, h, z1), (x0, h, z1)], phi, f"kt{bk}"))
+
+        # tag the tallest tower, clamped so it never leaves the card
+        tx, tz, th, _ = tallest
+        tp1 = project(tx, th, tz, phi)
+        tipy = max(round(tp1[1]) - 18, 40)
+        el.append(
+            f'<line x1="{round(tp1[0])}" y1="{round(tp1[1])}" x2="{round(tp1[0])}" y2="{tipy + 2}" stroke="{AMBER}" stroke-opacity=".6" stroke-width=".8"/>'
+            f'<circle cx="{round(tp1[0])}" cy="{tipy}" r="1.6" fill="{AMBER}"/>'
+            f'<text x="{round(tp1[0]) - 6}" y="{tipy + 3}" font-size="9" fill="{SLATE}" text-anchor="end">{vmax} in one day</text>'
+        )
         frames.append("".join(el))
 
     for fi, content in enumerate(frames):
@@ -779,6 +819,7 @@ def build_skyline(shift=None):
         css.append(f".{p}{{animation:{p} {f(DUR)}s linear infinite;}}")
         out.append(f'<g class="{p}" opacity="{base}">{content}</g>')
 
+    out.append("</g>")
     out.append(f'<text x="18" y="{H - 14}" font-size="10" fill="{SLATE2}">{data["total"]:,} contributions as a city · one tower per day</text>')
     label = (f"Skyline: the contribution year as a rotating 3D bar city, one tower per active day, "
              f"{data['total']:,} contributions total.")
