@@ -589,7 +589,9 @@ def render_pet(_user=None):
         )
     out.append(bar(52, "food", st["hunger"], invert=True))
     out.append(bar(76, "mood", st["mood"]))
-    out.append(f'<text x="130" y="112" font-size="10" fill="{SLATE2}">cared for {total} times by {len(st["care"])} people</text>')
+    times = "time" if total == 1 else "times"
+    people = "person" if len(st["care"]) == 1 else "people"
+    out.append(f'<text x="130" y="112" font-size="10" fill="{SLATE2}">cared for {total} {times} by {len(st["care"])} {people}</text>')
     if st.get("last_care_by"):
         out.append(f'<text x="130" y="128" font-size="10" fill="{SLATE2}">last looked after by {st["last_care_by"][:24]}</text>')
     status_txt = "starving, feed it!" if hungry else ("sulking, pet it" if sad else "doing okay")
@@ -627,7 +629,8 @@ def render_canvas(_user=None):
             fill = CANVAS_COLORS.get(color, "#14191F")
             op = "" if color else ' fill-opacity=".8"'
             out.append(f'<rect x="{gx + c * cell}" y="{gy + r * cell}" width="{cell - 1}" height="{cell - 1}" fill="{fill}"{op}/>')
-    out.append(f'<text x="18" y="{H - 12}" font-size="10" fill="{SLATE2}">{st["count"]} pixels placed · grid is 64 x 16 · one pixel per 15 minutes</text>')
+    px_word = "pixel" if st["count"] == 1 else "pixels"
+    out.append(f'<text x="18" y="{H - 12}" font-size="10" fill="{SLATE2}">{st["count"]} {px_word} placed · grid is 64 x 16 · one pixel per 15 minutes</text>')
     label = f"Communal pixel canvas, 64 by 16, {st['count']} pixels placed so far."
     return shell(W, H, css, "".join(out), label)
 
@@ -653,7 +656,8 @@ def render_life(_user=None):
                 out.append(f'<rect x="{gx + c * cell}" y="{gy + r * cell}" width="{cell - 1}" height="{cell - 1}" fill="#14191F" fill-opacity=".8"/>')
     alive = len(st["cells"])
     quiet = " · the garden is quiet, plant something" if alive < 6 else ""
-    out.append(f'<text x="18" y="{H - 12}" font-size="10" fill="{SLATE2}">generation {st["generation"]} · {alive} cells alive · {st["planted"]} planted by visitors{quiet}</text>')
+    cells_word = "cell" if alive == 1 else "cells"
+    out.append(f'<text x="18" y="{H - 12}" font-size="10" fill="{SLATE2}">generation {st["generation"]} · {alive} {cells_word} alive · {st["planted"]} planted by visitors{quiet}</text>')
     label = f"Communal Conway's Game of Life garden: generation {st['generation']}, {alive} cells alive."
     return shell(W, H, css, "".join(out), label)
 
