@@ -1,0 +1,10 @@
+{
+ "name": "BIT",
+ "hunger": 35,
+ "mood": 70,
+ "care": {},
+ "total_care": 0,
+ "born": "2026-07-07",
+ "last_care_by": null,
+ "cd": {}
+}

@@ -23,6 +23,7 @@ SLATE2 = "#46525E"
 LINE = "#1E262E"
 PANEL = "#0A0D10"
 BG = "#0E1116"
+BARBG = "#1B222A"
 
 MONO = "ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace"
 
@@ -425,6 +426,172 @@ def render_guestbook(_user=None):
     return shell(W, H, css, "".join(out), label)
 
 
+def _gh_json(path):
+    """read a repo file fresh through the contents API (no CDN cache)."""
+    token = os.environ["GITHUB_TOKEN"]
+    req = urllib.request.Request(
+        f"https://api.github.com/repos/{LOGIN}/{LOGIN}/contents/{path}?ref=main",
+        headers={"Authorization": f"bearer {token}", "Accept": "application/vnd.github.raw+json",
+                 "User-Agent": f"{LOGIN}-profile-stats"},
+    )
+    with urllib.request.urlopen(req, timeout=8) as resp:
+        return json.loads(resp.read())
+
+
+def _boss_sprite(x, y, seed, px=7):
+    """procedural symmetric pixel monster, mirrored from a seeded half."""
+    out, s = [], seed * 48271 % 2147483647 or 7
+    rows, half = 7, 6
+    grid = []
+    for r in range(rows):
+        row = []
+        for c in range(half):
+            s = (s * 48271) % 2147483647
+            row.append((s >> 7) % 100 < (62 if 1 <= r <= 5 else 38))
+        grid.append(row)
+    for r in range(rows):
+        for c in range(half):
+            if grid[r][c]:
+                op = 0.55 + 0.4 * (((seed + r * half + c) * 2654435761 >> 8) % 100) / 100
+                for cx in (c, 2 * half - 1 - c):
+                    out.append(f'<rect x="{f(x + cx * px)}" y="{f(y + r * px)}" width="{px - 1}" height="{px - 1}" fill="{AMBER}" opacity="{f(op)}"/>')
+    ey = y + 2 * px
+    out.append(f'<rect x="{f(x + 3 * px)}" y="{f(ey)}" width="{px - 2}" height="{px - 2}" fill="#EDE6D6"/>')
+    out.append(f'<rect x="{f(x + 8 * px)}" y="{f(ey)}" width="{px - 2}" height="{px - 2}" fill="#EDE6D6"/>')
+    return "".join(out)
+
+
+def render_boss(_user=None):
+    W, H = 404, 190
+    st = _gh_json("data/games/boss.json")
+    hp, mx = st["hp"], st["max_hp"]
+    frac = max(hp, 0) / mx
+    enraged = frac < 0.2
+    css, out = [], [module_box(W, H, "RAID BOSS", f"BOSS #{st['boss_num']}" + (" · ENRAGED" if enraged else ""))]
+    css.append("@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}")
+    out.append(f'<g style="animation:bob {"1.1" if enraged else "2.6"}s ease-in-out infinite">{_boss_sprite(18, 52, st["boss_num"])}</g>')
+    out.append(f'<text x="120" y="48" font-size="12" letter-spacing="1" fill="{AMBER}">{st["name"]}</text>')
+    out.append(f'<rect x="120" y="60" width="266" height="11" rx="2" fill="{BARBG}"/>')
+    css.append("@keyframes hpin{from{transform:scaleX(0)}to{transform:scaleX(1)}}")
+    hp_fill = "#FF4438" if enraged else AMBER
+    css.append("@keyframes rage{0%,100%{opacity:1}50%{opacity:.55}}")
+    rage = "animation:hpin .8s cubic-bezier(.3,.6,.3,1) both, rage 1s ease-in-out infinite;" if enraged else "animation:hpin .8s cubic-bezier(.3,.6,.3,1) both;"
+    out.append(f'<rect x="120" y="60" width="{f(266 * frac)}" height="11" rx="2" fill="{hp_fill}" style="{rage}transform-origin:120px 0"/>')
+    out.append(f'<text x="120" y="88" font-size="11" fill="{SLATE}"><tspan fill="{AMBER}">{max(hp,0):,}</tspan> / {mx:,} hp</text>')
+    top = sorted(st["damage"].items(), key=lambda kv: -kv[1])[:3]
+    ry = 112
+    for name, dmg in top:
+        out.append(f'<text x="120" y="{ry}" font-size="10" fill="{SLATE}">{name[:20]} <tspan fill="{AMBER}">{dmg:,}</tspan></text>')
+        ry += 16
+    if not top:
+        out.append(f'<text x="120" y="112" font-size="10" fill="{SLATE2}">nobody has struck it yet</text>')
+    out.append(f'<text x="14" y="{H - 12}" font-size="10" fill="{SLATE2}">attack once per hour · {len(st["slain"])} slain before it</text>')
+    label = f"Raid boss #{st['boss_num']}, {st['name']}: {max(hp,0):,} of {mx:,} hp. Attack it by opening the pre-filled issue."
+    return shell(W, H, css, "".join(out), label)
+
+
+PET_SPRITES = {
+    "egg":      ["..xxxx..", ".xxxxxx.", "xxxOxxxx", "xxxxxxxx", ".xxxxxx.", "..xxxx.."],
+    "hatchling": ["..xxxx..", ".xExxEx.", ".xxxxxx.", "xxxxxxxx", ".x.xx.x.", ".x....x."],
+    "critter":  ["w.xxxx.w", "wxExxExw", ".xxxxxx.", "xxxxxxxx", ".x.xx.x.", ".x....x."],
+}
+
+
+def render_pet(_user=None):
+    W, H = 404, 190
+    st = _gh_json("data/games/pet.json")
+    total = st["total_care"]
+    stage = "egg" if total < 10 else ("hatchling" if total < 50 else "critter")
+    hungry, sad = st["hunger"] > 75, st["mood"] < 30
+    css, out = [], [module_box(W, H, f"{st['name']} THE README PET", stage.upper())]
+    css.append("@keyframes hop{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}")
+    css.append("@keyframes blink{0%,92%,100%{opacity:1}95%{opacity:0}}")
+    px = 9
+    sprite = []
+    for r, row in enumerate(PET_SPRITES[stage]):
+        for c, ch in enumerate(row):
+            if ch == ".":
+                continue
+            x0, y0 = 24 + c * px, 58 + r * px
+            if ch == "x":
+                sprite.append(f'<rect x="{x0}" y="{y0}" width="{px - 1}" height="{px - 1}" fill="{AMBER}" opacity="{f(0.85 if (r + c) % 2 else 0.7)}"/>')
+            elif ch == "O":
+                sprite.append(f'<rect x="{x0}" y="{y0}" width="{px - 1}" height="{px - 1}" fill="#EDE6D6" opacity=".8"/>')
+            elif ch == "E":
+                sprite.append(f'<g style="animation:blink 4s linear infinite"><rect x="{x0}" y="{y0 + (2 if sad else 0)}" width="{px - 1}" height="{px - 1}" fill="#EDE6D6"/></g>')
+            elif ch == "w":
+                sprite.append(f'<rect x="{x0}" y="{y0}" width="{px - 1}" height="{px - 1}" fill="{AMBER}" opacity=".35"/>')
+    if hungry and stage != "egg":
+        sprite.append(f'<rect x="{24 + 3 * px}" y="{58 + 4 * px - 3}" width="{2 * px - 1}" height="3" fill="#05070A"/>')
+    speed = "3.2" if sad or hungry else "1.6"
+    out.append(f'<g style="animation:hop {speed}s ease-in-out infinite">{"".join(sprite)}</g>')
+
+    def bar(y, lbl, v, invert=False):
+        val = 100 - v if invert else v
+        return (
+            f'<text x="130" y="{y + 9}" font-size="10" fill="{SLATE}">{lbl}</text>'
+            f'<rect x="180" y="{y}" width="200" height="9" rx="2" fill="{BARBG}"/>'
+            f'<rect x="180" y="{y}" width="{f(200 * val / 100)}" height="9" rx="2" fill="{AMBER}" opacity=".85"/>'
+        )
+    out.append(bar(52, "food", st["hunger"], invert=True))
+    out.append(bar(76, "mood", st["mood"]))
+    out.append(f'<text x="130" y="112" font-size="10" fill="{SLATE2}">cared for {total} times by {len(st["care"])} people</text>')
+    if st.get("last_care_by"):
+        out.append(f'<text x="130" y="128" font-size="10" fill="{SLATE2}">last looked after by {st["last_care_by"][:24]}</text>')
+    status_txt = "starving, feed it!" if hungry else ("sulking, pet it" if sad else "doing okay")
+    out.append(f'<text x="14" y="{H - 12}" font-size="10" fill="{SLATE2}">{status_txt} · everyone shares one pet</text>')
+    label = f"{st['name']} the readme pet, a communal {stage}: food {100 - st['hunger']} percent, mood {st['mood']} percent, {status_txt}."
+    return shell(W, H, css, "".join(out), label)
+
+
+CANVAS_COLORS = {"a": AMBER, "w": "#EDE6D6", "s": SLATE}
+
+
+def render_canvas(_user=None):
+    W = 830
+    st = _gh_json("data/games/canvas.json")
+    cols, rows_, cell = 64, 16, 12
+    gx, gy = (W - cols * cell) // 2, 42
+    H = gy + rows_ * cell + 34
+    css, out = [], [frame(W, H, rx=8)]
+    out.append(f'<text x="18" y="27" font-size="12" letter-spacing="1.6" fill="{AMBER}">PIXEL CANVAS</text>')
+    out.append(f'<text x="{W - 18}" y="27" font-size="10" fill="{SLATE2}" text-anchor="end">the internet draws here, one pixel at a time</text>')
+    for r in range(rows_):
+        for c in range(cols):
+            color = st["cells"].get(f"{c},{r}")
+            fill = CANVAS_COLORS.get(color, "#14191F")
+            op = "" if color else ' fill-opacity=".8"'
+            out.append(f'<rect x="{gx + c * cell}" y="{gy + r * cell}" width="{cell - 1}" height="{cell - 1}" fill="{fill}"{op}/>')
+    out.append(f'<text x="18" y="{H - 12}" font-size="10" fill="{SLATE2}">{st["count"]} pixels placed · grid is 64 x 16 · one pixel per 15 minutes</text>')
+    label = f"Communal pixel canvas, 64 by 16, {st['count']} pixels placed so far."
+    return shell(W, H, css, "".join(out), label)
+
+
+def render_life(_user=None):
+    W = 830
+    st = _gh_json("data/games/life.json")
+    cols, rows_, cell = 64, 16, 12
+    gx, gy = (W - cols * cell) // 2, 42
+    H = gy + rows_ * cell + 34
+    css, out = [], [frame(W, H, rx=8)]
+    out.append(f'<text x="18" y="27" font-size="12" letter-spacing="1.6" fill="{AMBER}">LIFE GARDEN</text>')
+    out.append(f'<text x="{W - 18}" y="27" font-size="10" fill="{SLATE2}" text-anchor="end">conway rules · one generation per hour</text>')
+    live = {(c, r) for c, r in st["cells"]}
+    css.append("@keyframes lifein{from{opacity:0}to{opacity:1}}")
+    for r in range(rows_):
+        for c in range(cols):
+            if (c, r) in live:
+                d = f"animation:lifein .5s both;animation-delay:{f(((c * 7 + r * 13) % 20) * 0.03)}s"
+                out.append(f'<rect x="{gx + c * cell}" y="{gy + r * cell}" width="{cell - 1}" height="{cell - 1}" rx="1" fill="{AMBER}" opacity=".9" style="{d}"/>')
+            else:
+                out.append(f'<rect x="{gx + c * cell}" y="{gy + r * cell}" width="{cell - 1}" height="{cell - 1}" fill="#14191F" fill-opacity=".8"/>')
+    alive = len(st["cells"])
+    quiet = " · the garden is quiet, plant something" if alive < 6 else ""
+    out.append(f'<text x="18" y="{H - 12}" font-size="10" fill="{SLATE2}">generation {st["generation"]} · {alive} cells alive · {st["planted"]} planted by visitors{quiet}</text>')
+    label = f"Communal Conway's Game of Life garden: generation {st['generation']}, {alive} cells alive."
+    return shell(W, H, css, "".join(out), label)
+
+
 def render_fallback(w, h):
     out = [frame(w, h)]
     out.append(f'<text x="{w / 2}" y="{h / 2 + 4}" font-size="11" fill="{SLATE2}" text-anchor="middle">stats are napping · back in a minute</text>')
@@ -440,6 +607,10 @@ CARDS = {
     "footer": (render_footer, 900, 44, True, 600),
     "visitors": (render_visitors, 830, 64, False, 0),
     "guestbook": (render_guestbook, 830, 236, False, 120),
+    "boss": (render_boss, 404, 190, False, 60),
+    "pet": (render_pet, 404, 190, False, 60),
+    "canvas": (render_canvas, 830, 268, False, 60),
+    "life": (render_life, 830, 268, False, 60),
 }
 
 

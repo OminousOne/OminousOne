@@ -52,6 +52,28 @@ Live: [uschedule.ca](https://uschedule.ca/) · [NAV Canada simulator](https://na
 
 </div>
 
+## Fun and games
+
+Everyone on the internet plays the same board. Each move is a pre-filled GitHub issue: press submit and the page updates within a minute or two.
+
+<div align="center">
+
+<img src="https://readme-ominousones-projects.vercel.app/live/boss.svg?v=2" width="49.4%" alt="The raid boss: a procedurally generated pixel monster with an HP bar and a damage leaderboard. Visitors attack it together, one strike per hour each." /> <img src="https://readme-ominousones-projects.vercel.app/live/pet.svg?v=2" width="49.4%" alt="BIT, the communal readme pet: food and mood bars, cared for by whoever stops by. It gets hungry every hour." />
+
+<a href="https://github.com/OminousOne/OminousOne/issues/new?title=attack&body=Press+Submit+to+strike+the+boss.+One+attack+per+hour.+Critical+hits+exist." title="attack the boss"><img src="./assets/btn-attack.svg" height="36" alt="attack the boss" /></a>&nbsp;<a href="https://github.com/OminousOne/OminousOne/issues/new?title=feed&body=Press+Submit+to+feed+BIT.+Feeding+and+petting+share+a+30+minute+cooldown." title="feed BIT"><img src="./assets/btn-feed.svg" height="36" alt="feed bit" /></a>&nbsp;<a href="https://github.com/OminousOne/OminousOne/issues/new?title=pet&body=Press+Submit+to+pet+BIT.+Feeding+and+petting+share+a+30+minute+cooldown." title="pet BIT"><img src="./assets/btn-pet.svg" height="36" alt="pet bit" /></a>
+
+<img src="https://readme-ominousones-projects.vercel.app/live/canvas.svg?v=2" width="100%" alt="The communal pixel canvas: a 64 by 16 grid where anyone can place one pixel every 15 minutes in amber, white, or slate." />
+
+<a href="https://github.com/OminousOne/OminousOne/issues/new?title=pixel%3A+32%2C8+amber&body=Edit+the+title%3A+pixel%3A+x%2Cy+color.+The+grid+is+64+wide+and+16+tall%2C+top+left+is+0%2C0.+Colors%3A+amber%2C+white%2C+slate%2C+or+off+to+erase.+One+pixel+per+15+minutes." title="place a pixel"><img src="./assets/btn-pixel.svg" height="36" alt="place a pixel" /></a>
+
+<img src="https://readme-ominousones-projects.vercel.app/live/life.svg?v=2" width="100%" alt="The Life garden: a communal Conway's Game of Life world. Visitors plant cells and a workflow advances one generation every hour." />
+
+<a href="https://github.com/OminousOne/OminousOne/issues/new?title=cell%3A+20%2C7&body=Edit+the+coordinates+in+the+title+to+plant+a+living+cell.+The+garden+is+64+wide+and+16+tall.+Conway+generations+advance+on+the+hour." title="plant a cell"><img src="./assets/btn-cell.svg" height="36" alt="plant a cell" /></a>
+
+</div>
+
+I made Conway's Game of Life run inside Minecraft when I was a teenager. Now it runs inside my GitHub profile, and you are all gardening it.
+
 <br/>
 
 <div align="center">

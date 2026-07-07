@@ -1,0 +1,147 @@
+name: games
+
+# The Fun and games section: plays arrive as issues (attack / feed / pet /
+# pixel: x,y color / cell: x,y). All handling stays inside github-script, as
+# issue titles are visitor-controlled text and must never touch a shell.
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+  contents: write
+
+jobs:
+  play:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.issue.number;
+            const user = context.payload.issue.user.login;
+            const raw = (context.payload.issue.title || '').trim();
+            const t = raw.toLowerCase();
+            const NOW = Date.now(), MIN = 60000;
+
+            async function withState(path, mutate) {
+              for (let attempt = 0; attempt < 3; attempt++) {
+                const file = await github.rest.repos.getContent({ owner, repo, path });
+                const st = JSON.parse(Buffer.from(file.data.content, 'base64').toString());
+                const res = mutate(st);
+                if (!res.changed) return res;
+                try {
+                  await github.rest.repos.createOrUpdateFileContents({
+                    owner, repo, path, message: res.commit,
+                    content: Buffer.from(JSON.stringify(st, null, 1) + '\n').toString('base64'),
+                    sha: file.data.sha,
+                  });
+                  return res;
+                } catch (e) { if (e.status !== 409 || attempt === 2) throw e; }
+              }
+            }
+
+            function onCooldown(st, ms) {
+              const last = st.cd[user];
+              if (last && NOW - last < ms) return Math.ceil((ms - (NOW - last)) / MIN);
+              st.cd[user] = NOW;
+              const keys = Object.keys(st.cd);
+              if (keys.length > 800) for (const k of keys.slice(0, 300)) delete st.cd[k];
+              return 0;
+            }
+
+            const NAMES = ["THE LATENCY DRAGON", "MERGE CONFLICT HYDRA", "SEGFAULT GOLEM",
+              "NULLPOINTER WRAITH", "THE RACE CONDITION", "HEISENBUG PRIME",
+              "THE MEMORY LEAK", "DEADLOCK COLOSSUS"];
+
+            let res = null;
+
+            if (/^attack\b/.test(t)) {
+              res = await withState('data/games/boss.json', st => {
+                const wait = onCooldown(st, 60 * MIN);
+                if (wait) return { changed: false, msg: `You are still catching your breath, @${user}. Try again in ${wait} minutes.` };
+                let dmg = 50 + Math.floor(Math.random() * 101);
+                const crit = Math.random() < 0.12;
+                if (crit) dmg *= 3;
+                st.hp -= dmg;
+                st.damage[user] = (st.damage[user] || 0) + dmg;
+                let msg = crit
+                  ? `CRITICAL HIT. @${user} deals ${dmg} damage to ${st.name}.`
+                  : `@${user} deals ${dmg} damage to ${st.name}.`;
+                if (st.hp <= 0) {
+                  st.slain.push({ name: st.name, by: user, date: new Date().toISOString().slice(0, 10) });
+                  st.boss_num += 1;
+                  st.max_hp = Math.round(st.max_hp * 1.35);
+                  st.hp = st.max_hp;
+                  st.name = NAMES[(st.boss_num - 1) % NAMES.length];
+                  msg += ` THE KILLING BLOW! It falls. From the wreckage rises boss #${st.boss_num}: ${st.name}, ${st.max_hp.toLocaleString()} hp.`;
+                } else {
+                  msg += ` ${Math.max(st.hp, 0).toLocaleString()} hp remains.`;
+                }
+                return { changed: true, commit: `games: ${user} attacks`, msg };
+              });
+            } else if (/^feed\b/.test(t) || /^pet\b/.test(t)) {
+              const feeding = /^feed\b/.test(t);
+              res = await withState('data/games/pet.json', st => {
+                const wait = onCooldown(st, 30 * MIN);
+                if (wait) return { changed: false, msg: `BIT needs a little space, @${user}. Come back in ${wait} minutes.` };
+                if (feeding) st.hunger = Math.max(0, st.hunger - 30);
+                else st.mood = Math.min(100, st.mood + 25);
+                st.total_care += 1;
+                st.care[user] = (st.care[user] || 0) + 1;
+                st.last_care_by = '@' + user;
+                const msg = feeding
+                  ? `You fed BIT, @${user}. It does a little hop. Food is at ${100 - st.hunger}%.`
+                  : `You pet BIT, @${user}. Its mood rises to ${st.mood}%.`;
+                return { changed: true, commit: `games: ${user} cares for BIT`, msg };
+              });
+            } else if (/^pixel\s*:/.test(t)) {
+              const m = raw.match(/^pixel\s*:\s*(\d+)\s*[, ]\s*(\d+)[\s,]+(amber|white|slate|off)/i);
+              if (!m) {
+                res = { msg: `That did not parse, @${user}. Use: pixel: x,y color (grid 64x16, colors amber, white, slate, or off to erase).` };
+              } else {
+                const x = +m[1], y = +m[2], color = m[3].toLowerCase();
+                if (x > 63 || y > 15) {
+                  res = { msg: `Out of bounds, @${user}. The grid is 64 wide and 16 tall, zero-indexed.` };
+                } else {
+                  res = await withState('data/games/canvas.json', st => {
+                    const wait = onCooldown(st, 15 * MIN);
+                    if (wait) return { changed: false, msg: `The canvas needs to dry, @${user}. Next pixel in ${wait} minutes.` };
+                    const key = `${x},${y}`;
+                    if (color === 'off') delete st.cells[key];
+                    else { st.cells[key] = { amber: 'a', white: 'w', slate: 's' }[color]; st.count += 1; }
+                    return { changed: true, commit: `games: ${user} paints ${key}`,
+                             msg: `Pixel ${key} is now ${color}, @${user}. The canvas updates within a minute or two.` };
+                  });
+                }
+              }
+            } else if (/^cell\s*:/.test(t)) {
+              const m = raw.match(/^cell\s*:\s*(\d+)\s*[, ]\s*(\d+)/);
+              if (!m) {
+                res = { msg: `That did not parse, @${user}. Use: cell: x,y (grid 64x16).` };
+              } else {
+                const x = +m[1], y = +m[2];
+                if (x > 63 || y > 15) {
+                  res = { msg: `Out of bounds, @${user}. The garden is 64 wide and 16 tall.` };
+                } else {
+                  res = await withState('data/games/life.json', st => {
+                    const wait = onCooldown(st, 5 * MIN);
+                    if (wait) return { changed: false, msg: `The soil needs a moment, @${user}. Plant again in ${wait} minutes.` };
+                    if (st.cells.length >= 500) return { changed: false, msg: `The garden is full, @${user}. Wait for a generation to thin it out.` };
+                    if (st.cells.some(([cx, cy]) => cx === x && cy === y))
+                      return { changed: false, msg: `There is already a living cell at ${x},${y}, @${user}.` };
+                    st.cells.push([x, y]);
+                    st.planted += 1;
+                    return { changed: true, commit: `games: ${user} plants ${x},${y}`,
+                             msg: `Planted at ${x},${y}, @${user}. Generations advance on the hour.` };
+                  });
+                }
+              }
+            }
+
+            if (res) {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body: res.msg });
+              await github.rest.issues.update({ owner, repo, issue_number, state: 'closed' });
+            }

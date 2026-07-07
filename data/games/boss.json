@@ -1,0 +1,9 @@
+{
+ "boss_num": 1,
+ "name": "THE LATENCY DRAGON",
+ "hp": 10000,
+ "max_hp": 10000,
+ "cd": {},
+ "damage": {},
+ "slain": []
+}
