@@ -1,10 +1,14 @@
 {
  "name": "BIT",
- "hunger": 35,
+ "hunger": 5,
  "mood": 70,
- "care": {},
- "total_care": 0,
+ "care": {
+  "OminousOne": 1
+ },
+ "total_care": 1,
  "born": "2026-07-07",
- "last_care_by": null,
- "cd": {}
+ "last_care_by": "@OminousOne",
+ "cd": {
+  "OminousOne": 1783457280424
+ }
 }
