@@ -1,14 +1,16 @@
 {
  "name": "BLOB",
- "hunger": 21,
+ "hunger": 0,
  "mood": 83,
  "care": {
-  "OminousOne": 2
+  "OminousOne": 2,
+  "fuzzylogique": 1
  },
- "total_care": 2,
+ "total_care": 3,
  "born": "2026-07-07",
- "last_care_by": "@OminousOne",
+ "last_care_by": "@fuzzylogique",
  "cd": {
-  "OminousOne": 1783464004065
+  "OminousOne": 1783464004065,
+  "fuzzylogique": 1783471283167
  }
 }
