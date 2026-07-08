@@ -1,7 +1,7 @@
 {
  "name": "BLOB",
- "hunger": 24,
- "mood": 65,
+ "hunger": 28,
+ "mood": 62,
  "care": {
   "OminousOne": 2,
   "fuzzylogique": 1
