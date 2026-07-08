@@ -1,9 +1,9 @@
 name: game tick
 
-# The hourly heartbeat of the Fun and games section: the boss slowly
-# regenerates, BLOB gets hungrier and a little bored, and the Life garden
-# advances one Conway generation. All three files land in a single commit
-# via the git data API to keep history tidy.
+# The hourly heartbeat of the Fun and games section: BLOB gets hungrier
+# and a little bored, and the Life garden advances one Conway generation.
+# Both files land in a single commit via the git data API to keep history
+# tidy. The boss does not regenerate; damage sticks until it falls.
 
 on:
   schedule:
@@ -34,9 +34,6 @@ jobs:
             }
 
             const boss = states[paths[0]];
-            if (boss.hp > 0 && boss.hp < boss.max_hp) {
-              boss.hp = Math.min(boss.max_hp, boss.hp + Math.round(boss.max_hp * 0.002));
-            }
 
             const pet = states[paths[1]];
             pet.hunger = Math.min(100, pet.hunger + 4);
