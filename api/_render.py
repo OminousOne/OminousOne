@@ -599,12 +599,13 @@ CANVAS_COLORS = {"a": AMBER, "w": "#EDE6D6", "s": SLATE}
 
 
 def _grid_labels(gx, gy, cols, rows_, cell):
-    """coordinate labels every 4th column and row, for aiming plays."""
+    """coordinate labels every 4th column and row, for aiming plays.
+    Player-facing coordinates are 1-based; state stays 0-based."""
     out = []
     for c in range(0, cols, 4):
-        out.append(f'<text x="{gx + c * cell + cell / 2 - 1}" y="{gy - 4}" font-size="7" fill="{SLATE2}" text-anchor="middle">{c}</text>')
+        out.append(f'<text x="{gx + c * cell + cell / 2 - 1}" y="{gy - 4}" font-size="7" fill="{SLATE2}" text-anchor="middle">{c + 1}</text>')
     for r in range(0, rows_, 4):
-        out.append(f'<text x="{gx - 6}" y="{gy + r * cell + cell / 2 + 2}" font-size="7" fill="{SLATE2}" text-anchor="end">{r}</text>')
+        out.append(f'<text x="{gx - 6}" y="{gy + r * cell + cell / 2 + 2}" font-size="7" fill="{SLATE2}" text-anchor="end">{r + 1}</text>')
     return "".join(out)
 
 

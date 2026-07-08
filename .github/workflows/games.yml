@@ -105,39 +105,39 @@ jobs:
             } else if (/^pixel\s*:/.test(t)) {
               const m = raw.match(/^pixel\s*:\s*(\d+)\s*[, ]\s*(\d+)[\s,]+(amber|white|slate|off)/i);
               if (!m) {
-                res = { msg: `That did not parse, @${user}. Use: pixel: x,y color (grid 64x16, colors amber, white, slate, or off to erase).` };
+                res = { msg: `That did not parse, @${user}. Use: pixel: x,y color (grid 64x16 counting from 1,1; colors amber, white, slate, or off to erase).` };
               } else {
                 const x = +m[1], y = +m[2], color = m[3].toLowerCase();
-                if (x > 63 || y > 15) {
-                  res = { msg: `Out of bounds, @${user}. The grid is 64 wide and 16 tall, zero-indexed.` };
+                if (x < 1 || x > 64 || y < 1 || y > 16) {
+                  res = { msg: `Out of bounds, @${user}. The grid is 64 wide and 16 tall, counting from 1,1.` };
                 } else {
                   res = await withState('data/games/canvas.json', st => {
                     const wait = onCooldown(st, 15 * MIN);
                     if (wait) return { changed: false, msg: `The canvas needs to dry, @${user}. Next pixel in ${wait} minutes.` };
-                    const key = `${x},${y}`;
+                    const key = `${x - 1},${y - 1}`;
                     if (color === 'off') delete st.cells[key];
                     else { st.cells[key] = { amber: 'a', white: 'w', slate: 's' }[color]; st.count += 1; }
-                    return { changed: true, commit: `games: ${user} paints ${key}`,
-                             msg: `Pixel ${key} is now ${color}, @${user}. The canvas updates within a minute or two.` };
+                    return { changed: true, commit: `games: ${user} paints ${x},${y}`,
+                             msg: `Pixel ${x},${y} is now ${color}, @${user}. The canvas updates within a minute or two.` };
                   });
                 }
               }
             } else if (/^cell\s*:/.test(t)) {
               const m = raw.match(/^cell\s*:\s*(\d+)\s*[, ]\s*(\d+)/);
               if (!m) {
-                res = { msg: `That did not parse, @${user}. Use: cell: x,y (grid 64x16).` };
+                res = { msg: `That did not parse, @${user}. Use: cell: x,y (grid 64x16, counting from 1,1).` };
               } else {
                 const x = +m[1], y = +m[2];
-                if (x > 63 || y > 15) {
-                  res = { msg: `Out of bounds, @${user}. The garden is 64 wide and 16 tall.` };
+                if (x < 1 || x > 64 || y < 1 || y > 16) {
+                  res = { msg: `Out of bounds, @${user}. The garden is 64 wide and 16 tall, counting from 1,1.` };
                 } else {
                   res = await withState('data/games/life.json', st => {
                     const wait = onCooldown(st, 5 * MIN);
                     if (wait) return { changed: false, msg: `The soil needs a moment, @${user}. Plant again in ${wait} minutes.` };
                     if (st.cells.length >= 500) return { changed: false, msg: `The garden is full, @${user}. Wait for a generation to thin it out.` };
-                    if (st.cells.some(([cx, cy]) => cx === x && cy === y))
+                    if (st.cells.some(([cx, cy]) => cx === x - 1 && cy === y - 1))
                       return { changed: false, msg: `There is already a living cell at ${x},${y}, @${user}.` };
-                    st.cells.push([x, y]);
+                    st.cells.push([x - 1, y - 1]);
                     st.planted += 1;
                     return { changed: true, commit: `games: ${user} plants ${x},${y}`,
                              msg: `Planted at ${x},${y}, @${user}. Generations advance on the hour.` };

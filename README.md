@@ -62,11 +62,11 @@
 
 <img src="https://readme-ominousones-projects.vercel.app/live/canvas.svg?v=4" width="100%" alt="The communal pixel canvas: a 64 by 16 grid where anyone can place one pixel every 15 minutes in amber, white, or slate." />
 
-<a href="https://github.com/OminousOne/OminousOne/issues/new?title=pixel%3A+32%2C8+amber&body=Edit+the+title%3A+pixel%3A+x%2Cy+color.+The+grid+is+64+wide+and+16+tall%2C+top+left+is+0%2C0.+Colors%3A+amber%2C+white%2C+slate%2C+or+off+to+erase.+One+pixel+per+15+minutes." title="place a pixel"><img src="./assets/btn-pixel.svg?boot=2" height="36" alt="place a pixel" /></a>
+<a href="https://github.com/OminousOne/OminousOne/issues/new?title=pixel%3A+32%2C8+amber&body=Edit+the+title%3A+pixel%3A+x%2Cy+color.+The+grid+is+64+wide+and+16+tall%2C+top+left+is+1%2C1.+Colors%3A+amber%2C+white%2C+slate%2C+or+off+to+erase.+One+pixel+per+15+minutes." title="place a pixel"><img src="./assets/btn-pixel.svg?boot=2" height="36" alt="place a pixel" /></a>
 
 <img src="https://readme-ominousones-projects.vercel.app/live/life.svg?v=4" width="100%" alt="The Life garden: a communal Conway's Game of Life world. Visitors plant cells and a workflow advances one generation every hour." />
 
-<a href="https://github.com/OminousOne/OminousOne/issues/new?title=cell%3A+20%2C7&body=Edit+the+coordinates+in+the+title+to+plant+a+living+cell.+The+garden+is+64+wide+and+16+tall.+Conway+generations+advance+on+the+hour." title="plant a cell"><img src="./assets/btn-cell.svg?boot=2" height="36" alt="plant a cell" /></a>
+<a href="https://github.com/OminousOne/OminousOne/issues/new?title=cell%3A+20%2C7&body=Edit+the+coordinates+in+the+title+to+plant+a+living+cell.+The+garden+is+64+wide+and+16+tall%2C+top+left+is+1%2C1.+Conway+generations+advance+on+the+hour." title="plant a cell"><img src="./assets/btn-cell.svg?boot=2" height="36" alt="plant a cell" /></a>
 
 </div>
 
