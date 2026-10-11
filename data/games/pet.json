@@ -1,16 +1,18 @@
 {
  "name": "BLOB",
- "hunger": 100,
+ "hunger": 70,
  "mood": 0,
  "care": {
   "OminousOne": 3,
-  "fuzzylogique": 1
+  "fuzzylogique": 1,
+  "KhaledBaki": 1
  },
- "total_care": 4,
+ "total_care": 5,
  "born": "2026-07-07",
- "last_care_by": "@OminousOne",
+ "last_care_by": "@KhaledBaki",
  "cd": {
   "OminousOne": 1783547104049,
-  "fuzzylogique": 1783471283167
+  "fuzzylogique": 1783471283167,
+  "KhaledBaki": 1791689362011
  }
 }
