@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="276" height="170" viewBox="-4 0 276 170" role="img" aria-label="Oberon. Codex and Claude chats run in separate Git worktrees.">
+<style><![CDATA[
+text{font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;}
+@keyframes worktree-pulse{0%,100%{transform:translate(0,0);opacity:0}14%{opacity:1}46%{transform:translate(45px,0)}73%{transform:translate(89px,-28px);opacity:1}85%{opacity:0}}
+@keyframes bootrev{0%{opacity:0}30%{opacity:.8}55%{opacity:.15}100%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;}}
+]]></style>
+
+<defs>
+  <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <pattern id="scan" width="3" height="3" patternUnits="userSpaceOnUse">
+    <rect width="3" height="1" y="2" fill="#000"/>
+  </pattern>
+</defs>
+<g style="animation:bootrev .5s linear both;animation-delay:4.98s">
+<rect x="0.75" y="0.75" width="266.5" height="168.5" rx="8" fill="#211B24" stroke="#51444F" stroke-width="1.5"/>
+<rect x="9" y="34" width="250" height="107" rx="4" fill="#251F2E" stroke="#F6C881" stroke-opacity=".38"/>
+<path d="M10 40v-5h22m204 105h22v-5" fill="none" stroke="#F6C881" stroke-opacity=".68"/>
+<text x="13" y="23" font-size="15" font-weight="700" fill="#F6E9D0">Oberon</text>
+<g style="--art-start:4.98s">
+<path d="M32 87h79c18 0 20-28 47-28h21M111 87c18 0 20 29 47 29h21" fill="none" stroke="#958097" stroke-width="2"/>
+<path d="M32 87h79" stroke="#F6C881" stroke-width="2"/>
+<circle cx="48" cy="87" r="4" fill="#F6C881"/><circle cx="84" cy="87" r="3" fill="#F6C881"/>
+<circle cx="89" cy="87" r="3.2" fill="#F6C881" opacity="0" style="animation:worktree-pulse 5s ease var(--art-start) infinite"/>
+<circle cx="149" cy="60" r="3.3" fill="#D2AFF6"/><circle cx="149" cy="115" r="3.3" fill="#D2AFF6"/>
+<text x="31" y="108" font-size="10" fill="#F6C881">main</text>
+<rect x="177" y="46" width="66" height="25" rx="4" fill="#392B48" stroke="#755B90"/>
+<rect x="177" y="103" width="66" height="25" rx="4" fill="#392B48" stroke="#755B90"/>
+<g font-size="10" fill="#D2AFF6"><text x="187" y="62">Codex</text><text x="187" y="119">Claude</text></g>
+<path d="M102 103v11" stroke="#8B738E" stroke-dasharray="2 3"/>
+<text x="101" y="128" text-anchor="middle" font-size="9" fill="#C2AFC9">Git worktrees</text>
+</g>
+<text x="13" y="158" font-size="10.5" fill="#F6C881">Native macOS agent workspace</text>
+
+<rect x="1" y="1" width="266" height="168" rx="8" fill="url(#scan)" opacity="0.10"/></g>
+
+</svg>

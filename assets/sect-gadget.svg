@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="838" height="56" viewBox="-4 0 838 56" role="img" aria-label="Gadget experience. Software engineering intern. Selected work across integrations, support, job queues, and data export.">
+<style><![CDATA[
+text{font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;}
+@keyframes bootrev{0%{opacity:0}30%{opacity:.8}55%{opacity:.15}100%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;}}
+]]></style>
+
+<defs>
+  <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <pattern id="scan" width="3" height="3" patternUnits="userSpaceOnUse">
+    <rect width="3" height="1" y="2" fill="#000"/>
+  </pattern>
+</defs>
+<g style="animation:bootrev .5s linear both;animation-delay:4.8s"><path d="M2 29v-14h6v14z" fill="#ADD8FF"/><text x="20" y="30" font-size="24" font-weight="700" fill="#F6E9D0">Gadget experience</text><text x="828" y="27" font-size="12" fill="#A79E95" text-anchor="end">software engineering intern</text><path d="M2 43h826" stroke="#38313C"/><path d="M2 43h133l9-5h22" fill="none" stroke="#ADD8FF" stroke-opacity=".8" stroke-width="1.4"/></g>
+
+</svg>

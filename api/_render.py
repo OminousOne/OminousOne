@@ -17,13 +17,18 @@ import urllib.request
 
 LOGIN = "OminousOne"
 
-AMBER = "#FFB300"
-SLATE = "#6C7986"
-SLATE2 = "#46525E"
-LINE = "#1E262E"
-PANEL = "#0A0D10"
-BG = "#0E1116"
-BARBG = "#1B222A"
+AMBER = "#FFC164"
+WHITE = "#F6E9D0"
+SLATE = "#C0B7AD"
+SLATE2 = "#A79E95"
+LINE = "#38313C"
+PANEL = "#19161D"
+BG = "#211B24"
+BARBG = "#372E3A"
+MINT = "#9AE6CB"
+CORAL = "#FFAD92"
+LILAC = "#DABAFB"
+BLUE = "#ADD8FF"
 
 MONO = "ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace"
 
@@ -77,15 +82,18 @@ def f(v):
     return s if s else "0"
 
 
-BOOT_HOLD = 7.4  # the page boot: cards stay dark until the terminal finishes
+BOOT_HOLD = 4.8  # match the README boot animation
+CARD_GUTTER = 4  # equal visual rails for full-width and packed cards
 
 
-def shell(w, h, css, body, label):
-    css = list(css)
-    css.append("@keyframes bootrev{0%{opacity:0}30%{opacity:.8}55%{opacity:.15}100%{opacity:1}}")
-    scan = f'<rect x="1" y="1" width="{w - 2}" height="{h - 2}" rx="10" fill="url(#scan)" opacity="0.14"/>'
-    body = f'<g style="animation:bootrev .5s linear both;animation-delay:{BOOT_HOLD}s">{body}{scan}</g>'
-    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}" role="img" aria-label="{label}">
+def shell(w, h, css, body, label, hold=BOOT_HOLD):
+    scan = f'<rect x="1" y="1" width="{w - 2}" height="{h - 2}" rx="8" fill="url(#scan)" opacity="0.08"/>'
+    body += scan
+    if hold:
+        css = [*css, "@keyframes bootrev{0%{opacity:0}30%{opacity:.8}55%{opacity:.15}100%{opacity:1}}"]
+        body = f'<g style="animation:bootrev .5s linear both;animation-delay:{hold}s">{body}</g>'
+    width = w + 2 * CARD_GUTTER
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{h}" viewBox="{-CARD_GUTTER} 0 {width} {h}" role="img" aria-label="{label}">
 <style><![CDATA[
 text{{font-family:{MONO};}}
 {chr(10).join(css)}
@@ -101,15 +109,16 @@ text{{font-family:{MONO};}}
 
 
 def frame(w, h, rx=10):
-    return f'<rect x="0.75" y="0.75" width="{w - 1.5}" height="{h - 1.5}" rx="{rx}" fill="{BG}" stroke="#262E36" stroke-width="1.5"/>'
+    return f'<rect x="0.75" y="0.75" width="{w - 1.5}" height="{h - 1.5}" rx="{rx}" fill="{BG}" stroke="#51444F" stroke-width="1.5"/>'
 
 
-def module_box(w, h, title, status):
+def module_box(w, h, title, status, accent=AMBER):
     return (
-        f'<rect x="0.75" y="0.75" width="{w - 1.5}" height="{h - 1.5}" rx="8" '
-        f'fill="{PANEL}" stroke="#262E36" stroke-width="1.5"/>'
-        f'<text x="12" y="19" font-size="11" letter-spacing="1.4" fill="{AMBER}">{title}</text>'
-        f'<text x="{w - 12}" y="19" font-size="9" letter-spacing="0.8" fill="{SLATE2}" text-anchor="end">{status}</text>'
+        frame(w, h, rx=8)
+        + f'<path d="M12 29h{w - 24}" stroke="{LINE}"/>'
+        + f'<path d="M12 29h24" stroke="{accent}" stroke-width="1.5"/>'
+        + f'<text x="12" y="21" font-size="13" font-weight="700" fill="{accent}">{title}</text>'
+        + f'<text x="{w - 12}" y="20" font-size="10" fill="{SLATE2}" text-anchor="end">{status}</text>'
     )
 
 
@@ -121,7 +130,8 @@ def odometer(x, y, value, size, dur, prefix, css):
         p = f"{prefix}{ci}"
         if d > 0:
             css.append(f"@keyframes {p}{{from{{transform:translateY(0)}}to{{transform:translateY({f(-d * size * 1.15)}px)}}}}")
-            anim = f"animation:{p} {f(dur)}s steps({d}) both;animation-delay:{f(0.15 * ci + 0.1)}s"
+            anim = (f"transform:translateY({f(-d * size * 1.15)}px);"
+                    f"animation:{p} {f(dur)}s steps({d}) both;animation-delay:{f(0.15 * ci + 0.1)}s")
         else:
             anim = ""
         strip = "".join(
@@ -185,36 +195,32 @@ def lang_mix(user, months=12):
 # ---------------------------------------------------------------- cards
 
 def render_stats(user):
-    W, H = 830, 172
-    css, out = [], [frame(W, H)]
+    W, H = 830, 194
+    css, out = [], [module_box(W, H, "Contribution heatmap", "Past 12 months", MINT)]
     cal = user["contributionsCollection"]["contributionCalendar"]
     weeks = [[d["contributionCount"] for d in w["contributionDays"]] for w in cal["weeks"]]
     nz = sorted(c for w in weeks for c in w if c > 0)
     busiest = nz[-1] if nz else 0
 
     def level(c):
-        if c == 0 or not nz:
-            return None
+        if c == 0:
+            return BARBG
         idx = min(3, int(4 * nz.index(c) / len(nz)))
-        return (0.25, 0.45, 0.7, 1.0)[idx]
+        return ("#3E645E", "#538C7C", "#71B9A2", MINT)[idx]
 
     step, cell = 14.75, 11.5
-    gx, gy = 24, 22
+    gx, gy = 24, 42
     css.append("@keyframes cellin{from{opacity:0}to{opacity:1}}")
     for wi, week in enumerate(weeks):
         col = []
         for di, c in enumerate(week):
-            a = level(c)
-            if a is None:
-                col.append(f'<rect x="{f(gx + wi * step)}" y="{f(gy + di * step)}" width="{cell}" height="{cell}" rx="2" fill="#151B22"/>')
-            else:
-                col.append(f'<rect x="{f(gx + wi * step)}" y="{f(gy + di * step)}" width="{cell}" height="{cell}" rx="2" fill="{AMBER}" opacity="{f(a)}"/>')
+            col.append(f'<rect x="{f(gx + wi * step)}" y="{f(gy + di * step)}" width="{cell}" height="{cell}" rx="2" fill="{level(c)}"/>')
         out.append(f'<g style="animation:cellin .5s both;animation-delay:{f(wi * 0.022)}s">' + "".join(col) + "</g>")
 
     ty = gy + 7 * step + 26
     total = f"{cal['totalContributions']:,}"
-    out.append(f'<text x="24" y="{f(ty)}" font-size="12" fill="{SLATE}"><tspan fill="{AMBER}" font-size="15">{total}</tspan> contributions in the past year</text>')
-    out.append(f'<text x="{W - 24}" y="{f(ty)}" font-size="12" fill="{SLATE}" text-anchor="end">busiest day: <tspan fill="{AMBER}" font-size="15">{busiest}</tspan></text>')
+    out.append(f'<text x="24" y="{f(ty)}" font-size="13" fill="{SLATE}"><tspan fill="{MINT}" font-size="16">{total}</tspan> contributions in the past year</text>')
+    out.append(f'<text x="{W - 24}" y="{f(ty)}" font-size="13" fill="{SLATE}" text-anchor="end">Busiest day <tspan fill="{MINT}" font-size="16">{busiest}</tspan></text>')
     label = f"Live heatmap: {total} contributions in the past year, busiest day {busiest}."
     return shell(W, H, css, "".join(out), label)
 
@@ -224,7 +230,7 @@ def render_streaks(user):
     longest, current, active, window = streaks(calendar_days(user))
     total = user["contributionsCollection"]["contributionCalendar"]["totalContributions"]
     avg = total / active if active else 0
-    css, out = [], [module_box(W, H, "STREAKS", "LIVE")]
+    css, out = [], [module_box(W, H, "Streaks", "Live", AMBER)]
     out.append(f'<text x="16" y="52" font-size="11" fill="{SLATE}">longest streak</text>')
     out.append(odometer(16, 90, longest, 30, 0.9, "odl_", css))
     out.append(f'<text x="{16 + len(str(longest)) * 19 + 8}" y="90" font-size="11" fill="{SLATE2}">days in a row</text>')
@@ -244,14 +250,14 @@ def render_weekdays(user):
     vmax = max(sums) or 1
     peak_i = sums.index(max(sums))
     daynames = ["mondays", "tuesdays", "wednesdays", "thursdays", "fridays", "saturdays", "sundays"]
-    css, out = [], [module_box(W, H, "WEEKDAYS", "LIVE")]
+    css, out = [], [module_box(W, H, "Weekdays", "Live", BLUE)]
     css.append("@keyframes wbar{from{transform:scaleY(0)}to{transform:scaleY(1)}}")
     bx, base, bw = 26, 122, 22
     for i, v in enumerate(sums):
         h_ = 8 + 66 * v / vmax
         a = 1.0 if i == peak_i else 0.45 + 0.3 * v / vmax
         out.append(
-            f'<rect x="{bx + i * 31}" y="{f(base - h_)}" width="{bw}" height="{f(h_)}" rx="2" fill="{AMBER}" '
+            f'<rect x="{bx + i * 31}" y="{f(base - h_)}" width="{bw}" height="{f(h_)}" rx="2" fill="{BLUE}" '
             f'opacity="{f(a)}" style="animation:wbar .55s cubic-bezier(.3,.6,.3,1) both;'
             f'animation-delay:{f(0.06 * i)}s;transform-origin:0px {base}px"/>'
         )
@@ -264,28 +270,28 @@ def render_weekdays(user):
 def render_langs(user):
     W, H = 268, 170
     mix = lang_mix(user)
-    css, out = [], [module_box(W, H, "LANGUAGES", "LAST 12 MONTHS")]
+    css, out = [], [module_box(W, H, "Languages", "Past 12 months", LILAC)]
     cx, cy, r = 64, 96, 34
     circ = 2 * math.pi * r
-    alphas = [1.0, 0.45, 0.3, 0.2]
+    colors = [LILAC, MINT, CORAL, BLUE]
     css.append("@keyframes din{from{opacity:0;transform:rotate(-40deg)}to{opacity:1;transform:rotate(0deg)}}")
     segs, acc = [], 0.0
     for i, (name, pct) in enumerate(mix):
         seg = circ * pct / 100
-        color = 'stroke="#2A333C"' if name == "other" else f'stroke="{AMBER}" stroke-opacity="{alphas[min(i, 3)]}"'
+        color = BARBG if name == "other" else colors[i % len(colors)]
         segs.append(
-            f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="none" {color} stroke-width="11" '
+            f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="none" stroke="{color}" stroke-width="11" '
             f'stroke-dasharray="{f(max(seg - 2, 1))} {f(circ - max(seg - 2, 1))}" '
             f'stroke-dashoffset="{f(-acc)}" transform="rotate(-90 {cx} {cy})"/>'
         )
         acc += seg
     out.append(f'<g style="animation:din .9s cubic-bezier(.3,.6,.3,1) both;transform-origin:{cx}px {cy}px">' + "".join(segs) + "</g>")
-    out.append(f'<text x="{cx}" y="{cy + 4}" font-size="12" fill="{AMBER}" text-anchor="middle">{f(round(mix[0][1]))}%</text>')
+    out.append(f'<text x="{cx}" y="{cy + 4}" font-size="12" fill="{WHITE}" text-anchor="middle">{f(round(mix[0][1]))}%</text>')
     ry = 56
     for i, (name, pct) in enumerate(mix):
         if name == "other":
             continue
-        out.append(f'<rect x="128" y="{ry - 8}" width="9" height="9" rx="2" fill="{AMBER}" opacity="{alphas[min(i, 3)]}"/>')
+        out.append(f'<rect x="128" y="{ry - 8}" width="9" height="9" rx="2" fill="{colors[i % len(colors)]}"/>')
         out.append(f'<text x="144" y="{ry}" font-size="10.5" fill="{SLATE}">{name.lower()} <tspan fill="{SLATE2}">{f(round(pct))}%</tspan></text>')
         ry += 24
     out.append(f'<text x="12" y="{H - 12}" font-size="10" fill="{SLATE2}">by size, repos pushed this year</text>')
@@ -300,14 +306,13 @@ def render_footer(user):
     busiest = max((c for w in weeks for c in w), default=0)
     total = f"{cal['totalContributions']:,}"
     css, out = [], [frame(W, H)]
-    out.append(
-        f'<text x="24" y="27" font-size="11.5" fill="{SLATE}">past year on github: '
-        f'<tspan fill="{AMBER}">{total}</tspan> contributions · busiest day: <tspan fill="{AMBER}">{busiest}</tspan></text>'
-    )
+    out.append(f'<circle cx="20" cy="22" r="3" fill="{MINT}" style="animation:hpulse 2s ease-in-out infinite"/>')
+    out.append(f'<text x="31" y="27" font-size="12" fill="{SLATE}">Past year on GitHub</text>')
+    out.append(f'<text x="225" y="27" font-size="12" fill="{SLATE}"><tspan fill="{WHITE}" font-weight="700">{total}</tspan> contributions</text>')
+    out.append(f'<text x="{W - 18}" y="27" font-size="12" fill="{SLATE}" text-anchor="end">Busiest day <tspan fill="{MINT}">{busiest}</tspan></text>')
     css.append("@keyframes hpulse{0%,100%{opacity:1}50%{opacity:.25}}")
-    out.append(f'<circle cx="745" cy="23" r="3" fill="{AMBER}" style="animation:hpulse 2s ease-in-out infinite"/>')
-    out.append(f'<text x="{W - 24}" y="27" font-size="11.5" fill="{SLATE}" text-anchor="end">selected projects</text>')
-    return shell(W, H, css, "".join(out), f"Past year on GitHub, live: {total} contributions, busiest day {busiest}.")
+    return shell(W, H, css, "".join(out), f"Past year on GitHub, live: {total} contributions, busiest day {busiest}.",
+                 hold=BOOT_HOLD + 0.4)
 
 
 def _kv_incr(key):
@@ -340,7 +345,7 @@ def render_visitors(_user=None):
     if count is None:
         H = 64
         css, out = [], [frame(W, H, rx=8)]
-        out.append(f'<text x="18" y="39" font-size="14" letter-spacing="2" fill="{AMBER}">VISITORS</text>')
+        out.append(f'<text x="18" y="39" font-size="15" font-weight="700" fill="{BLUE}">Visitors</text>')
         out.append(f'<text x="{W / 2}" y="39" font-size="14" fill="{SLATE2}" text-anchor="middle">------</text>')
         out.append(f'<text x="{W - 18}" y="39" font-size="10" fill="{SLATE2}" text-anchor="end">counter warming up</text>')
         return shell(W, H, css, "".join(out), "Visitor counter is warming up.")
@@ -360,7 +365,8 @@ def render_visitors(_user=None):
     H = crowd_y + rows * 17 + 30
 
     css, out = [], [frame(W, H, rx=8)]
-    out.append(f'<text x="18" y="39" font-size="14" letter-spacing="2" fill="{AMBER}">VISITORS</text>')
+    out.append(f'<text x="18" y="39" font-size="15" font-weight="700" fill="{BLUE}">Visitors</text>')
+    out.append(f'<path d="M18 57h{W - 36}" stroke="{LINE}"/>')
     digits = str(count).zfill(6)
     x = (W - len(digits) * 26 * 0.62) / 2
     out.append(f'<rect x="{f(x - 12)}" y="12" width="{f(len(digits) * 26 * 0.62 + 24)}" height="40" rx="4" fill="{PANEL}" stroke="#232B33"/>')
@@ -403,23 +409,23 @@ def render_guestbook(_user=None):
     import html as _html
     n_rows = max(len(entries[-8:]), 1)
     H = 58 + n_rows * 22 + 16
-    css, out = [], [frame(W, H, rx=8)]
-    out.append(f'<text x="18" y="29" font-size="12" letter-spacing="1.6" fill="{AMBER}">GUESTBOOK</text>')
-    out.append(f'<text x="{W - 18}" y="29" font-size="10" fill="{SLATE2}" text-anchor="end">signed by visitors, via github issues</text>')
-    out.append(f'<line x1="18" y1="40" x2="{W - 18}" y2="40" stroke="{LINE}"/>')
+    signatures = "1 signature" if len(entries) == 1 else f"{len(entries)} signatures"
+    css, out = [], [module_box(W, H, "Guestbook signatures", signatures, LILAC)]
     css.append("@keyframes gbin{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:translateX(0)}}")
     recent = list(reversed(entries[-8:]))
     if not recent:
         out.append(f'<text x="{W / 2}" y="70" font-size="12" fill="{SLATE2}" text-anchor="middle">nobody has signed yet · be the first</text>')
     ry = 64
     for i, e in enumerate(recent):
-        user = _html.escape(str(e.get("user", ""))[:30])
+        name = str(e.get("user", ""))
+        user = _html.escape(name if len(name) <= 24 else name[:23] + "…")
         msg = _html.escape(str(e.get("msg", ""))[:60])
         date = _html.escape(str(e.get("date", ""))[:10])
         out.append(
             f'<g style="animation:gbin .4s cubic-bezier(.3,.6,.3,1) both;animation-delay:{f(0.07 * i)}s">'
-            f'<text x="18" y="{ry}" font-size="11" fill="{AMBER}">{user}</text>'
-            f'<text x="150" y="{ry}" font-size="11" fill="{SLATE}">{msg}</text>'
+            f'<path d="M18 {ry + 7}h794" stroke="{LINE}"/>'
+            f'<text x="18" y="{ry}" font-size="11" fill="{LILAC}">{user}</text>'
+            f'<text x="192" y="{ry}" font-size="11" fill="{WHITE}">{msg}</text>'
             f'<text x="{W - 18}" y="{ry}" font-size="10" fill="{SLATE2}" text-anchor="end">{date}</text></g>'
         )
         ry += 22
@@ -451,7 +457,7 @@ def _boss_sprite(x, y, seed, name="", px=7):
     kraken = "KRAKEN" in n
 
     if serpent:
-        px, rows, half = 6, 5, 9
+        px, rows, half = px * 6 / 7, 5, 9
     else:
         rows, half = 7, 6
     density = 74 if hulking else 62
@@ -515,13 +521,14 @@ def render_boss(_user=None):
     hp, mx = st["hp"], st["max_hp"]
     frac = max(hp, 0) / mx
     enraged = frac < 0.2
-    css, out = [], [module_box(W, H, "RAID BOSS", f"BOSS #{st['boss_num']}" + (" · ENRAGED" if enraged else ""))]
+    css, out = [], [module_box(W, H, "Raid boss", f"Boss #{st['boss_num']}" + (" · enraged" if enraged else ""), CORAL)]
     css.append("@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}")
-    out.append(f'<g style="animation:bob {"1.1" if enraged else "2.6"}s ease-in-out infinite">{_boss_sprite(20, 56, st["boss_num"], st["name"])}</g>')
-    out.append(f'<text x="120" y="48" font-size="12" letter-spacing="1" fill="{AMBER}">{st["name"]}</text>')
+    out.append(f'<rect x="13" y="39" width="92" height="113" rx="5" fill="{PANEL}" stroke="{LINE}"/>')
+    out.append(f'<g style="animation:bob {"1.1" if enraged else "2.6"}s ease-in-out infinite">{_boss_sprite(31, 74, st["boss_num"], st["name"], px=4.5)}</g>')
+    out.append(f'<text x="120" y="48" font-size="13" font-weight="700" fill="{WHITE}">{st["name"]}</text>')
     out.append(f'<rect x="120" y="60" width="266" height="11" rx="2" fill="{BARBG}"/>')
     css.append("@keyframes hpin{from{transform:scaleX(0)}to{transform:scaleX(1)}}")
-    hp_fill = "#FF4438" if enraged else AMBER
+    hp_fill = "#FF796E" if enraged else CORAL
     css.append("@keyframes rage{0%,100%{opacity:1}50%{opacity:.55}}")
     rage = "animation:hpin .8s cubic-bezier(.3,.6,.3,1) both, rage 1s ease-in-out infinite;" if enraged else "animation:hpin .8s cubic-bezier(.3,.6,.3,1) both;"
     out.append(f'<rect x="120" y="60" width="{f(266 * frac)}" height="11" rx="2" fill="{hp_fill}" style="{rage}transform-origin:120px 0"/>')
@@ -551,7 +558,8 @@ def render_pet(_user=None):
     total = st["total_care"]
     stage = "egg" if total < 10 else ("blobling" if total < 50 else "blob")
     hungry, sad = st["hunger"] > 75, st["mood"] < 30
-    css, out = [], [module_box(W, H, f"{st['name']} THE README PET", stage.upper())]
+    css, out = [], [module_box(W, H, f"{st['name']} the README pet", stage, AMBER)]
+    out.append(f'<rect x="13" y="39" width="100" height="113" rx="5" fill="{PANEL}" stroke="{LINE}"/>')
     css.append("@keyframes squish{0%,100%{transform:scale(1,1)}50%{transform:scale(1.07,.9)}}")
     css.append("@keyframes blink{0%,92%,100%{opacity:1}95%{opacity:0}}")
     px = 9
@@ -575,15 +583,15 @@ def render_pet(_user=None):
     base_h = len(PET_SPRITES[stage]) * px + 58
     out.append(f'<g style="animation:squish {speed}s ease-in-out infinite;transform-origin:{24 + 4 * px}px {base_h}px">{"".join(sprite)}</g>')
 
-    def bar(y, lbl, v, invert=False):
-        val = 100 - v if invert else v
+    def bar(y, lbl, val, color):
         return (
-            f'<text x="130" y="{y + 9}" font-size="10" fill="{SLATE}">{lbl}</text>'
-            f'<rect x="180" y="{y}" width="200" height="9" rx="2" fill="{BARBG}"/>'
-            f'<rect x="180" y="{y}" width="{f(200 * val / 100)}" height="9" rx="2" fill="{AMBER}" opacity=".85"/>'
+            f'<text x="130" y="{y + 9}" font-size="11" fill="{SLATE}">{lbl}</text>'
+            f'<rect x="180" y="{y}" width="162" height="9" rx="2" fill="{BARBG}"/>'
+            f'<rect x="180" y="{y}" width="{f(162 * val / 100)}" height="9" rx="2" fill="{color}"/>'
+            f'<text x="383" y="{y + 9}" text-anchor="end" font-size="11" fill="{color}">{val}%</text>'
         )
-    out.append(bar(52, "food", st["hunger"], invert=True))
-    out.append(bar(76, "mood", st["mood"]))
+    out.append(bar(52, "Food", 100 - st["hunger"], AMBER))
+    out.append(bar(76, "Mood", st["mood"], MINT))
     times = "time" if total == 1 else "times"
     people = "person" if len(st["care"]) == 1 else "people"
     out.append(f'<text x="130" y="112" font-size="10" fill="{SLATE2}">cared for {total} {times} by {len(st["care"])} {people}</text>')
@@ -595,7 +603,7 @@ def render_pet(_user=None):
     return shell(W, H, css, "".join(out), label)
 
 
-CANVAS_COLORS = {"a": AMBER, "w": "#EDE6D6", "s": SLATE}
+CANVAS_COLORS = {"a": AMBER, "w": WHITE, "s": "#788897"}
 
 
 def _grid_labels(gx, gy, cols, rows_, cell):
@@ -615,16 +623,13 @@ def render_canvas(_user=None):
     cols, rows_, cell = 64, 16, 12
     gx, gy = (W - cols * cell) // 2 + 4, 50
     H = gy + rows_ * cell + 34
-    css, out = [], [frame(W, H, rx=8)]
-    out.append(f'<text x="18" y="27" font-size="12" letter-spacing="1.6" fill="{AMBER}">PIXEL CANVAS</text>')
+    css, out = [], [module_box(W, H, "Pixel canvas", "64 × 16", BLUE)]
     out.append(_grid_labels(gx, gy, cols, rows_, cell))
-    out.append(f'<text x="{W - 18}" y="27" font-size="10" fill="{SLATE2}" text-anchor="end">the internet draws here, one pixel at a time</text>')
     for r in range(rows_):
         for c in range(cols):
             color = st["cells"].get(f"{c},{r}")
-            fill = CANVAS_COLORS.get(color, "#14191F")
-            op = "" if color else ' fill-opacity=".8"'
-            out.append(f'<rect x="{gx + c * cell}" y="{gy + r * cell}" width="{cell - 1}" height="{cell - 1}" fill="{fill}"{op}/>')
+            fill = CANVAS_COLORS.get(color, "#272936" if (c + r) % 2 else "#2B2E3B")
+            out.append(f'<rect x="{gx + c * cell}" y="{gy + r * cell}" width="{cell - 1}" height="{cell - 1}" rx="1" fill="{fill}"/>')
     px_word = "pixel" if st["count"] == 1 else "pixels"
     out.append(f'<text x="18" y="{H - 12}" font-size="10" fill="{SLATE2}">{st["count"]} {px_word} placed · grid is 64 x 16 · one pixel per 15 minutes</text>')
     label = f"Communal pixel canvas, 64 by 16, {st['count']} pixels placed so far."
@@ -637,19 +642,17 @@ def render_life(_user=None):
     cols, rows_, cell = 64, 16, 12
     gx, gy = (W - cols * cell) // 2 + 4, 50
     H = gy + rows_ * cell + 34
-    css, out = [], [frame(W, H, rx=8)]
-    out.append(f'<text x="18" y="27" font-size="12" letter-spacing="1.6" fill="{AMBER}">LIFE GARDEN</text>')
+    css, out = [], [module_box(W, H, "Life garden", "One generation per hour", MINT)]
     out.append(_grid_labels(gx, gy, cols, rows_, cell))
-    out.append(f'<text x="{W - 18}" y="27" font-size="10" fill="{SLATE2}" text-anchor="end">conway rules · one generation per hour</text>')
     live = {(c, r) for c, r in st["cells"]}
     css.append("@keyframes lifein{from{opacity:0}to{opacity:1}}")
     for r in range(rows_):
         for c in range(cols):
             if (c, r) in live:
                 d = f"animation:lifein .5s both;animation-delay:{f(((c * 7 + r * 13) % 20) * 0.03)}s"
-                out.append(f'<rect x="{gx + c * cell}" y="{gy + r * cell}" width="{cell - 1}" height="{cell - 1}" rx="1" fill="{AMBER}" opacity=".9" style="{d}"/>')
+                out.append(f'<rect x="{gx + c * cell}" y="{gy + r * cell}" width="{cell - 1}" height="{cell - 1}" rx="1" fill="{MINT}" style="{d}"/>')
             else:
-                out.append(f'<rect x="{gx + c * cell}" y="{gy + r * cell}" width="{cell - 1}" height="{cell - 1}" fill="#14191F" fill-opacity=".8"/>')
+                out.append(f'<rect x="{gx + c * cell}" y="{gy + r * cell}" width="{cell - 1}" height="{cell - 1}" rx="1" fill="#252933"/>')
     alive = len(st["cells"])
     quiet = " · the garden is quiet, plant something" if alive < 6 else ""
     cells_word = "cell" if alive == 1 else "cells"
@@ -666,7 +669,7 @@ def render_fallback(w, h):
 
 # name: (renderer, width, height, needs_github_fetch, cache_seconds)
 CARDS = {
-    "stats": (render_stats, 830, 172, True, 600),
+    "stats": (render_stats, 830, 194, True, 600),
     "streaks": (render_streaks, 268, 170, True, 600),
     "weekdays": (render_weekdays, 268, 170, True, 600),
     "langs": (render_langs, 268, 170, True, 600),

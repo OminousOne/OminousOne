@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="446" height="218" viewBox="-4 0 446 218" role="img" aria-label="Ottawa Construction Map. Explore City of Ottawa construction and development applications on a live map.">
+<style><![CDATA[
+text{font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;}
+@keyframes project-ring{0%{r:7px;opacity:.85}70%,100%{r:18px;opacity:0}}
+@keyframes bootrev{0%{opacity:0}30%{opacity:.8}55%{opacity:.15}100%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;}}
+]]></style>
+
+<defs>
+  <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <pattern id="scan" width="3" height="3" patternUnits="userSpaceOnUse">
+    <rect width="3" height="1" y="2" fill="#000"/>
+  </pattern>
+</defs>
+<g style="animation:bootrev .5s linear both;animation-delay:4.8s">
+<rect x="0.75" y="0.75" width="436.5" height="216.5" rx="9" fill="#211B24" stroke="#51444F" stroke-width="1.5"/>
+<rect x="12" y="12" width="414" height="128" rx="5" fill="#182827" stroke="#FFB677" stroke-opacity=".36"/>
+
+<path d="M29 75c35 2 53-40 91-39s64 26 94 22 74-33 111-25 48 38 82 26" fill="none" stroke="#235169" stroke-width="19"/>
+<g fill="none" stroke="#506258" stroke-width="1.2">
+  <path d="M28 101l87-15 52-26 46 7 64 33 128 15m-373 12 101-6 67-19 46-41 67-6 95 23"/>
+  <path d="M47 43l20 39 8 46m43-79 24 28 12 51m29-84-7 42 14 42m50-80 25 34-4 47m36-83 22 54 20 27m29-76-20 26 22 53"/>
+  <path d="M33 55h38m64 45 16 15m155-28 40 14m-132 21 49-7"/>
+</g>
+<path d="M62 109c46-6 72-26 114-23l71-25 72 39 29-25" fill="none" stroke="#FFB677" stroke-dasharray="3 4" stroke-opacity=".55"/>
+<text x="135" y="39" font-size="10" fill="#90CCE8">Ottawa River</text>
+<circle cx="89" cy="61" r="6" fill="#513827" stroke="#FFB677" stroke-width="1.5"/><circle cx="89" cy="61" r="2" fill="#FFB677"/><circle cx="176" cy="86" r="6" fill="#513827" stroke="#FFB677" stroke-width="1.5"/><circle cx="176" cy="86" r="2" fill="#FFB677"/><circle cx="247" cy="61" r="6" fill="#513827" stroke="#FFB677" stroke-width="1.5"/><circle cx="247" cy="61" r="2" fill="#FFB677"/><circle cx="319" cy="100" r="6" fill="#513827" stroke="#FFB677" stroke-width="1.5"/><circle cx="319" cy="100" r="2" fill="#FFB677"/><circle cx="348" cy="75" r="6" fill="#513827" stroke="#FFB677" stroke-width="1.5"/><circle cx="348" cy="75" r="2" fill="#FFB677"/>
+<circle cx="247" cy="61" r="7" fill="none" stroke="#FFB677" opacity="0" style="animation:project-ring 2.9s ease-out infinite"/>
+
+<path d="M13 148h412" stroke="#38313C"/>
+<path d="M13 148h36" stroke="#FFB677" stroke-width="2"/>
+<text x="16" y="179" fill="#F6E9D0" font-size="26" font-weight="700">Ottawa Construction Map</text>
+<text x="17" y="203" fill="#FFB677" font-size="16">Explore projects on the map</text>
+<path d="M402 198h18m-6-6 6 6-6 6" fill="none" stroke="#FFB677" stroke-width="1.5"/>
+<rect x="1" y="1" width="436" height="216" rx="8" fill="url(#scan)" opacity="0.10"/></g>
+
+</svg>

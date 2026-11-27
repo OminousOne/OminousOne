@@ -5,37 +5,47 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>pong.srv · feel the lag</title>
 <style>
-  :root { --amber: #FFB300; --slate: #6C7986; --slate2: #46525E; --bg: #0E1116; --panel: #0A0D10; --line: #1E262E; }
+  :root {
+    color-scheme: dark;
+    --amber: #ffc164; --coral: #ffad92; --white: #f6e9d0; --slate: #c0b7ad;
+    --bg: #111017; --panel: #211b24; --line: #51444f;
+  }
   * { box-sizing: border-box; margin: 0; }
   body {
     background: var(--bg); color: var(--slate);
     font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
     min-height: 100vh; display: flex; flex-direction: column; align-items: center;
-    padding: 24px 12px; gap: 14px;
+    padding: 24px 12px; gap: 12px;
   }
-  .top { width: min(792px, 100%); display: flex; justify-content: space-between; align-items: baseline; }
-  .top h1 { color: var(--amber); font-size: 15px; letter-spacing: 2px; font-weight: 600; }
-  .top span { color: var(--slate2); font-size: 11px; }
-  .frame { position: relative; border: 1.5px solid #262E36; border-radius: 10px; background: var(--panel); padding: 15px; }
-  canvas { display: block; background: #05070A; border: 1px solid var(--line); max-width: 100%; height: auto; touch-action: none; cursor: none; }
+  .top, .frame, .controls, .note { width: min(792px, 100%); }
+  .top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 16px; }
+  .top h1 { color: var(--amber); font-size: 25px; letter-spacing: 1px; line-height: 1; }
+  .top span { color: var(--slate); font-size: 11px; }
+  .frame { position: relative; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); padding: clamp(6px, 2vw, 15px); }
+  canvas { display: block; background: #151218; border: 1px solid var(--line); width: 100%; height: auto; touch-action: none; cursor: none; }
   .frame::after {
     content: ""; position: absolute; inset: 0; border-radius: 10px; pointer-events: none;
-    background: repeating-linear-gradient(to bottom, transparent 0 2px, rgba(0,0,0,.16) 2px 3px);
+    background: repeating-linear-gradient(to bottom, transparent 0 2px, rgba(0,0,0,.10) 2px 3px);
   }
-  .controls { width: min(792px, 100%); display: flex; flex-wrap: wrap; gap: 18px; align-items: center; font-size: 12px; }
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: center; font-size: 12px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 7px; padding: 10px 12px;
+  }
   .controls label { display: flex; align-items: center; gap: 8px; color: var(--slate); }
   .controls .val { color: var(--amber); min-width: 58px; }
-  input[type=range] { accent-color: var(--amber); width: 160px; }
+  input[type=range] { accent-color: var(--amber); width: clamp(88px, 24vw, 160px); }
   input[type=checkbox] { accent-color: var(--amber); width: 15px; height: 15px; }
   button {
-    background: var(--bg); color: var(--amber); border: 1px solid rgba(255,179,0,.45); border-radius: 4px;
+    background: var(--bg); color: var(--amber); border: 1px solid #a27041; border-radius: 4px;
     font: inherit; font-size: 12px; padding: 6px 14px; cursor: pointer;
   }
   button:hover { border-color: var(--amber); }
-  .note { width: min(792px, 100%); font-size: 11.5px; color: var(--slate2); line-height: 1.6; }
-  .note b { color: var(--slate); font-weight: 600; }
+  #score { margin-left: auto; padding: 5px 9px; border-radius: 4px; background: var(--bg); color: var(--amber); }
+  .note { font-size: 12px; color: var(--slate); line-height: 1.7; }
+  .note b { color: var(--white); font-weight: 600; }
   a { color: var(--amber); text-decoration: none; }
   a:hover { text-decoration: underline; }
+  :focus-visible { outline: 2px solid var(--coral); outline-offset: 3px; }
 </style>
 </head>
 <body>
@@ -44,14 +54,14 @@
     <span>server authoritative &middot; 60 tick/s &middot; you are the left paddle</span>
   </div>
 
-  <div class="frame"><canvas id="c" width="760" height="420"></canvas></div>
+  <div class="frame"><canvas id="c" width="760" height="420" aria-label="Pong court. Move the pointer or use the up and down arrows to move your paddle."></canvas></div>
 
   <div class="controls">
     <label>latency <input id="lag" type="range" min="0" max="300" step="10" value="150">
       <span class="val" id="lagval">150 ms</span></label>
     <label><input id="pred" type="checkbox"> client prediction</label>
     <button id="serve">serve</button>
-    <span id="score" style="color:var(--amber)">0 : 0</span>
+    <span id="score">0 : 0</span>
   </div>
 
   <div class="note">
@@ -155,27 +165,31 @@
 
     // draw
     ctx.clearRect(0, 0, W, H);
-    ctx.strokeStyle = "#1E262E"; ctx.setLineDash([4, 7]);
+    ctx.strokeStyle = "#51444f";
+    ctx.beginPath(); ctx.arc(W / 2, H / 2, 39, 0, 2 * Math.PI); ctx.stroke();
+    ctx.setLineDash([4, 7]);
     ctx.beginPath(); ctx.moveTo(W / 2, 8); ctx.lineTo(W / 2, H - 8); ctx.stroke(); ctx.setLineDash([]);
 
-    ctx.fillStyle = "#46525E"; ctx.font = "11px ui-monospace, Menlo, monospace";
+    ctx.fillStyle = "#c0b7ad"; ctx.font = "11px ui-monospace, Menlo, monospace";
     ctx.fillText("YOU", PX - 8, 18);
     ctx.fillText("SRV AI", W - PX - 30, 18);
     ctx.fillText("rtt " + rtt + " ms · tick " + seen.tick + " · prediction " + (predEl.checked ? "on" : "off"), 12, H - 12);
 
-    ctx.shadowColor = "#FFB300"; ctx.shadowBlur = 9; ctx.fillStyle = "#FFB300";
+    ctx.shadowColor = "#ffc164"; ctx.shadowBlur = 7; ctx.fillStyle = "#ffc164";
     ctx.fillRect(PX - PW / 2, myY - PH / 2, PW, PH);
+    ctx.shadowColor = "#ffad92"; ctx.fillStyle = "#ffad92";
     ctx.fillRect(W - PX - PW / 2, seen.right - PH / 2, PW, PH);
+    ctx.shadowColor = "#f6e9d0"; ctx.fillStyle = "#f6e9d0";
     ctx.fillRect(seen.ball.x - BALL / 2, seen.ball.y - BALL / 2, BALL, BALL);
     ctx.shadowBlur = 0;
 
     // ghost: where the server thinks you are, when prediction hides it
     if (predEl.checked && Math.abs(seen.left - myY) > 3) {
-      ctx.strokeStyle = "rgba(255,179,0,.4)"; ctx.setLineDash([3, 3]);
+      ctx.strokeStyle = "rgba(255,193,100,.65)"; ctx.setLineDash([3, 3]);
       ctx.strokeRect(PX - PW / 2, seen.left - PH / 2, PW, PH); ctx.setLineDash([]);
     }
 
-    ctx.fillStyle = "rgba(255,179,0,.75)"; ctx.font = "20px ui-monospace, Menlo, monospace";
+    ctx.fillStyle = "#f6e9d0"; ctx.font = "20px ui-monospace, Menlo, monospace";
     ctx.fillText(srv.scoreL + "   " + srv.scoreR, W / 2 - 34, 30);
 
     requestAnimationFrame(frame);

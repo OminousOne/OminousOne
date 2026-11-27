@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" height="44" role="img" aria-label="reciped.app">
+<style><![CDATA[
+text{font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;}
+.compact{display:none}
+@media (max-width:131.5px){.full{display:none}.compact{display:inline}}
+@keyframes bootrev{0%{opacity:0}30%{opacity:.8}55%{opacity:.15}100%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;}}
+]]></style>
+
+<defs>
+  <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <pattern id="scan" width="3" height="3" patternUnits="userSpaceOnUse">
+    <rect width="3" height="1" y="2" fill="#000"/>
+  </pattern>
+</defs>
+<g style="animation:bootrev .5s linear both;animation-delay:5.1s"><rect x="2.25" y=".75" width="100%" height="42.5" rx="6" fill="#211B24" stroke="#51444F" stroke-width="1.5" style="width:calc(100% - 4.5px)"/><rect x="2.25" y="1.5" width="100%" height="41" rx="5" fill="url(#scan)" opacity=".1" style="width:calc(100% - 4.5px)"/><path d="M33 9v26" stroke="#38313C"/><g transform="translate(12 13)" fill="none" stroke="#FFAD92" stroke-width="1.5" stroke-linecap="round"><path d="M4 2v5m3-5v5m3-5v5m-6 0c0 1.5 1 2.5 3 2.5S10 8.5 10 7m-3 2.5V16m8-14c-1.5 2-2 4-2 7h2m0-7v14"/></g><text class="full" x="40" y="26.5" font-size="12.5" fill="#F6E9D0">reciped.app</text><text class="compact" x="37" y="26" font-size="10.5" fill="#F6E9D0">Reciped</text></g>
+
+</svg>

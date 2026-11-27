@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="446" height="218" viewBox="-4 0 446 218" role="img" aria-label="Software Factory, a coding tool that assigns planning, implementation, and review to AI agents and opens a pull request.">
+<style><![CDATA[
+text{font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;}
+@keyframes factorypulse{0%{transform:translateX(0);opacity:0}8%{opacity:1}90%{opacity:1}100%{transform:translateX(288px);opacity:0}}
+.factory-pulse{animation:factorypulse 4.6s linear infinite}
+@keyframes bootrev{0%{opacity:0}30%{opacity:.8}55%{opacity:.15}100%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;}}
+]]></style>
+
+<defs>
+  <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <pattern id="scan" width="3" height="3" patternUnits="userSpaceOnUse">
+    <rect width="3" height="1" y="2" fill="#000"/>
+  </pattern>
+</defs>
+<g style="animation:bootrev .5s linear both;animation-delay:4.8s">
+<rect x="0.75" y="0.75" width="436.5" height="216.5" rx="9" fill="#211B24" stroke="#51444F" stroke-width="1.5"/>
+<rect x="12" y="12" width="414" height="128" rx="5" fill="#20182B" stroke="#DABAFB" stroke-opacity=".36"/>
+
+<path d="M75 53h288M113 79h20m76 0h20m76 0h20" stroke="#78668A" stroke-dasharray="2 3"/>
+<rect x="37" y="63" width="76" height="33" rx="4" fill="#241C30" stroke="#DABAFB" stroke-opacity=".45"/><text x="75" y="83" text-anchor="middle" fill="#DABAFB" font-size="11">Plan</text><rect x="133" y="63" width="76" height="33" rx="4" fill="#241C30" stroke="#DABAFB" stroke-opacity=".45"/><text x="171" y="83" text-anchor="middle" fill="#DABAFB" font-size="11">Build</text><rect x="229" y="63" width="76" height="33" rx="4" fill="#241C30" stroke="#DABAFB" stroke-opacity=".45"/><text x="267" y="83" text-anchor="middle" fill="#DABAFB" font-size="11">Review</text><rect x="325" y="63" width="76" height="33" rx="4" fill="#241C30" stroke="#DABAFB" stroke-opacity=".45"/><text x="363" y="83" text-anchor="middle" fill="#DABAFB" font-size="11">Open PR</text>
+<circle cx="75" cy="53" r="3.2" fill="#DABAFB" class="factory-pulse"/>
+<path d="M171 99v12h96V99" fill="none" stroke="#78668A" stroke-dasharray="2 3"/>
+
+<path d="M13 148h412" stroke="#38313C"/>
+<path d="M13 148h36" stroke="#DABAFB" stroke-width="2"/>
+<text x="16" y="179" fill="#F6E9D0" font-size="26" font-weight="700">Software Factory</text>
+<text x="17" y="203" fill="#DABAFB" font-size="16">Plan, build, review, open a PR</text>
+
+<rect x="1" y="1" width="436" height="216" rx="8" fill="url(#scan)" opacity="0.10"/></g>
+
+</svg>

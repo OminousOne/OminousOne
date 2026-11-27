@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="446" height="218" viewBox="-4 0 446 218" role="img" aria-label="uschedule.ca, a conflict-free timetable builder for University of Ottawa students.">
+<style><![CDATA[
+text{font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;}
+@keyframes slot{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bootrev{0%{opacity:0}30%{opacity:.8}55%{opacity:.15}100%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;}}
+]]></style>
+
+<defs>
+  <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <pattern id="scan" width="3" height="3" patternUnits="userSpaceOnUse">
+    <rect width="3" height="1" y="2" fill="#000"/>
+  </pattern>
+</defs>
+<g style="animation:bootrev .5s linear both;animation-delay:4.8s">
+<rect x="0.75" y="0.75" width="436.5" height="216.5" rx="9" fill="#211B24" stroke="#51444F" stroke-width="1.5"/>
+<rect x="12" y="12" width="414" height="128" rx="5" fill="#10231C" stroke="#89E6B4" stroke-opacity=".36"/>
+
+<path d="M86 43h270v79H86zm0 26h270m-270 26h270" fill="none" stroke="#2A443C"/>
+<g text-anchor="middle" font-size="10" fill="#A7C5B7"><text x="113" y="36">MON</text><path d="M86 44v78" stroke="#2A443C"/><text x="167" y="36">TUE</text><path d="M140 44v78" stroke="#2A443C"/><text x="221" y="36">WED</text><path d="M194 44v78" stroke="#2A443C"/><text x="275" y="36">THU</text><path d="M248 44v78" stroke="#2A443C"/><text x="329" y="36">FRI</text><path d="M302 44v78" stroke="#2A443C"/><g style="animation:slot .25s ease-out 0.2s both"><rect x="91" y="49" width="44" height="24" rx="2" fill="#89E6B4" fill-opacity=".18" stroke="#89E6B4" stroke-opacity=".75"/><text x="113" y="64" fill="#89E6B4">SEG</text></g><g style="animation:slot .25s ease-out 0.31s both"><rect x="145" y="77" width="44" height="39" rx="2" fill="#83C6FF" fill-opacity=".18" stroke="#83C6FF" stroke-opacity=".75"/><text x="167" y="92" fill="#83C6FF">CSI</text></g><g style="animation:slot .25s ease-out 0.42s both"><rect x="199" y="49" width="44" height="24" rx="2" fill="#89E6B4" fill-opacity=".18" stroke="#89E6B4" stroke-opacity=".75"/><text x="221" y="64" fill="#89E6B4">SEG</text></g><g style="animation:slot .25s ease-out 0.53s both"><rect x="253" y="77" width="44" height="39" rx="2" fill="#83C6FF" fill-opacity=".18" stroke="#83C6FF" stroke-opacity=".75"/><text x="275" y="92" fill="#83C6FF">CSI</text></g><g style="animation:slot .25s ease-out 0.64s both"><rect x="91" y="93" width="44" height="23" rx="2" fill="#C2AFF6" fill-opacity=".18" stroke="#C2AFF6" stroke-opacity=".75"/><text x="113" y="108" fill="#C2AFF6">MAT</text></g><g style="animation:slot .25s ease-out 0.75s both"><rect x="199" y="93" width="44" height="23" rx="2" fill="#C2AFF6" fill-opacity=".18" stroke="#C2AFF6" stroke-opacity=".75"/><text x="221" y="108" fill="#C2AFF6">MAT</text></g></g>
+<path d="M370 82l8 8 15-16" fill="none" stroke="#89E6B4" stroke-width="2"/>
+
+<path d="M13 148h412" stroke="#38313C"/>
+<path d="M13 148h36" stroke="#89E6B4" stroke-width="2"/>
+<text x="16" y="179" fill="#F6E9D0" font-size="26" font-weight="700">uschedule.ca</text>
+<text x="17" y="203" fill="#89E6B4" font-size="16">Build a timetable</text>
+<path d="M402 198h18m-6-6 6 6-6 6" fill="none" stroke="#89E6B4" stroke-width="1.5"/>
+<rect x="1" y="1" width="436" height="216" rx="8" fill="url(#scan)" opacity="0.10"/></g>
+
+</svg>

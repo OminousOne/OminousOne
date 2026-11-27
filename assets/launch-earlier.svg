@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="838" height="116" viewBox="-4 0 838 116" role="img" aria-label="Earlier work, including Conway's Game of Life inside Minecraft and Tailor, an OS flashing tool.">
+<style><![CDATA[
+text{font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;}
+@keyframes bootrev{0%{opacity:0}30%{opacity:.8}55%{opacity:.15}100%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;}}
+]]></style>
+
+<defs>
+  <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <pattern id="scan" width="3" height="3" patternUnits="userSpaceOnUse">
+    <rect width="3" height="1" y="2" fill="#000"/>
+  </pattern>
+</defs>
+<g style="animation:bootrev .5s linear both;animation-delay:4.8s">
+<rect x="0.75" y="0.75" width="828.5" height="114.5" rx="9" fill="#211B24" stroke="#51444F" stroke-width="1.5"/>
+<rect x="13" y="13" width="400" height="90" rx="5" fill="#18272A" stroke="#91DCD8" stroke-opacity=".36"/>
+<g transform="translate(28 -3) scale(.83)">
+  <rect x="49" y="35" width="16" height="16" rx="1" fill="#38313C"/><rect x="68" y="35" width="16" height="16" rx="1" fill="#38313C"/><rect x="87" y="35" width="16" height="16" rx="1" fill="#91DCD8"/><rect x="106" y="35" width="16" height="16" rx="1" fill="#38313C"/><rect x="125" y="35" width="16" height="16" rx="1" fill="#38313C"/><rect x="144" y="35" width="16" height="16" rx="1" fill="#38313C"/><rect x="163" y="35" width="16" height="16" rx="1" fill="#38313C"/><rect x="49" y="54" width="16" height="16" rx="1" fill="#38313C"/><rect x="68" y="54" width="16" height="16" rx="1" fill="#38313C"/><rect x="87" y="54" width="16" height="16" rx="1" fill="#38313C"/><rect x="106" y="54" width="16" height="16" rx="1" fill="#91DCD8"/><rect x="125" y="54" width="16" height="16" rx="1" fill="#38313C"/><rect x="144" y="54" width="16" height="16" rx="1" fill="#38313C"/><rect x="163" y="54" width="16" height="16" rx="1" fill="#38313C"/><rect x="49" y="73" width="16" height="16" rx="1" fill="#38313C"/><rect x="68" y="73" width="16" height="16" rx="1" fill="#91DCD8"/><rect x="87" y="73" width="16" height="16" rx="1" fill="#91DCD8"/><rect x="106" y="73" width="16" height="16" rx="1" fill="#91DCD8"/><rect x="125" y="73" width="16" height="16" rx="1" fill="#38313C"/><rect x="144" y="73" width="16" height="16" rx="1" fill="#38313C"/><rect x="163" y="73" width="16" height="16" rx="1" fill="#38313C"/><rect x="49" y="92" width="16" height="16" rx="1" fill="#38313C"/><rect x="68" y="92" width="16" height="16" rx="1" fill="#38313C"/><rect x="87" y="92" width="16" height="16" rx="1" fill="#38313C"/><rect x="106" y="92" width="16" height="16" rx="1" fill="#38313C"/><rect x="125" y="92" width="16" height="16" rx="1" fill="#38313C"/><rect x="144" y="92" width="16" height="16" rx="1" fill="#38313C"/><rect x="163" y="92" width="16" height="16" rx="1" fill="#38313C"/><rect x="49" y="111" width="16" height="16" rx="1" fill="#38313C"/><rect x="68" y="111" width="16" height="16" rx="1" fill="#38313C"/><rect x="87" y="111" width="16" height="16" rx="1" fill="#38313C"/><rect x="106" y="111" width="16" height="16" rx="1" fill="#38313C"/><rect x="125" y="111" width="16" height="16" rx="1" fill="#38313C"/><rect x="144" y="111" width="16" height="16" rx="1" fill="#38313C"/><rect x="163" y="111" width="16" height="16" rx="1" fill="#38313C"/>
+  <path d="M203 31v92" stroke="#38313C"/>
+  <rect x="226" y="40" width="165" height="75" rx="4" fill="#111017" stroke="#46656A"/>
+  <text x="240" y="65" font-size="13" fill="#91DCD8">&gt; flash OS image</text>
+  <path d="M241 85h132" stroke="#38313C" stroke-width="6"/>
+  <path d="M241 85h102" stroke="#91DCD8" stroke-width="6"/>
+</g>
+<text x="440" y="53" font-size="26" font-weight="700" fill="#F6E9D0">Earlier work</text>
+<text x="441" y="78" font-size="16" fill="#91DCD8">Minecraft plugins and OS tools</text>
+<path d="M782 72h24m-7-7 7 7-7 7" fill="none" stroke="#91DCD8" stroke-width="1.5"/>
+<rect x="1" y="1" width="828" height="114" rx="8" fill="url(#scan)" opacity="0.10"/></g>
+
+</svg>

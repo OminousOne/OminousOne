@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="276" height="170" viewBox="-4 0 276 170" role="img" aria-label="Oberon: animated Pit Wall with agent activity and pull requests. Links to the Oberon project.">
+<style><![CDATA[
+text{font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;}
+@keyframes activity{from{transform:translateX(-6px);opacity:.4}to{transform:translateX(126px);opacity:1}}
+.activity{animation:activity 3.1s linear infinite}
+@keyframes pwr{0%{opacity:0}18%{opacity:.85}38%{opacity:.15}62%{opacity:1}100%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;}}
+]]></style>
+
+<defs>
+  <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <pattern id="scan" width="3" height="3" patternUnits="userSpaceOnUse">
+    <rect width="3" height="1" y="2" fill="#000"/>
+  </pattern>
+</defs>
+<g style="animation:pwr .55s linear both;animation-delay:5.06s">
+<rect x="0.75" y="0.75" width="266.5" height="168.5" rx="8" fill="#19161D" stroke="#51444F" stroke-width="1.5"/><path d="M12 28h244" stroke="#38313C"/><path d="M12 28h26" stroke="#F6C77F" stroke-width="1.5"/><text x="12" y="20" font-size="12" font-weight="700" letter-spacing=".8" fill="#F6C77F">OBERON</text><text x="256" y="20" font-size="9" fill="#A79E95" text-anchor="end">MACOS</text>
+<rect x="10" y="36" width="248" height="106" rx="4" fill="#26202C" stroke="#38313C"/>
+<g transform="translate(0 40) scale(0.612)">
+<rect x="40" y="27" width="358" height="97" rx="4" fill="#141319" stroke="#534B58"/>
+<path d="M41 48h356M100 48v76M100 75h297M100 99h297" stroke="#403846"/>
+<path d="M52 37h12m5 0h4m5 0h4" stroke="#F6C77F" stroke-width="2"/>
+<text x="114" y="41" font-size="11" fill="#F6C77F">Pit Wall</text>
+<path d="M52 60h29m-29 13h19m-19 13h25m-25 13h15" stroke="#746779" stroke-width="2"/>
+<g font-size="10" fill="#D3C5D5">
+  <text x="115" y="65">Codex</text><text x="115" y="91">Claude</text><text x="115" y="114">Pull requests</text>
+  <text x="328" y="65" fill="#F6C77F">working</text><text x="328" y="91" fill="#C3B0FD">review</text>
+</g>
+<path d="M183 61h29l7-7 5 12 10-9 8 4h65M183 87h124M206 110h101" fill="none" stroke="#6D5F71"/>
+<circle class="activity" cx="184" cy="61" r="2.5" fill="#F6C77F"/>
+<path d="M183 87h76m-53 23h46" stroke="#C3B0FD" stroke-opacity=".7" stroke-width="2"/>
+</g>
+<text x="12" y="158" font-size="10" fill="#A79E95">one Git worktree per chat</text>
+</g>
+<rect x="1" y="1" width="266" height="168" rx="8" fill="url(#scan)" opacity="0.10"/>
+</svg>

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="446" height="218" viewBox="-4 0 446 218" role="img" aria-label="Polybot, a paper-trading lab that runs Polymarket strategies in separate containers and shows their results on one dashboard.">
+<style><![CDATA[
+text{font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;}
+@keyframes chartscan{0%,12%{transform:translateX(0);opacity:0}20%,84%{opacity:.8}95%,100%{transform:translateX(262px);opacity:0}}
+@keyframes bootrev{0%{opacity:0}30%{opacity:.8}55%{opacity:.15}100%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;}}
+]]></style>
+
+<defs>
+  <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <pattern id="scan" width="3" height="3" patternUnits="userSpaceOnUse">
+    <rect width="3" height="1" y="2" fill="#000"/>
+  </pattern>
+</defs>
+<g style="animation:bootrev .5s linear both;animation-delay:4.8s">
+<rect x="0.75" y="0.75" width="436.5" height="216.5" rx="9" fill="#211B24" stroke="#51444F" stroke-width="1.5"/>
+<rect x="12" y="12" width="414" height="128" rx="5" fill="#162219" stroke="#A7E393" stroke-opacity=".36"/>
+
+<rect x="43" y="34" width="352" height="85" rx="4" fill="#15201A" stroke="#49604B"/>
+<path d="M57 54h300m-300 22h300m-300 22h300" stroke="#36513D" stroke-dasharray="3 4"/>
+<clipPath id="polybot-chart"><rect x="57" y="43" width="300" height="65"/></clipPath>
+<g clip-path="url(#polybot-chart)"><g transform="translate(59 76)"><path d="M0,1.408 L8,6.732 L16,8.096 L24,3.828 L32,0.682 L40,-2.97 L48,-10.252 L56,6.38 L64,10.67 L72,9.086 L80,-6.314 L88,-3.014 L96,2.86 L104,8.228 L112,5.478 L120,-3.916 L128,-6.93 L136,3.388 L144,-7.7 L152,-0.88 L160,-5.456 L168,-0.726 L176,-9.262 L184,3.476 L192,-9.658 L200,2.728 L208,3.058 L216,-4.994 L224,-0.572 L232,-8.58 L240,10.406 L248,9.02 L256,6.996 L264,1.408 L272,6.732 L280,8.096 L288,3.828 L296,0.682 L304,-2.97 L312,-10.252 L320,6.38 L328,10.67 L336,9.086 L344,-6.314 L352,-3.014 L360,2.86 L368,8.228 L376,5.478 L384,-3.916 L392,-6.93 L400,3.388 L408,-7.7 L416,-0.88 L424,-5.456 L432,-0.726 L440,-9.262 L448,3.476 L456,-9.658 L464,2.728 L472,3.058 L480,-4.994 L488,-0.572 L496,-8.58 L504,10.406 L512,9.02 L520,6.996 L528,1.408" fill="none" stroke="#A7E393" stroke-width="1.6"/><path d="M0,7.326 L8,2.178 L16,8.36 L24,1.892 L32,2.904 L40,-7.062 L48,-2.046 L56,-5.632 L64,8.58 L72,-5.06 L80,7.942 L88,-6.996 L96,8.492 L104,9.724 L112,-8.404 L120,7.898 L128,6.534 L136,-2.222 L144,-8.646 L152,8.052 L160,-0.594 L168,2.002 L176,0.11 L184,4.664 L192,-9.504 L200,-9.042 L208,-9.702 L216,-10.406 L224,-6.424 L232,2.684 L240,2.31 L248,9.57 L256,5.962 L264,7.326 L272,2.178 L280,8.36 L288,1.892 L296,2.904 L304,-7.062 L312,-2.046 L320,-5.632 L328,8.58 L336,-5.06 L344,7.942 L352,-6.996 L360,8.492 L368,9.724 L376,-8.404 L384,7.898 L392,6.534 L400,-2.222 L408,-8.646 L416,8.052 L424,-0.594 L432,2.002 L440,0.11 L448,4.664 L456,-9.504 L464,-9.042 L472,-9.702 L480,-10.406 L488,-6.424 L496,2.684 L504,2.31 L512,9.57 L520,5.962 L528,7.326" fill="none" stroke="#EE9EA6" stroke-width="1.6"/></g></g>
+<path d="M59 44v64" stroke="#A7E393" stroke-opacity=".6" style="animation:chartscan 5s linear infinite"/>
+<circle cx="371" cy="57" r="3" fill="#A7E393"/><circle cx="371" cy="78" r="3" fill="#EE9EA6"/>
+
+<path d="M13 148h412" stroke="#38313C"/>
+<path d="M13 148h36" stroke="#A7E393" stroke-width="2"/>
+<text x="16" y="179" fill="#F6E9D0" font-size="26" font-weight="700">Polybot</text>
+<text x="17" y="203" fill="#A7E393" font-size="16">Prediction-market paper trading</text>
+
+<rect x="1" y="1" width="436" height="216" rx="8" fill="url(#scan)" opacity="0.10"/></g>
+
+</svg>

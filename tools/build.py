@@ -7,8 +7,8 @@ into CSS keyframes, which GitHub preserves inside <img>-embedded SVGs.
 
 Outputs:
   assets/hero-header.svg   pixel wordmark strip
-  assets/mod-*.svg         one animated hero module per project
-  assets/card-*.svg        project cards for the grid in the Projects section
+  assets/header-*.svg      animated tiles for the six featured projects
+  assets/launch-*.svg      project cards for the grid in the Projects section
   assets/story.svg         the timeline above the story section
 
 The stat cards are NOT built here: they are rendered live from the GitHub API
@@ -26,21 +26,21 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-AMBER = "#FFB300"
-WHITE = "#EDE6D6"
-SLATE = "#6C7986"
-SLATE2 = "#46525E"
-LINE = "#1E262E"
-PANEL = "#0A0D10"
-SCREEN = "#05070A"
-BG = "#0E1116"
-BARBG = "#1B222A"
+AMBER = "#FFC164"
+WHITE = "#F6E9D0"
+SLATE = "#C0B7AD"
+SLATE2 = "#A79E95"
+LINE = "#38313C"
+PANEL = "#19161D"
+SCREEN = "#111017"
+BG = "#211B24"
+BARBG = "#372E3A"
 
 MONO = "ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace"
 
 # the page cold-boots: the header plays a terminal initialization sequence
 # and every other graphic stays dark until this moment, then flickers alive
-BOOT = 7.0
+BOOT = 4.8
 
 
 def f(v):
@@ -89,16 +89,18 @@ def pixel_width(text, u):
 
 # ------------------------------------------------------------- svg shell
 
-def shell(w, h, css, body, label, shift=None, hold=None, overlay=True):
+def shell(w, h, css, body, label, shift=None, hold=BOOT, overlay=True, gutter=4, view_box=True):
     dev = f"<style>*{{animation-delay:-{f(shift)}s !important}}</style>" if shift else ""
-    scan = f'<rect x="1" y="1" width="{w - 2}" height="{h - 2}" rx="10" fill="url(#scan)" opacity="0.14"/>' if overlay else ""
+    scan = f'<rect x="1" y="1" width="{w - 2}" height="{h - 2}" rx="8" fill="url(#scan)" opacity="0.10"/>' if overlay else ""
     if hold:
         css = list(css)
         css.append("@keyframes bootrev{0%{opacity:0}30%{opacity:.8}55%{opacity:.15}100%{opacity:1}}")
         # the scanline overlay hides with the body, or it ghosts during boot
         body = f'<g style="animation:bootrev .5s linear both;animation-delay:{f(hold)}s">{body}{scan}</g>'
         scan = ""
-    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}" role="img" aria-label="{label}">
+    width = w + 2 * gutter
+    dimensions = f'width="{width}" height="{h}" viewBox="{-gutter} 0 {width} {h}"' if view_box else f'height="{h}"'
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" {dimensions} role="img" aria-label="{label}">
 <style><![CDATA[
 text{{font-family:{MONO};}}
 {chr(10).join(css)}
@@ -120,15 +122,17 @@ text{{font-family:{MONO};}}
 
 
 def frame(w, h, rx=10):
-    return f'<rect x="0.75" y="0.75" width="{w - 1.5}" height="{h - 1.5}" rx="{rx}" fill="{BG}" stroke="#262E36" stroke-width="1.5"/>'
+    return f'<rect x="0.75" y="0.75" width="{w - 1.5}" height="{h - 1.5}" rx="{rx}" fill="{BG}" stroke="#51444F" stroke-width="1.5"/>'
 
 
-def module_box(x, y, w, h, title, status):
+def module_box(x, y, w, h, title, status, accent=AMBER):
     return (
         f'<rect x="{x + 0.75}" y="{y + 0.75}" width="{w - 1.5}" height="{h - 1.5}" rx="8" '
-        f'fill="{PANEL}" stroke="#262E36" stroke-width="1.5"/>'
-        f'<text x="{x + 12}" y="{y + 19}" font-size="11" letter-spacing="1.4" fill="{AMBER}">{title}</text>'
-        f'<text x="{x + w - 12}" y="{y + 19}" font-size="9" letter-spacing="0.8" fill="{SLATE2}" text-anchor="end">{status}</text>'
+        f'fill="{PANEL}" stroke="#51444F" stroke-width="1.5"/>'
+        f'<path d="M{x + 12} {y + 28}h{w - 24}" stroke="{LINE}"/>'
+        f'<path d="M{x + 12} {y + 28}h26" stroke="{accent}" stroke-width="1.5"/>'
+        f'<text x="{x + 12}" y="{y + 20}" font-size="12" font-weight="700" letter-spacing=".8" fill="{accent}">{title}</text>'
+        f'<text x="{x + w - 12}" y="{y + 20}" font-size="9" fill="{SLATE2}" text-anchor="end">{status}</text>'
     )
 
 
@@ -136,8 +140,9 @@ def module_box(x, y, w, h, title, status):
 # each returns (body, css). coordinates are absolute; p = unique class prefix.
 
 def mod_reciped(x, y, w, h):
-    css, out = [], [module_box(x, y, w, h, "RECIPED", "IN DEV")]
-    bars = [("api", 0.86, 0.0), ("web", 0.76, 0.9), ("mobile", 0.44, 1.8)]
+    accent = "#FFAD92"
+    css, out = [], [module_box(x, y, w, h, "RECIPED", "FLAGSHIP", accent)]
+    bars = [("import", 0.86, 0.0), ("parse", 0.76, 0.9), ("cook", 0.44, 1.8)]
     bw = w - 96
     for i, (label, fill_to, delay) in enumerate(bars):
         by = y + 44 + i * 30
@@ -145,7 +150,7 @@ def mod_reciped(x, y, w, h):
         out.append(f'<text x="{x + 12}" y="{by + 8}" font-size="10.5" fill="{SLATE}">{label}</text>')
         out.append(f'<rect x="{x + 62}" y="{by}" width="{bw}" height="8" rx="2" fill="{BARBG}"/>')
         out.append(
-            f'<rect x="{x + 62}" y="{by}" width="{bw}" height="8" rx="2" fill="{AMBER}" opacity="0.9" '
+            f'<rect x="{x + 62}" y="{by}" width="{bw}" height="8" rx="2" fill="{accent}" opacity="0.9" '
             f'class="{p}" style="transform:scaleX({f(fill_to)});transform-origin:{x + 62}px 0"/>'
         )
         css.append(
@@ -157,7 +162,7 @@ def mod_reciped(x, y, w, h):
         css.append(f".{p}{{animation:{p} 10s cubic-bezier(.3,.6,.3,1) infinite;}}")
     css.append("@keyframes rcpcur{0%,49%{opacity:1}50%,100%{opacity:0}}")
     out.append(
-        f'<rect x="{x + 62}" y="{y + 134}" width="6" height="11" fill="{AMBER}" '
+        f'<rect x="{x + 62}" y="{y + 134}" width="6" height="11" fill="{accent}" '
         f'style="animation:rcpcur 1.1s steps(1) infinite"/>'
     )
     out.append(f'<text x="{x + 12}" y="{y + 144}" font-size="10" fill="{SLATE2}">next up</text>')
@@ -165,9 +170,10 @@ def mod_reciped(x, y, w, h):
 
 
 def mod_uschedule(x, y, w, h):
-    css, out = [], [module_box(x, y, w, h, "USCHEDULE.CA", "LIVE ↗")]
+    accent = "#9AE6CB"
+    css, out = [], [module_box(x, y, w, h, "USCHEDULE.CA", "LIVE ↗", accent)]
     css.append("@keyframes uspulse{0%,100%{opacity:1}50%{opacity:.2}}")
-    out.append(f'<circle cx="{x + w - 60}" cy="{y + 15.5}" r="3" fill="{AMBER}" style="animation:uspulse 2s ease-in-out infinite"/>')
+    out.append(f'<circle cx="{x + w - 60}" cy="{y + 15.5}" r="3" fill="{accent}" style="animation:uspulse 2s ease-in-out infinite"/>')
     gx, gy, cw, ch, gap = x + 12, y + 34, 45, 20, 3
     for c in range(5):
         out.append(f'<rect x="{f(gx + c * (cw + gap))}" y="{gy}" width="{cw}" height="{5 * (ch + gap) - gap}" fill="{SCREEN}" stroke="{LINE}"/>')
@@ -181,8 +187,8 @@ def mod_uschedule(x, y, w, h):
         css.append(f".{p}{{animation:{p} 11s linear infinite;}}")
         out.append(
             f'<rect x="{f(gx + c * (cw + gap) + 3)}" y="{f(gy + r * (ch + gap) + 2)}" width="{cw - 6}" '
-            f'height="{f(span * (ch + gap) - gap - 4)}" rx="2" fill="{AMBER}" fill-opacity="0.28" '
-            f'stroke="{AMBER}" stroke-opacity="0.85" class="{p}" opacity="1"/>'
+            f'height="{f(span * (ch + gap) - gap - 4)}" rx="2" fill="{accent}" fill-opacity="0.28" '
+            f'stroke="{accent}" stroke-opacity="0.85" class="{p}" opacity="1"/>'
         )
     out.append(f'<text x="{x + 12}" y="{y + h - 12}" font-size="10" fill="{SLATE2}">a timetable assembling itself</text>')
     return "".join(out), css
@@ -203,13 +209,14 @@ def spark_path(seed, width, amp=6.0, step=8):
 
 
 def mod_polybot(x, y, w, h):
-    css, out = [], [module_box(x, y, w, h, "POLYBOT", "PAPER ONLY")]
+    accent = "#A7E393"
+    css, out = [], [module_box(x, y, w, h, "POLYBOT", "PAPER ONLY", accent)]
     names = ["market-maker", "basket-arb", "btc-5m"]
     for i, name in enumerate(names):
         ry = y + 52 + i * 32
         p = f"pb{i}"
         css.append(f"@keyframes {p}led{{0%,100%{{opacity:1}}50%{{opacity:.15}}}}")
-        out.append(f'<circle cx="{x + 18}" cy="{ry}" r="2.6" fill="{AMBER}" style="animation:{p}led {f(1.3 + i * 0.5)}s ease-in-out infinite"/>')
+        out.append(f'<circle cx="{x + 18}" cy="{ry}" r="2.6" fill="{accent}" style="animation:{p}led {f(1.3 + i * 0.5)}s ease-in-out infinite"/>')
         out.append(f'<text x="{x + 28}" y="{ry + 3.5}" font-size="9" fill="{SLATE}">{name}</text>')
         sw = w - 122
         sx = x + 106
@@ -217,7 +224,7 @@ def mod_polybot(x, y, w, h):
         out.append(
             f'<clipPath id="{p}c"><rect x="{sx}" y="{ry - 12}" width="{sw}" height="24"/></clipPath>'
             f'<g clip-path="url(#{p}c)"><g transform="translate({sx},{ry})">'
-            f'<path d="{spark_path(seed=11 + i * 7, width=sw)}" fill="none" stroke="{AMBER}" '
+            f'<path d="{spark_path(seed=11 + i * 7, width=sw)}" fill="none" stroke="{accent}" '
             f'stroke-width="1.1" opacity="0.7" style="animation:{p}s {f(14 + i * 4)}s linear infinite"/></g></g>'
         )
     out.append(f'<text x="{x + 12}" y="{y + h - 12}" font-size="10" fill="{SLATE2}">6 strategies, no real money</text>')
@@ -252,17 +259,18 @@ def mod_netcode(x, y, w, h):
     css.append(".ncpr{animation:ncpr 5.2s ease-in-out infinite;}")
     css.append(".nclag{animation-delay:-4.9s;}")
     out.append(f'<rect x="{lx}" y="-10" width="4" height="20" rx="1" fill="{AMBER}" class="ncpl" style="transform:translateY({f(mid)}px)"/>')
-    out.append(f'<rect x="{rx_}" y="-10" width="4" height="20" rx="1" fill="{AMBER}" class="ncpr" style="transform:translateY({f(mid)}px)"/>')
+    out.append(f'<rect x="{rx_}" y="-10" width="4" height="20" rx="1" fill="#FFAD92" class="ncpr" style="transform:translateY({f(mid)}px)"/>')
     out.append(
         f'<rect x="{rx_}" y="-10" width="4" height="20" rx="1" fill="none" stroke="{AMBER}" '
         f'stroke-dasharray="3 2" opacity="0.5" class="ncpr nclag" style="transform:translateY({f(mid)}px)"/>'
     )
-    out.append(f'<text x="{x + 12}" y="{y + h - 12}" font-size="10" fill="{SLATE2}">prediction, rollback, interpolation</text>')
+    out.append(f'<text x="{x + 12}" y="{y + h - 12}" font-size="10" fill="{SLATE2}">prediction and reconciliation</text>')
     return "".join(out), css
 
 
 def mod_factory(x, y, w, h):
-    css, out = [], [module_box(x, y, w, h, "SOFTWARE FACTORY", "AGENTS")]
+    accent = "#DABAFB"
+    css, out = [], [module_box(x, y, w, h, "SOFTWARE FACTORY", "AGENTS", accent)]
     my = y + 92
     mgr = (x + 20, my - 12, 46, 24)
     workers = [(x + 106, my - 52 + i * 40 - 9, 40, 18) for i in range(3)]
@@ -278,7 +286,7 @@ def mod_factory(x, y, w, h):
     for i, wk in enumerate(workers):
         out.append(node(*wk, f"code {i + 1}"))
     out.append(node(*rev, "review"))
-    out.append(f'<text x="{x + w - 16}" y="{f(my + 4)}" font-size="10" fill="{AMBER}" text-anchor="end" opacity="0.9">PR</text>')
+    out.append(f'<text x="{x + w - 16}" y="{f(my + 4)}" font-size="10" fill="{accent}" text-anchor="end" opacity="0.9">PR</text>')
     for i, wk in enumerate(workers):
         wy = wk[1] + 9
         out.append(f'<line x1="{mgr[0] + mgr[2]}" y1="{my}" x2="{wk[0]}" y2="{wy}" stroke="#232B33"/>')
@@ -291,13 +299,13 @@ def mod_factory(x, y, w, h):
             f"64%{{transform:translate({rev[0]}px,{my}px);opacity:1}}68%{{opacity:0}}100%{{opacity:0}}}}"
         )
         css.append(f".{p}{{animation:{p} 5.4s linear infinite;animation-delay:{f(i * 1.1)}s;}}")
-        out.append(f'<circle r="2.4" fill="{AMBER}" class="{p}" opacity="0"/>')
+        out.append(f'<circle r="2.4" fill="{accent}" class="{p}" opacity="0"/>')
     css.append(
         f"@keyframes sfpr{{0%,66%{{opacity:0;transform:translate({rev[0] + rev[2]}px,{my}px)}}"
         f"72%{{opacity:1}}84%{{transform:translate({x + w - 26}px,{my}px);opacity:1}}88%,100%{{opacity:0}}}}"
     )
     css.append(".sfpr{animation:sfpr 5.4s linear infinite;}")
-    out.append(f'<circle r="2.4" fill="{AMBER}" class="sfpr" opacity="0"/>')
+    out.append(f'<circle r="2.4" fill="{accent}" class="sfpr" opacity="0"/>')
     out.append(f'<text x="{x + 12}" y="{y + h - 12}" font-size="10" fill="{SLATE2}">agents that ship pull requests</text>')
     return "".join(out), css
 
@@ -447,7 +455,7 @@ def globe(cx, cy, r, n_frames, dur, prefix, coast, meridian_step=45,
 
 
 def mod_atc(x, y, w, h):
-    css, out = [], [module_box(x, y, w, h, "ATC SIMULATOR", "CYOW ↗")]
+    css, out = [], [module_box(x, y, w, h, "ATC SIMULATOR", "CYOW ↗", "#ADD8FF")]
     body, gcss = globe(x + w / 2, y + 92, 52, 210, 14, "atc", _coast())
     out.append(body)
     css += gcss
@@ -455,132 +463,167 @@ def mod_atc(x, y, w, h):
     return "".join(out), css
 
 
+def mod_from_scene(x, y, w, h, title, status, caption, render):
+    scene, css, accent, backdrop = render()
+    body = f"""
+{module_box(x, y, w, h, title, status, accent)}
+<rect x="{x + 10}" y="{y + 36}" width="{w - 20}" height="{h - 64}" rx="4" fill="{backdrop}" stroke="{LINE}"/>
+<g transform="translate({x} {y + 40}) scale({f(w / 438)})">{scene}</g>
+<text x="{x + 12}" y="{y + h - 12}" font-size="10" fill="{SLATE2}">{caption}</text>
+"""
+    return body, css
+
+
+def mod_oberon(x, y, w, h):
+    return mod_from_scene(x, y, w, h, "OBERON", "MACOS", "one Git worktree per chat", oberon_scene)
+
+
+def mod_worldmesh(x, y, w, h):
+    return mod_from_scene(x, y, w, h, "WORLDMESH", "RUST", "one world across servers", worldmesh_scene)
+
+
 def build_hero_header(shift=None):
-    """the boot terminal: seven seconds of over-the-top initialization,
-    then it wipes and settles into the permanent wordmark header."""
-    W, H = 900, 250
-    css, out = [], [frame(W, H, rx=10)]
-
-    def at(t, dur=0.06):
-        return f"animation:pop .01s linear both;animation-delay:{f(t)}s"
-
-    css.append("@keyframes pop{from{opacity:0}to{opacity:1}}")
-    css.append("@keyframes poweron{0%{transform:scaleX(0);opacity:1}55%{transform:scaleX(1);opacity:1}100%{transform:scaleX(1);opacity:0}}")
-    out.append(
-        f'<rect x="20" y="124" width="{W - 40}" height="2.5" fill="#EDE6D6" filter="url(#glow)" '
-        f'style="animation:poweron .55s cubic-bezier(.2,.8,.3,1) both;transform-origin:{W / 2}px 0"/>'
-    )
-    css.append("@keyframes gone{from{opacity:1}to{opacity:0}}")
-    css.append("@keyframes cursor{0%,49%{opacity:1}50%,100%{opacity:0}}")
-
-    # ---- the spew: appears line by line, then the whole group wipes at 6.1s
-    LINES = [
-        (0.10, "OMINOUSONE.SYS BIOS v5.0 · phosphor check", "OK", SLATE, 0.30),
-        (0.38, "memory map 0x0000..0xFFFF", "OK", SLATE, 0.55),
-        (0.62, "4a 44 20 62 6f 6f 74 20 73 65 71 75 65 6e 63 65 20 1f 8b 08", None, "#2E3944", None),
-        (0.80, "mount /dev/profile", "OK", SLATE, 1.00),
-        (1.55, "decrypt identity", "OK", SLATE, 1.80),
-        (1.90, "netlink uschedule.ca", "ONLINE", SLATE, 2.15),
-        (2.20, "netlink nav-canada-simulator", "ONLINE", SLATE, 2.45),
-        (2.50, "netlink reciped", "PRIVATE", SLATE, 2.75),
-        (2.80, "e8 03 00 00 c7 45 fc 00 00 00 00 8b 45 fc 3b 45", None, "#2E3944", None),
-        (2.95, "spawn agents [plan] [code] [code] [review]", "OK", SLATE, 3.25),
-        (3.30, "calibrate globe projection 48.0deg", "OK", SLATE, 3.55),
-        (3.60, "charge flux capacitor for skyline flyover", "OK", SLATE, 3.85),
-        (3.90, "feed BLOB", "SQUISH", SLATE, 4.15),
-        (4.20, "wake raid boss", "GRRRR", SLATE, 4.45),
-        (4.50, "count crowd", "+1 (you)", SLATE, 4.75),
-        (5.02, "integrity check", "PASS", SLATE, 5.55),
+    """Power on, check the project modules, and roll the unlock into the wordmark."""
+    w, h = 900, 250
+    confirm_delay = .15
+    unlock_at, release_at = 3.14, 3.72
+    css = [
+        '@media (prefers-reduced-motion:reduce){.boot-only{display:none}}',
+        '@keyframes pop{from{opacity:0}to{opacity:1}}',
+        '@keyframes powerline{0%{opacity:.8;transform:scaleX(.03)}36%{opacity:1;transform:scaleX(1)}'
+        '100%{opacity:0;transform:scaleX(1)}}',
+        '@keyframes bootlog{0%{opacity:0;transform:translateX(-5px)}'
+        '50%{opacity:.74;transform:translateX(1px)}100%{opacity:1;transform:translateX(0)}}',
+        '@keyframes prompt{0%,100%{opacity:0}1%{opacity:1}77%{opacity:.45}}',
+        '@keyframes check{0%,24%{opacity:1}49%{opacity:.64}100%{opacity:1}}',
+        '@keyframes lamp-hit{0%{fill-opacity:.34}100%{fill-opacity:.12}}',
+        '@keyframes scan-boot{0%{opacity:0;transform:translateY(0)}'
+        '14%,74%{opacity:.075}100%{opacity:0;transform:translateY(140px)}}',
+        '@keyframes raster-off{0%{opacity:1;transform:scaleY(1)}'
+        '69%{opacity:.65;transform:scaleY(.11)}100%{opacity:0;transform:scaleY(.03)}}',
+        '@keyframes approve{0%{opacity:0;transform:scale(.78)}'
+        '31%{opacity:1;transform:scale(1.06)}67%{opacity:1;transform:scale(.99)}'
+        '100%{opacity:1;transform:scale(1)}}',
+        '@keyframes unlock-dim{0%,100%{opacity:0}14%,77%{opacity:.38}}',
+        '@keyframes recoil{0%{transform:translate(0,0)}18%{transform:translate(-3px,2px)}'
+        '41%{transform:translate(2px,-1px)}64%{transform:translate(-1px,0)}100%{transform:translate(0,0)}}',
+        '@keyframes stamp-ring{0%{opacity:0;transform:scale(.94)}23%{opacity:.44}'
+        '100%{opacity:0;transform:scale(1.09,1.35)}}',
+        '@keyframes stamp-release{0%{opacity:1;transform:scaleY(1)}'
+        '72%{opacity:1;transform:scaleY(.08)}100%{opacity:0;transform:scaleY(.02)}}',
+        '@keyframes beam{0%{opacity:0;transform:translateY(0) scaleX(.52)}'
+        '20%{opacity:.94;transform:translateY(-4px) scaleX(.94)}'
+        '68%{opacity:.58;transform:translateY(-32px) scaleX(1)}'
+        '100%{opacity:0;transform:translateY(-53px) scaleX(.95)}}',
+        '@keyframes namein{0%{opacity:0;transform:translateY(3px);fill:#FFE7BB}'
+        '18%{opacity:1;transform:translateY(-1px);fill:#FFE7BB}'
+        f'36%{{opacity:.56;transform:translateY(0);fill:{AMBER}}}'
+        f'65%,100%{{opacity:1;transform:translateY(0);fill:{AMBER}}}}}',
     ]
-    spew = []
-    # a bright band rolls down the terminal while it boots
-    css.append("@keyframes sweep{from{transform:translateY(-30px)}to{transform:translateY(255px)}}")
-    spew.append(
-        f'<rect x="10" y="0" width="{W - 20}" height="24" fill="{AMBER}" opacity=".05" '
-        f'style="animation:sweep 2.3s linear infinite"/>'
-    )
-    y = 34
-    kernel_y = None
-    for t, txt, stamp, color, t_stamp in LINES:
-        if t == 1.55:
-            kernel_y = y      # the kernel progress line takes this row
-            y += 13
-        spew.append(f'<text x="24" y="{y}" font-size="11" fill="{color}" style="{at(t)}">&gt; {txt}</text>')
-        if stamp:
-            dots = "." * max(2, 58 - len(txt))
-            spew.append(f'<text x="{24 + 9 + len(txt) * 6.7}" y="{y}" font-size="11" fill="#2E3944" style="{at(t)}">{dots}</text>')
-            spew.append(f'<text x="{W - 340}" y="{y}" font-size="11" fill="{AMBER}" style="{at(t_stamp)}">{stamp}</text>')
-        y += 13
-
-    # kernel progress bar between mount and decrypt
-    spew.append(f'<text x="24" y="{kernel_y}" font-size="11" fill="{SLATE}" style="{at(1.05)}">&gt; load kernel dewolfe.ko</text>')
-    spew.append(f'<rect x="220" y="{kernel_y - 9}" width="150" height="8" rx="2" fill="{BARBG}" style="{at(1.05)}"/>')
-    css.append("@keyframes kload{from{transform:scaleX(0)}to{transform:scaleX(1)}}")
-    spew.append(f'<rect x="220" y="{kernel_y - 9}" width="150" height="8" rx="2" fill="{AMBER}" style="animation:pop .01s both, kload .45s linear both;animation-delay:1.08s;transform-origin:220px 0"/>')
-    spew.append(f'<text x="382" y="{kernel_y}" font-size="11" fill="{AMBER}" style="{at(1.5)}">100%</text>')
-
-    # line one types itself out: a panel-colored cover retreats in steps
-    css.append("@keyframes typed{from{transform:scaleX(1)}to{transform:scaleX(0)}}")
-    spew.append(
-        f'<rect x="30" y="24" width="440" height="13" fill="{BG}" '
-        f'style="animation:typed .85s steps(30) both;animation-delay:.12s;transform-origin:470px 0"/>'
-    )
-
-    # spinner while the integrity check runs
-    css.append("@keyframes spin4{0%,24%{opacity:1}25%,100%{opacity:0}}")
-    spinner = "".join(
-        f'<text x="{W - 340}" y="{y - 13}" font-size="11" fill="{AMBER}" '
-        f'style="animation:spin4 .32s steps(1) infinite;animation-delay:{f(i * 0.08)}s" opacity="0">{ch}</text>'
-        for i, ch in enumerate(("|", "/", "-", "\\"))
-    )
-    spew.append(f'<g style="animation:pop .01s both 5.02s, gone .01s both 5.5s">{spinner}</g>')
-
-    # blinking cursor riding the bottom of the spew
-    spew.append(f'<rect x="24" y="{y - 2}" width="7" height="11" fill="{AMBER}" style="animation:cursor .7s steps(1) infinite"/>')
-
-    # ACCESS GRANTED, then the wipe
-    css.append("@keyframes granted{0%{opacity:0;transform:scale(.85)}12%{opacity:1;transform:scale(1.04)}20%{opacity:1;transform:scale(1)}100%{opacity:1;transform:scale(1)}}")
-    spew.append(
-        f'<g style="animation:granted .5s cubic-bezier(.2,.8,.3,1) both;animation-delay:5.5s;transform-origin:{W / 2}px 130px" opacity="0">'
-        f'<rect x="{W / 2 - 160}" y="104" width="320" height="52" rx="6" fill="{PANEL}" stroke="{AMBER}" stroke-opacity=".8"/>'
-        f'<text x="{W / 2}" y="136" font-size="22" letter-spacing="6" fill="{AMBER}" text-anchor="middle" filter="url(#glow)">ACCESS GRANTED</text></g>'
-    )
-    css.append("@media (prefers-reduced-motion:reduce){.spew{display:none}}")
-    css.append("@keyframes shake{0%,100%{transform:translate(0,0)}20%{transform:translate(-3px,2px)}40%{transform:translate(3px,-2px)}60%{transform:translate(-2px,-1px)}80%{transform:translate(2px,1px)}}")
-    css.append("@keyframes flash{0%{opacity:0}30%{opacity:.18}100%{opacity:0}}")
-    spew.append(f'<rect x="2" y="2" width="{W - 4}" height="{H - 4}" rx="9" fill="#EDE6D6" opacity="0" style="animation:flash .22s linear both;animation-delay:5.52s"/>')
-    out.append(f'<g class="spew" style="animation:gone .35s linear both;animation-delay:6.15s">'
-               f'<g style="animation:shake .3s linear both;animation-delay:5.55s">{"".join(spew)}</g></g>')
-
-    # ---- the permanent header state: wordmark boots in after the wipe
-    css.append("@keyframes wmboot{0%{opacity:0}20%{opacity:.9}40%{opacity:.2}70%{opacity:1}100%{opacity:1}}")
+    copper, mint = "#F3A87F", "#9AE6CB"
+    checks = [
+        (0.17, "Phosphor array", "READY", AMBER, "M-18 2h8l5-10 8 16 6-10h9"),
+        (0.56, "Reciped import pipeline", "ONLINE", copper, "M-10-12h15l5 5v19h-20zM-5-4h5m-5 5h10m-10 5h10"),
+        (1.04, "Worldmesh entity groups", "LINKED", mint, "M-16 0 0-9l16 9L0 9zM-16 0h32M0-9V9"),
+        (1.32, "Software Factory workers", "SPAWNED", "#D5ACF2", "M-16 0h7m5 0h7m5 0h7m-4-4 4 4-4 4M-9-5h5v10h-5zm12 0h5v10H3z"),
+        (1.60, "Oberon worktree isolation", "READY", "#9BBCFF", "M-17 1h6l4-7 5 12 5-7h13M-17-10h34v20h-34z"),
+        (2.14, "Arcade BLOB sensor", "SQUISH", AMBER, "M-12 7V-1h4v-5h4v-3h8v3h4v5h4v8zM-4 0v3m8-3v3"),
+    ]
+    logs, lamps = [], []
+    progress_duration = unlock_at - .12
+    progress = ['0%{transform:scaleX(0)}']
+    for i, (at, name, status, accent, icon) in enumerate(checks):
+        confirmed = at + confirm_delay
+        next_at = checks[i + 1][0] if i + 1 < len(checks) else 2.77
+        y = 67 + i * 24
+        logs.append(f'<rect x="28" y="{y - 10}" width="6" height="11" rx="1" fill="{accent}" '
+                    f'style="animation:prompt {f(next_at - at)}s step-end {f(at)}s both"/>')
+        logs.append(f'<g style="animation:bootlog .08s steps(2) {f(at)}s both">'
+                    f'<text x="43" y="{y}" font-size="14" fill="{WHITE}">&gt; {name}</text>'
+                    f'<path d="M375 {y - 4}h68" stroke="{LINE}" stroke-dasharray="2 4"/>'
+                    f'<text x="531" y="{y}" text-anchor="end" font-size="12" fill="{accent}" '
+                    f'style="animation:pop .04s step-end {f(confirmed - .04)}s both">{status}</text></g>')
+        x, lamp_y = 583 + (i % 3) * 86, 57 + (i // 3) * 60
+        lamps.append(f'<rect x="{x}" y="{lamp_y}" width="76" height="49" rx="4" fill="{PANEL}" stroke="{LINE}"/>')
+        lamps.append(f'<g opacity="0" style="animation:check .16s linear {f(confirmed)}s forwards">'
+                     f'<rect x="{x}" y="{lamp_y}" width="76" height="49" rx="4" fill="{accent}" stroke="{accent}" '
+                     f'stroke-opacity=".7" style="animation:lamp-hit .16s ease-out {f(confirmed)}s both"/>'
+                     f'<path d="{icon}" transform="translate({x + 38} {lamp_y + 25})" fill="none" stroke="{accent}" stroke-width="1.5"/>'
+                     f'<circle cx="{x + 64}" cy="{lamp_y + 11}" r="2" fill="{accent}"/></g>')
+        progress.append(f'{f(100 * confirmed / progress_duration)}%{{transform:scaleX({f((i + 1) * .143)})}}')
+    progress.append('90%{transform:scaleX(.858);animation-timing-function:cubic-bezier(.2,.8,.3,1)}')
+    progress.append('100%{transform:scaleX(1)}')
+    css.append('@keyframes loadboot{' + ''.join(progress) + '}')
+    body = f"""
+{frame(w, h)}
+<rect x="9" y="9" width="882" height="232" rx="6" fill="{SCREEN}" stroke="{LINE}"/>
+<path d="M27 33H873M27 209H873" stroke="{LINE}"/>
+<text x="29" y="25" fill="{SLATE}" font-size="10" letter-spacing="1.5">OMINOUSONE.SYS</text>
+<text x="871" y="25" text-anchor="end" fill="{SLATE2}" font-size="10" letter-spacing="1">PHOSPHOR TERMINAL</text>
+<g class="boot-only">
+  <g class="diagnostics" style="animation:pop .13s steps(2) .12s both,raster-off .19s ease-in 3.57s forwards;transform-origin:450px 124px">
+    <rect x="27" y="44" width="846" height="12" fill="{AMBER}" opacity="0"
+          style="animation:scan-boot 1.15s linear .31s 2 both"/>
+    <path d="M551 44v151" stroke="{LINE}"/>
+    {''.join(logs)}{''.join(lamps)}
+    <text x="583" y="192" fill="{SLATE}" font-size="11">Checking project modules</text>
+    <rect x="30" y="221" width="840" height="4" rx="2" fill="{BARBG}"/>
+    <rect x="30" y="221" width="840" height="4" rx="2" fill="{AMBER}"
+          style="animation:loadboot {f(progress_duration)}s step-end both;transform-origin:30px 223px"/>
+  </g>
+  <rect x="27" y="123" width="846" height="2.5" fill="{WHITE}" filter="url(#glow)" opacity="0"
+        style="animation:powerline .34s cubic-bezier(.18,.76,.26,1) both;transform-origin:450px 124px"/>
+  <rect x="21" y="37" width="858" height="198" rx="4" fill="{SCREEN}" opacity="0"
+        style="animation:unlock-dim .64s ease-out {f(unlock_at)}s both"/>
+  <rect x="226" y="88" width="448" height="72" rx="5" fill="none" stroke="{AMBER}" opacity="0"
+        style="animation:stamp-ring .28s ease-out {f(unlock_at + .04)}s both;transform-origin:450px 124px"/>
+  <g style="animation:stamp-release .17s cubic-bezier(.7,.05,.9,.35) {f(release_at)}s both;transform-origin:450px 124px">
+    <g style="animation:recoil .16s linear {f(unlock_at + .04)}s both">
+      <g opacity="0" style="animation:approve .16s ease-out {f(unlock_at)}s both;transform-origin:450px 124px">
+        <rect x="226" y="88" width="448" height="72" rx="5" fill="{SCREEN}" stroke="{AMBER}" stroke-width="1.7"/>
+        <path d="M240 112v-10h16m388 0h16v10m0 24v10h-16m-388 0h-16v-10" fill="none" stroke="{AMBER}"/>
+        <text x="450" y="133" text-anchor="middle" fill="{AMBER}" font-size="23" font-weight="700"
+              letter-spacing="4" filter="url(#glow)">ACCESS GRANTED</text>
+      </g>
+    </g>
+  </g>
+  <rect x="27" y="123" width="846" height="2" rx="1" fill="{AMBER}" opacity="0" filter="url(#glow)"
+        style="animation:beam .34s ease-out {f(release_at + .14)}s both;transform-origin:450px 124px"/>
+</g>
+"""
     name = "JULIEN DEWOLFE"
-    u = 5
-    wm_x = (W - pixel_width(name, u)) / 2
-    final = [f'<g filter="url(#glow)">{pixel_text(name, wm_x, 78, u, AMBER, cls_prefix="wm")}</g>']
+    unit = 5.7
+    x = (w - pixel_width(name, unit)) / 2
+    # The sweep ignites the lettering from the center toward the edges.
+    center = (len(name) - 1) / 2
     for i in range(len(name)):
-        css.append(f".wm{i}{{animation:wmboot .55s linear both;animation-delay:{f(6.4 + 0.045 * i)}s;}}")
-    final.append(f'<text x="{W / 2}" y="146" font-size="13" fill="{SLATE}" text-anchor="middle" style="{at(6.9)}">swe intern @ gadget.dev · software engineering @ uOttawa</text>')
-    css.append("@keyframes hpulse{0%,100%{opacity:1}50%{opacity:.25}}")
-    final.append(f'<circle cx="24" cy="226" r="3" fill="{AMBER}" style="animation:pop .01s both;animation-delay:7s"/>')
-    final.append(f'<text x="34" y="230" font-size="11" fill="{SLATE2}" style="{at(7.0)}">boot complete in 7.0s · all systems nominal · scroll down</text>')
-    final.append(f'<text x="{W - 24}" y="230" font-size="11" fill="{SLATE2}" text-anchor="end" style="{at(7.0)}">refresh to reboot</text>')
-    final.append(f'<g style="{at(7.1)}"><rect x="416" y="221" width="6" height="10" fill="{AMBER}" style="animation:cursor .8s steps(1) infinite"/></g>')
-    out.append("".join(final))
-
-    label = ("Boot terminal: a seven second initialization sequence with BIOS checks, netlinks coming "
-             "online, agents spawning and an access granted stamp, which then wipes into the permanent "
-             "header: Julien DeWolfe, swe intern at gadget.dev, software engineering at uOttawa.")
-    return shell(W, H, css, "".join(out), label, shift)
-
+        delay = release_at + .2 + .03 * abs(i - center)
+        css.append(f'.wm{i}{{animation:namein .32s linear {f(delay)}s both}}')
+    body += f"""
+<g filter="url(#glow)">{pixel_text(name, x, 79, unit, AMBER, cls_prefix="wm")}</g>
+<g style="animation:pop .1s ease-out 4.48s both">
+  <text x="450" y="153" text-anchor="middle" fill="{WHITE}" font-size="15">swe intern @ gadget.dev · software engineering @ uOttawa</text>
+  <path d="M413 176h74" stroke="{AMBER}" stroke-opacity=".5"/>
+</g>
+<g style="animation:pop .01s linear {f(BOOT)}s both">
+  <circle cx="33" cy="225" r="3.5" fill="{mint}"/>
+  <text x="45" y="229" font-size="12" fill="{SLATE}">boot complete in {BOOT:.1f}s</text>
+  <text x="871" y="229" text-anchor="end" font-size="11" fill="{SLATE2}">refresh to reboot</text>
+</g>
+"""
+    return shell(w, h, css, body, "Boot terminal. Project checks come online, access is granted, "
+                 "then the terminal reveals Julien DeWolfe, software engineering intern at Gadget and student at uOttawa.", shift, hold=0)
 
 HERO_MODULES = [
-    ("mod-reciped", mod_reciped, "Reciped: three build progress bars filling. Links to the Reciped section below."),
+    ("mod-reciped", mod_reciped, "Reciped: animated recipe import, parse, and cook steps. Links to the Reciped section below."),
+    ("mod-oberon", mod_oberon, "Oberon: animated Pit Wall with agent activity and pull requests. Links to the Oberon project."),
+    ("mod-worldmesh", mod_worldmesh, "Worldmesh: an entity moves through a world simulated across servers. Links to the docs."),
     ("mod-uschedule", mod_uschedule, "uschedule.ca: a timetable assembling itself. Links to uschedule.ca."),
+    ("mod-atc", mod_atc, "ATC simulator: a rotating 3D globe with Canadian flight routes. Links to the live simulator."),
+    ("mod-factory", mod_factory, "Software Factory: work flowing from plan through code to review and a PR. Links to the Software Factory section below."),
+    # Keep generating the images used by older versions of the README.
     ("mod-polybot", mod_polybot, "Polybot: three trading strategy sparklines. Links to the Polybot section below."),
     ("mod-netcode", mod_netcode, "Netcode: a miniature multiplayer Pong court. Links to the netcode section below."),
-    ("mod-factory", mod_factory, "Software Factory: work flowing from plan through code to review and a PR. Links to the Software Factory section below."),
-    ("mod-atc", mod_atc, "ATC simulator: a rotating 3D globe with Canadian flight routes. Links to the live simulator."),
 ]
 
 
@@ -599,8 +642,181 @@ def build_hero_modules(shift=None):
         body = (
             f'<g style="animation:pwr .55s linear both;animation-delay:{f(delay)}s">{body}</g>'
         )
-        pieces[name] = shell(268, 170, css, body, label, shift)
+        pieces[name] = shell(268, 170, css, body, label, shift, hold=0)
     return pieces
+
+
+# ------------------------------------------------------------- header tiles
+
+def header_tile(title, action, accent, backdrop, art, css, label, index, shift, linked=True):
+    width, height = 268, 170
+    delay = BOOT + 0.1 + index * 0.08
+    link_mark = f'<path d="M241 154h13m-5-4 5 4-5 4" fill="none" stroke="{accent}" stroke-width="1.2"/>'
+    body = f"""
+{frame(width, height, rx=8)}
+<rect x="9" y="34" width="250" height="107" rx="4" fill="{backdrop}" stroke="{accent}" stroke-opacity=".38"/>
+<path d="M10 40v-5h22m204 105h22v-5" fill="none" stroke="{accent}" stroke-opacity=".68"/>
+<text x="13" y="23" font-size="15" font-weight="700" fill="{WHITE}">{title}</text>
+<g style="--art-start:{f(delay)}s">{art}</g>
+<text x="13" y="158" font-size="10.5" fill="{accent}">{action}</text>
+{link_mark if linked else ''}
+"""
+    return shell(width, height, css, body, label, shift, hold=delay)
+
+
+def header_reciped():
+    coral, cream = "#FFA98F", "#F6E4CD"
+    css = [
+        '@keyframes receipt{0%,16%,100%{transform:translateY(-5px);opacity:.72}'
+        '42%,87%{transform:translateY(0);opacity:1}}',
+        '@keyframes recipe-link{0%,12%{transform:translateX(0);opacity:0}'
+        '20%{opacity:1}54%,100%{transform:translateX(46px);opacity:0}}',
+    ]
+    art = f"""
+<rect x="25" y="59" width="67" height="49" rx="5" fill="#542832" stroke="#95594F"/>
+<path d="M25 68h67" stroke="#8C554D"/>
+<path d="M52 78l14 7-14 7z" fill="{coral}"/>
+<path d="M97 85h43" stroke="{coral}" stroke-dasharray="2 4" opacity=".55"/>
+<circle cx="97" cy="85" r="3" fill="{coral}" opacity="0" style="animation:recipe-link 5.5s linear var(--art-start) infinite"/>
+<g style="animation:receipt 5.5s ease-out var(--art-start) infinite">
+  <path d="M145 46h64l14 14v68l-5-3-5 3-5-3-5 3-5-3-5 3-5-3-5 3-5-3-5 3-5-3-5 3-5-3-5 3-5-3z" fill="{cream}"/>
+  <path d="M209 46v14h14" fill="none" stroke="#AA7864"/>
+  <text x="154" y="70" font-size="10" font-weight="700" fill="#713841">RECIPE</text>
+  <path d="M154 76h57m-48 9h45m-45 8h33m-42 9h57m-57 8h46" stroke="#B28776"/>
+  <path d="M154 85h4m-4 8h4" stroke="#9D4F53" stroke-width="1.6"/>
+</g>
+"""
+    return "Reciped", "Explore the recipe app", coral, "#34202A", art, css, "Reciped. A cooking video is imported and turned into a recipe."
+
+
+def header_oberon():
+    gold, lilac = "#F6C881", "#D2AFF6"
+    css = ['@keyframes worktree-pulse{0%,100%{transform:translate(0,0);opacity:0}'
+           '14%{opacity:1}46%{transform:translate(45px,0)}'
+           '73%{transform:translate(89px,-28px);opacity:1}85%{opacity:0}}']
+    art = f"""
+<path d="M32 87h79c18 0 20-28 47-28h21M111 87c18 0 20 29 47 29h21" fill="none" stroke="#958097" stroke-width="2"/>
+<path d="M32 87h79" stroke="{gold}" stroke-width="2"/>
+<circle cx="48" cy="87" r="4" fill="{gold}"/><circle cx="84" cy="87" r="3" fill="{gold}"/>
+<circle cx="89" cy="87" r="3.2" fill="{gold}" opacity="0" style="animation:worktree-pulse 5s ease var(--art-start) infinite"/>
+<circle cx="149" cy="60" r="3.3" fill="{lilac}"/><circle cx="149" cy="115" r="3.3" fill="{lilac}"/>
+<text x="31" y="108" font-size="10" fill="{gold}">main</text>
+<rect x="177" y="46" width="66" height="25" rx="4" fill="#392B48" stroke="#755B90"/>
+<rect x="177" y="103" width="66" height="25" rx="4" fill="#392B48" stroke="#755B90"/>
+<g font-size="10" fill="{lilac}"><text x="187" y="62">Codex</text><text x="187" y="119">Claude</text></g>
+<path d="M102 103v11" stroke="#8B738E" stroke-dasharray="2 3"/>
+<text x="101" y="128" text-anchor="middle" font-size="9" fill="#C2AFC9">Git worktrees</text>
+"""
+    return "Oberon", "Native macOS agent workspace", gold, "#251F2E", art, css, "Oberon. Codex and Claude chats run in separate Git worktrees."
+
+
+def header_worldmesh():
+    mint, gold = "#8CE7D0", "#F2C887"
+    css = [
+        '@keyframes mesh-send{0%,13%{transform:translate(0,0)}40%{transform:translate(63px,0)}'
+        '69%{transform:translate(122px,0)}85%,100%{transform:translate(0,0)}}',
+        f'@keyframes mesh-owner{{0%,40%,90%,100%{{fill:{mint}}}45%,85%{{fill:{gold}}}}}',
+    ]
+    art = f"""
+<circle cx="134" cy="88" r="42" fill="#173436" stroke="#4D8B83"/>
+<ellipse cx="134" cy="88" rx="19" ry="42" fill="none" stroke="#416D68"/>
+<path d="M93 88h82m-74-21q33 22 66 0m-66 42q33-22 66 0" fill="none" stroke="#416D68"/>
+<path d="M55 88h158" stroke="{mint}" stroke-opacity=".62" stroke-dasharray="3 4"/>
+<g fill="#234744" stroke="#72A49D">
+  <rect x="23" y="67" width="29" height="35" rx="3"/><rect x="216" y="67" width="29" height="35" rx="3"/>
+</g>
+<path d="M28 76h19m-19 8h19m-19 8h19m174-16h19m-19 8h19m-19 8h19" stroke="#9ACFC4"/>
+<g font-size="9.5" text-anchor="middle">
+  <text x="38" y="120" fill="{mint}">Group A</text><text x="230" y="120" fill="{gold}">Group B</text>
+</g>
+<circle cx="73" cy="88" r="4" fill="{mint}" stroke="#E7F6E9" stroke-width="1"
+  style="animation:mesh-send 5s ease-in-out var(--art-start) infinite, mesh-owner 5s steps(1) var(--art-start) infinite"/>
+"""
+    return "Worldmesh", "Read the networking docs", mint, "#142D2E", art, css, "Worldmesh. An entity is handed between server groups in a shared multiplayer world."
+
+
+def header_uschedule():
+    green, sky, lilac = "#A4D894", "#A3C9EE", "#D6B9EF"
+    css = ['@keyframes match-slot{0%,12%,100%{opacity:.67;transform:translateY(-4px)}36%,88%{opacity:1;transform:translateY(0)}}']
+    weekdays = "".join(
+        f'<text x="{47 + i * 34}" y="58">{day}</text><path d="M{30 + i * 34} 64v62" stroke="#375345"/>'
+        for i, day in enumerate("MTWTF")
+    )
+    slots = "".join(
+        f'<rect x="{x}" y="{y}" width="25" height="{height}" rx="2" fill="{color}" fill-opacity=".25" stroke="{color}"/>'
+        for x, y, height, color in ((34, 70, 22, green), (68, 98, 22, sky), (102, 70, 22, green), (170, 95, 25, lilac))
+    )
+    art = f"""
+<rect x="29" y="64" width="171" height="62" rx="2" fill="#172B23" stroke="#436859"/>
+<g font-size="10" text-anchor="middle" fill="#ADCAAD">{weekdays}</g>
+<path d="M30 94h169" stroke="#375345"/>
+{slots}
+<rect x="136" y="81" width="25" height="27" rx="2" fill="{sky}" fill-opacity=".22" stroke="{sky}"
+      style="animation:match-slot 5s ease-out var(--art-start) infinite"/>
+<circle cx="228" cy="90" r="13" fill="#2B4432" stroke="{green}"/>
+<path d="M222 90l4 4 8-9" fill="none" stroke="{green}" stroke-width="2"/>
+"""
+    return "uschedule.ca", "Build a timetable", green, "#1D3028", art, css, "uschedule.ca. A conflict-free timetable takes shape across five weekdays."
+
+
+def header_nav():
+    sky, gold = "#9ABEF9", "#FFCA86"
+    css = ['@keyframes radar-turn{to{transform:rotate(360deg)}}']
+    art = f"""
+<g transform="translate(146 88)">
+  <circle r="46" fill="#18263A" stroke="#587395"/>
+  <circle r="32" fill="none" stroke="#3B5373"/><circle r="17" fill="none" stroke="#3B5373"/>
+  <path d="M-46 0h92m-46-46v92" stroke="#3B5373"/>
+  <g style="animation:radar-turn 6.4s linear var(--art-start) infinite">
+    <path d="M0 0V-45a45 45 0 0 1 23 6z" fill="{sky}" opacity=".17"/>
+    <path d="M0 0l23-39" stroke="{sky}" stroke-opacity=".63"/>
+  </g>
+  <path d="M-23 15Q-9-18 21-16m-17 38Q11 10 31 4" fill="none" stroke="{gold}" stroke-opacity=".58" stroke-dasharray="2 3"/>
+  <circle cx="-23" cy="15" r="2.6" fill="{gold}"/><circle cx="21" cy="-16" r="2.6" fill="{gold}"/>
+  <circle cx="31" cy="4" r="2" fill="{gold}"/>
+</g>
+<g font-size="10" fill="{sky}"><text x="26" y="72">YOW</text><text x="26" y="105">YUL</text></g>
+<path d="M56 68h19m-19 33h21m123-31h29m-29 34h26" stroke="#55779E" stroke-dasharray="2 3"/>
+<text x="222" y="90" font-size="9" fill="{sky}">ATC</text>
+"""
+    return "NAV Canada Simulator", "Open the simulator", sky, "#1B2A40", art, css, "NAV Canada Simulator. A radar sweeps over illustrated Canadian flight paths."
+
+
+def header_factory():
+    lilac, mint = "#D9B7F6", "#A7E3C1"
+    css = ['@keyframes ticket-relay{0%,8%{transform:translateX(0);opacity:0}'
+           '17%{opacity:1}33%{transform:translateX(55px)}62%{transform:translateX(110px)}'
+           '85%{transform:translateX(165px);opacity:1}96%,100%{transform:translateX(165px);opacity:0}}']
+    steps = "".join(
+        f'<rect x="{x}" y="56" width="42" height="43" rx="4" fill="#34263F" stroke="#7B6191"/>'
+        f'<path d="{icon}" transform="translate({x + 21} 76)" fill="none" stroke="{color}" stroke-width="1.3"/>'
+        f'<text x="{x + 21}" y="124" text-anchor="middle" font-size="9" fill="{color}">{name}</text>'
+        for x, name, icon, color in (
+            (30, "Plan", "M-7-10h11l4 4v17H-7zM-3-3h6m-6 5h6", lilac),
+            (85, "Build", "M-5-6l-6 6 6 6m10-12 6 6-6 6m-3-16-4 20", lilac),
+            (140, "Review", "M-9 0l6 6 12-13", lilac),
+            (195, "PR", "M-6-8v16m12-14v8q0 5-7 5h-5M-8-9h4v4h-4zm12 0h4v4h-4z", mint),
+        )
+    )
+    art = f"""
+{steps}
+<path d="M51 109h165" stroke="#896BA2" stroke-dasharray="2 4"/>
+<circle cx="51" cy="109" r="3.5" fill="{mint}" opacity="0" style="animation:ticket-relay 5s linear var(--art-start) infinite"/>
+"""
+    return "Software Factory", "See the agent pipeline", lilac, "#292138", art, css, "Software Factory. A task moves through planning, coding, and review before opening a pull request."
+
+
+def build_header_tiles(shift=None):
+    tiles = {
+        "header-reciped": header_reciped,
+        "header-oberon": header_oberon,
+        "header-worldmesh": header_worldmesh,
+        "header-uschedule": header_uschedule,
+        "header-nav": header_nav,
+        "header-factory": header_factory,
+    }
+    return {name: header_tile(*draw(), index, shift, linked=name != "header-oberon")
+            for index, (name, draw) in enumerate(tiles.items())}
 
 
 # ------------------------------------------------------------- text panels
@@ -620,35 +836,36 @@ def _text_panel(name, lines, label, h=None, shift=None, pad_y=34, line_h=19):
 def build_text_panels(shift=None):
     panels = []
     bio = [
-        ("I'm Julien DeWolfe, a Software Engineering student at the University of Ottawa who started", 12.5, SLATE),
-        ("making games in Blender's node-based engine at age 9. That turned into Unity, C#, game jams,", 12.5, SLATE),
-        ("networking rabbit holes, and eventually a fascination with systems and engineering in general.", 12.5, SLATE),
-        ("Right now I'm an intern at gadget.dev while finishing my degree.", 12.5, SLATE),
+        ("I made my first games in Blender at nine.", 20, WHITE),
+        ("Then came Unity, C#, game jams, Minecraft plugins, and multiplayer networking.", 15, SLATE),
+        ("I study software engineering at uOttawa and work on developer tools at Gadget.", 15, SLATE),
     ]
     panels.append(_text_panel("text-intro", bio,
-                              "Bio: Julien DeWolfe, Software Engineering student at the University of Ottawa, started "
-                              "making games in Blender's node-based engine at age 9, then Unity, C#, game jams and "
-                              "networking rabbit holes. Currently an intern at gadget.dev.", shift=shift))
+                              "Julien DeWolfe started making games in Blender at nine, followed by Unity, C#, "
+                              "game jams, Minecraft plugins, and multiplayer networking. He studies software "
+                              "engineering at uOttawa and works on developer tools at Gadget.", shift=shift, line_h=24))
 
-    def section(name, title, sub, label):
+    def section(name, title, sub, label, accent):
         W, H = 830, 56
         out = [
-            f'<text x="0" y="24" font-size="15" letter-spacing="2.5" fill="{AMBER}">{title}</text>',
-            f'<text x="{W}" y="24" font-size="10.5" fill="{SLATE2}" text-anchor="end">{sub}</text>',
-            f'<line x1="0" y1="38" x2="{W}" y2="38" stroke="#262E36"/>',
-            f'<line x1="0" y1="38" x2="120" y2="38" stroke="{AMBER}" stroke-opacity=".7" stroke-width="1.5"/>',
+            f'<path d="M2 29v-14h6v14z" fill="{accent}"/>',
+            f'<text x="20" y="30" font-size="24" font-weight="700" fill="{WHITE}">{title}</text>',
+            f'<text x="{W - 2}" y="27" font-size="12" fill="{SLATE2}" text-anchor="end">{sub}</text>',
+            f'<path d="M2 43h826" stroke="{LINE}"/>',
+            f'<path d="M2 43h133l9-5h22" fill="none" stroke="{accent}" stroke-opacity=".8" stroke-width="1.4"/>',
         ]
-        return name, shell(W, H, [], "".join(out), label, shift, hold=BOOT + 0.4, overlay=False)
+        return name, shell(W, H, [], "".join(out), label, shift, overlay=False)
 
-    panels.append(section("sect-projects", "PROJECTS", "selected work, most recent first",
-                          "Section: projects. Selected work, most recent first."))
-    panels.append(section("sect-stats", "A YEAR ON GITHUB", "fetched live from the api on every view",
-                          "Section: a year on GitHub, fetched live from the API on every view."))
-    panels.append(section("sect-guestbook", "GUESTBOOK", "signed by visitors, through github issues",
-                          "Section: guestbook, signed by visitors through GitHub issues."))
-    panels.append(section("sect-games", "FUN AND GAMES", "everyone plays the same board · moves land in about a minute",
-                          "Section: fun and games. Everyone plays the same board, each move is a pre-filled GitHub "
-                          "issue and the page updates within a minute or two."))
+    panels.append(section("sect-projects", "Some of my projects", "games, apps, and experiments",
+                          "Some of my projects. Games, apps, and experiments.", AMBER))
+    panels.append(section("sect-gadget", "Gadget experience", "software engineering intern",
+                          "Gadget experience. Software engineering intern. Selected work across integrations, support, job queues, and data export.", "#ADD8FF"))
+    panels.append(section("sect-stats", "A year on GitHub", "activity and languages",
+                          "A year on GitHub. Activity and languages.", "#9AE6CB"))
+    panels.append(section("sect-guestbook", "Guestbook", "leave a GitHub issue to sign",
+                          "Guestbook, signed by visitors through GitHub issues.", "#DABAFB"))
+    panels.append(section("sect-games", "Fun and games", "shared boards powered by GitHub issues",
+                          "Everyone plays the same boards through GitHub issues.", "#FFAD92"))
 
     return dict(panels)
 
@@ -657,21 +874,25 @@ def build_text_panels(shift=None):
 # every link button, regenerated with the boot hold baked in
 
 BUTTONS = {
-    "btn-sign": "[ sign the guestbook ]",
-    "btn-attack": "[ attack the boss ]",
-    "btn-feed": "[ feed blob ]",
-    "btn-pet": "[ pet blob ]",
-    "btn-pixel": "[ place a pixel ]",
-    "btn-cell": "[ plant a cell ]",
+    "btn-sign": ("Sign the guestbook", "#DABAFB"),
+    "btn-attack": ("Attack the boss", "#FFAD92"),
+    "btn-feed": ("Feed BLOB", AMBER),
+    "btn-pet": ("Pet BLOB", AMBER),
+    "btn-pixel": ("Place a pixel", "#ADD8FF"),
+    "btn-cell": ("Plant a cell", "#9AE6CB"),
+    "btn-hatch": ("Open the service hatch", "#FFC164"),
+    "btn-pong": ("Play the Pong latency demo", "#FFC164"),
 }
 
 
 SOCIALS = [
-    # (name, icon, text, width)
-    ("chip-linkedin", "in", "julien-dewolfe", 210),
-    ("chip-email", "mail", "JulienDeWolfe@protonmail.com", 310),
-    ("chip-uschedule", "cal", "uschedule.ca", 196),
-    ("chip-x", "x", "DewolfeJulien", 200),
+    # (name, icon, full label, compact label)
+    ("chip-linkedin", "in", "julien-dewolfe", "LinkedIn"),
+    ("chip-email", "mail", "JulienDeWolfe@protonmail.com", "Email"),
+    ("chip-uschedule", "cal", "uschedule.ca", "uSchedule"),
+    ("chip-x", "x", "DewolfeJulien", "X"),
+    ("chip-itch", "pad", "itch.io", "itch.io"),
+    ("chip-reciped", "fork", "reciped.app", "Reciped"),
 ]
 
 
@@ -702,33 +923,55 @@ def _icon(kind, x, y):
             f'<rect x="{x + 10}" y="{y + 8}" width="3" height="3" fill="{AMBER}"/>'
             f'<rect x="{x + 4}" y="{y + 12.2}" width="3" height="2.5" fill="{AMBER}"/>'
         )
+    if kind == "pad":
+        return (
+            f'<g transform="translate({x} {y})" fill="none" stroke="#DABAFB" stroke-width="1.4" stroke-linecap="round">'
+            '<path d="M5 4h8c1.8 0 3.2 1.3 3.5 3l1 4.4c.5 2-1.7 3.3-3.1 1.8L12 11H6l-2.4 2.2C2.2 14.7 0 13.4.5 11.4L1.5 7C1.8 5.3 3.2 4 5 4z"/>'
+            '<path d="M5.3 6.5v3.7m-1.8-1.8h3.6m5.1-.8h.2m2 1.8h.2"/></g>'
+        )
+    if kind == "fork":
+        return (
+            f'<g transform="translate({x} {y})" fill="none" stroke="#FFAD92" stroke-width="1.5" stroke-linecap="round">'
+            '<path d="M4 2v5m3-5v5m3-5v5m-6 0c0 1.5 1 2.5 3 2.5S10 8.5 10 7m-3 2.5V16m8-14c-1.5 2-2 4-2 7h2m0-7v14"/></g>'
+        )
     return ""
 
 
 def build_socials(shift=None):
     pieces = {}
-    for name, icon, text, w in SOCIALS:
-        h = 44
+    for name, icon, text, compact in SOCIALS:
+        width, height = 270, 44
+        compact_below = 49 + len(text) * 7.5
+        css = [
+            '.compact{display:none}',
+            f'@media (max-width:{f(compact_below)}px){{.full{{display:none}}.compact{{display:inline}}}}',
+        ]
         body = (
-            f'<rect x="0.75" y="0.75" width="{f(w - 1.5)}" height="{h - 1.5}" rx="5" fill="{PANEL}" stroke="{AMBER}" stroke-opacity="0.45"/>'
-            f'<path d="M6 11 V6 H11 M{w - 11} 6 H{w - 6} V11 M{w - 6} {h - 11} V{h - 6} H{w - 11} M11 {h - 6} H6 V{h - 11}" fill="none" stroke="{AMBER}" stroke-opacity="0.7" stroke-width="1.4"/>'
-            + _icon(icon, 14, (h - 18) // 2)
-            + f'<text x="42" y="{h / 2 + 4.5}" font-size="12.5" fill="{AMBER}">{text}</text>'
+            f'<rect x="2.25" y=".75" width="100%" height="42.5" rx="6" fill="{BG}" stroke="#51444F" '
+            'stroke-width="1.5" style="width:calc(100% - 4.5px)"/>'
+            '<rect x="2.25" y="1.5" width="100%" height="41" rx="5" fill="url(#scan)" opacity=".1" '
+            'style="width:calc(100% - 4.5px)"/>'
+            f'<path d="M33 9v26" stroke="{LINE}"/>'
+            + _icon(icon, 12, 13)
+            + f'<text class="full" x="40" y="26.5" font-size="12.5" fill="{WHITE}">{text}</text>'
+            + f'<text class="compact" x="37" y="26" font-size="10.5" fill="{WHITE}">{compact}</text>'
         )
-        pieces[name] = shell(w, h, [], body, text, shift, hold=BOOT + 0.5)
+        # Resolve the SVG viewport from the displayed width so the artwork doesn't stretch.
+        pieces[name] = shell(width, height, css, body, text, shift, hold=BOOT + 0.3,
+                             overlay=False, gutter=0, view_box=False)
     return pieces
 
 
 def build_buttons(shift=None):
     pieces = {}
-    for name, text in BUTTONS.items():
-        w = len(text) * 8 + 36
+    for name, (text, accent) in BUTTONS.items():
+        w = len(text) * 8 + 40
         body = (
-            f'<rect x="0.75" y="0.75" width="{f(w - 1.5)}" height="34.5" rx="4" fill="{BG}" stroke="{AMBER}" stroke-opacity="0.45"/>'
-            f'<path d="M5 9 V5 H9 M{w - 9} 5 H{w - 5} V9 M{w - 5} 27 V31 H{w - 9} M9 31 H5 V27" fill="none" stroke="{AMBER}" stroke-opacity="0.7" stroke-width="1.4"/>'
-            f'<text x="{f(w / 2)}" y="22.5" text-anchor="middle" font-size="13" fill="{AMBER}">{text}</text>'
+            f'<rect x="0.75" y="0.75" width="{f(w - 1.5)}" height="34.5" rx="5" fill="{BG}" stroke="{accent}" stroke-opacity=".55"/>'
+            f'<path d="M11 13l5 5-5 5" fill="none" stroke="{accent}" stroke-width="1.8"/>'
+            f'<text x="27" y="23" font-size="13" font-weight="700" fill="{accent}">{text}</text>'
         )
-        pieces[name] = shell(w, 36, [], body, text.strip("[ ]"), shift, hold=BOOT + 0.5)
+        pieces[name] = shell(w, 36, [], body, text, shift, gutter=0)
     return pieces
 
 
@@ -898,6 +1141,533 @@ def card_earlier(shift=None):
                         "Conway's Game of Life inside Minecraft, and Tailor, an OS flashing tool. Click for my repos.", shift)
 
 
+# ------------------------------------------------------------- launch bay
+
+def featured_reciped(shift=None):
+    cream, coral = "#F7E7D1", "#FFAD92"
+    css = [
+        '@keyframes importProgress{0%,12%{transform:scaleX(.12)}'
+        '57%,92%{transform:scaleX(1)}100%{transform:scaleX(.12)}}',
+        '@keyframes recipePaper{0%,22%{transform:translateY(-5px);opacity:.72}'
+        '61%,100%{transform:translateY(0);opacity:1}}',
+        '.import-progress{animation:importProgress 5s ease-in-out infinite;transform-origin:481px 106px}',
+        '.recipe-paper{animation:recipePaper 5s ease-out infinite}',
+    ]
+    body = f"""
+{frame(830, 260, rx=10)}
+<rect x="12" y="12" width="806" height="236" rx="6" fill="#35191D" stroke="#805047"/>
+<path d="M426 24v212" stroke="#64413E" stroke-dasharray="2 5"/>
+<text x="35" y="94" fill="{cream}" font-size="59" font-weight="700">Reciped</text>
+<g fill="{cream}" font-size="21">
+  <text x="38" y="137">Turn cooking videos and links</text>
+  <text x="38" y="165">into recipes you can cook.</text>
+</g>
+<path d="M38 199h32" stroke="{coral}" stroke-width="2"/>
+<text x="38" y="224" fill="{coral}" font-size="19">Explore Reciped</text>
+<path d="M229 217h22m-7-7 7 7-7 7" fill="none" stroke="{coral}" stroke-width="1.6"/>
+<rect x="464" y="39" width="314" height="73" rx="5" fill="#21171B" stroke="#8A5249"/>
+<text x="481" y="60" fill="{coral}" font-size="12">Recipe import</text>
+<rect x="481" y="68" width="280" height="21" rx="3" fill="#3A2629"/>
+<path d="M490 75h9l4 4-4 4h-9m9-4h10" fill="none" stroke="{coral}"/>
+<text x="517" y="83" fill="{cream}" font-size="12">Cooking video or link</text>
+<rect x="481" y="100" width="280" height="4" rx="2" fill="#503539"/>
+<rect x="481" y="100" width="280" height="4" rx="2" fill="{coral}" class="import-progress"/>
+<path d="M621 113v16m-4-4 4 4 4-4" fill="none" stroke="{coral}"/>
+<g class="recipe-paper">
+  <rect x="481" y="138" width="280" height="86" rx="4" fill="{cream}"/>
+  <text x="495" y="162" fill="#66282E" font-size="17" font-weight="700">Recipe draft</text>
+  <path d="M495 171h251m-128 7v35" stroke="#AA7871" stroke-opacity=".65"/>
+  <g font-size="11" fill="#66282E">
+    <text x="495" y="190">Ingredients</text><text x="630" y="190">Steps</text>
+  </g>
+  <path d="M495 201h93m-93 8h64m71-8h108m-108 8h72" stroke="#A46760" stroke-opacity=".65" stroke-width="2"/>
+</g>
+"""
+    return shell(830, 260, css, body, "Reciped. Turn cooking videos and links into recipes you can cook.", shift)
+
+
+def launch_card(title, action, accent, backdrop, scene, css, label, shift, linked=True):
+    width, height = 438, 218
+    link_mark = f'<path d="M402 198h18m-6-6 6 6-6 6" fill="none" stroke="{accent}" stroke-width="1.5"/>'
+    body = f"""
+{frame(width, height, rx=9)}
+<rect x="12" y="12" width="414" height="128" rx="5" fill="{backdrop}" stroke="{accent}" stroke-opacity=".36"/>
+{scene}
+<path d="M13 148h412" stroke="{LINE}"/>
+<path d="M13 148h36" stroke="{accent}" stroke-width="2"/>
+<text x="16" y="179" fill="{WHITE}" font-size="26" font-weight="700">{title}</text>
+<text x="17" y="203" fill="{accent}" font-size="16">{action}</text>
+{link_mark if linked else ''}
+"""
+    return shell(width, height, css, body, label, shift)
+
+
+def oberon_scene():
+    gold, purple = "#F6C77F", "#C3B0FD"
+    css = [
+        '@keyframes activity{from{transform:translateX(-6px);opacity:.4}'
+        'to{transform:translateX(126px);opacity:1}}',
+        '.activity{animation:activity 3.1s linear infinite}',
+    ]
+    scene = f"""
+<rect x="40" y="27" width="358" height="97" rx="4" fill="#141319" stroke="#534B58"/>
+<path d="M41 48h356M100 48v76M100 75h297M100 99h297" stroke="#403846"/>
+<path d="M52 37h12m5 0h4m5 0h4" stroke="{gold}" stroke-width="2"/>
+<text x="114" y="41" font-size="11" fill="{gold}">Pit Wall</text>
+<path d="M52 60h29m-29 13h19m-19 13h25m-25 13h15" stroke="#746779" stroke-width="2"/>
+<g font-size="10" fill="#D3C5D5">
+  <text x="115" y="65">Codex</text><text x="115" y="91">Claude</text><text x="115" y="114">Pull requests</text>
+  <text x="328" y="65" fill="{gold}">working</text><text x="328" y="91" fill="{purple}">review</text>
+</g>
+<path d="M183 61h29l7-7 5 12 10-9 8 4h65M183 87h124M206 110h101" fill="none" stroke="#6D5F71"/>
+<circle class="activity" cx="184" cy="61" r="2.5" fill="{gold}"/>
+<path d="M183 87h76m-53 23h46" stroke="{purple}" stroke-opacity=".7" stroke-width="2"/>
+"""
+    return scene, css, gold, "#26202C"
+
+
+def launch_oberon(shift=None):
+    scene, css, accent, backdrop = oberon_scene()
+    return launch_card("Oberon", "Native macOS workspace for AI agents", accent, backdrop, scene, css,
+                       "Oberon, a native macOS workspace for AI coding with isolated Git worktrees and pull request review.",
+                       shift, linked=False)
+
+
+def worldmesh_scene():
+    mint, gold = "#88E5C9", "#FDC471"
+    grid = "".join(
+        f'<path d="M{110 + i * 22} {f(78 - i * 6.6)}l110 33M{110 + i * 22} {f(78 + i * 6.6)}l110 -33"/>'
+        for i in range(1, 5)
+    )
+    css = [
+        '@keyframes handoff{0%,100%{transform:translate(146px,77px)}'
+        '28%{transform:translate(222px,60px)}52%{transform:translate(292px,76px)}'
+        '76%{transform:translate(220px,94px)}}',
+        f'@keyframes owner{{0%,38%,84%,100%{{fill:{mint}}}39%,83%{{fill:{gold}}}}}',
+        '.entity{animation:handoff 6s linear infinite;transform:translate(222px,60px)}',
+        '.entity circle{animation:owner 6s steps(1) infinite}',
+    ]
+    scene = f"""
+<path d="M110 78l110-33 110 33-110 33z" fill="#1A3535" stroke="#426662"/>
+<g fill="none" stroke="#345855">{grid}</g>
+<path d="M146 77 222 60 292 76 220 94z" fill="none" stroke="#72918B" stroke-dasharray="3 4"/>
+<path d="M88 75h38m198 0h27" stroke="#72918B" stroke-dasharray="3 4"/>
+<g font-size="10" text-anchor="middle">
+  <rect x="26" y="49" width="62" height="46" rx="4" fill="#112328" stroke="{mint}" stroke-opacity=".5"/>
+  <text x="57" y="69" fill="{mint}">group A</text><path d="M42 81h30" stroke="{mint}" stroke-dasharray="3 3"/>
+  <rect x="351" y="49" width="61" height="46" rx="4" fill="#26241D" stroke="{gold}" stroke-opacity=".5"/>
+  <text x="381" y="69" fill="{gold}">group B</text><path d="M367 81h29" stroke="{gold}" stroke-dasharray="3 3"/>
+</g>
+<path d="M175 68h5m-2.5-2.5v5m21 16h5m-2.5-2.5v5" stroke="{mint}" stroke-width="2"/>
+<path d="M265 69h5m-2.5-2.5v5m-17 13h5m-2.5-2.5v5" stroke="{gold}" stroke-width="2"/>
+<g class="entity"><circle r="5" fill="{mint}" stroke="#E8FFF9" stroke-width="1.5"/></g>
+<text x="219" y="128" text-anchor="middle" font-size="10" fill="#A4BDB8">one world / entity groups A and B</text>
+"""
+    return scene, css, mint, "#0D2024"
+
+
+def launch_worldmesh(shift=None):
+    scene, css, accent, backdrop = worldmesh_scene()
+    return launch_card("Worldmesh", "Read the docs", accent, backdrop, scene, css,
+                       "Worldmesh, an open-source Rust library for multiplayer worlds across servers.", shift)
+
+
+def launch_uschedule(shift=None):
+    mint, blue, lilac = "#89E6B4", "#83C6FF", "#C2AFF6"
+    days = ("MON", "TUE", "WED", "THU", "FRI")
+    grid = "".join(
+        f'<text x="{113 + i * 54}" y="36">{day}</text><path d="M{86 + i * 54} 44v78" stroke="#2A443C"/>'
+        for i, day in enumerate(days)
+    )
+    css = ['@keyframes slot{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}']
+    blocks = []
+    for i, (day, y, height, color, course) in enumerate((
+        (0, 49, 24, mint, "SEG"), (1, 77, 39, blue, "CSI"),
+        (2, 49, 24, mint, "SEG"), (3, 77, 39, blue, "CSI"),
+        (0, 93, 23, lilac, "MAT"), (2, 93, 23, lilac, "MAT"),
+    )):
+        x = 91 + 54 * day
+        blocks.append(f'<g style="animation:slot .25s ease-out {f(.2 + i * .11)}s both">'
+                      f'<rect x="{x}" y="{y}" width="44" height="{height}" rx="2" fill="{color}" fill-opacity=".18" stroke="{color}" stroke-opacity=".75"/>'
+                      f'<text x="{x + 22}" y="{y + 15}" fill="{color}">{course}</text></g>')
+    scene = f"""
+<path d="M86 43h270v79H86zm0 26h270m-270 26h270" fill="none" stroke="#2A443C"/>
+<g text-anchor="middle" font-size="10" fill="#A7C5B7">{grid}{''.join(blocks)}</g>
+<path d="M370 82l8 8 15-16" fill="none" stroke="{mint}" stroke-width="2"/>
+"""
+    return launch_card("uschedule.ca", "Build a timetable", mint, "#10231C", scene, css,
+                       "uschedule.ca, a conflict-free timetable builder for University of Ottawa students.", shift)
+
+
+def launch_navsim(shift=None):
+    sky = "#9DBBFF"
+    coast = [ring[::2] for ring in _coast() if len(ring) >= 12]
+    sphere, css = globe(289, 76, 53, 90, 14, "launchatc", coast, meridian_step=60, coast_width=1)
+    scene = f"""
+<g stroke="{sky}" stroke-opacity=".22" fill="none">
+  <circle cx="289" cy="76" r="60"/><path d="M197 76h184m-92-63v126" stroke-dasharray="3 4"/>
+  <path d="M44 39h8m-8 0v8m125 59h-8m8 0v-8"/>
+  <path d="M371 31h26v19h-26v36h26v33h-26"/>
+</g>
+<g font-size="13" fill="{sky}">
+  <text x="57" y="61">YOW / YVR</text><text x="57" y="85">YYZ / YHZ</text>
+</g>
+<path d="M56 97h85" stroke="{sky}" stroke-opacity=".55" stroke-dasharray="2 4"/>
+{sphere}
+"""
+    return launch_card("NAV Canada Simulator", "Open the radar", sky, "#111C33", scene, css,
+                       "NAV Canada Simulator, an air traffic control simulator with Canadian flights on a 3D globe.", shift)
+
+
+def launch_game_networking(shift=None):
+    sky, mint = "#ADD8FF", "#ADF0CF"
+    css = ['@keyframes snapshot{0%,12%{transform:translateX(0);opacity:0}20%{opacity:1}'
+           '72%{transform:translateX(-73px);opacity:1}88%,100%{transform:translateX(-73px);opacity:0}}']
+    cube = '<path d="M0-20l19 10v19L0 20-19 9v-19zM-19-10 0 0l19-10M0 0v20" fill="none" stroke="currentColor" stroke-width="1.4"/>'
+    scene = f"""
+<path d="M40 84l70-46 83 43-69 29zM57 74l82 30M74 62l80 35m-64-45 80 37M60 91l71-42m-52 49 71-39m-52 46 71-37"
+      fill="none" stroke="#45677A"/>
+<g color="#6596A7" opacity=".5" transform="translate(87 68)">{cube}</g>
+<g color="{sky}" transform="translate(119 59)">{cube}</g>
+<g color="{mint}" transform="translate(146 71)">{cube}</g>
+<path d="M182 61h75m-71-4-4 4 4 4" stroke="#749EA9" stroke-dasharray="3 3" fill="none"/>
+<circle cx="256" cy="61" r="3.2" fill="{mint}" opacity="0" style="animation:snapshot 4.2s linear infinite"/>
+<rect x="260" y="36" width="142" height="54" rx="4" fill="#1D3542" stroke="#547589"/>
+<text x="331" y="56" text-anchor="middle" font-size="10" fill="{mint}">AUTHORITATIVE SERVER</text>
+<path d="M274 65h113" stroke="#516F80"/>
+<text x="331" y="80" text-anchor="middle" font-size="10" fill="{sky}">State snapshots</text>
+<path d="M25 114h388" stroke="#45677A"/>
+<g font-size="10" text-anchor="middle" fill="{sky}">
+  <text x="83" y="129">Client prediction</text><text x="219" y="129">Server reconciliation</text><text x="355" y="129">Entity interpolation</text>
+</g>
+"""
+    return launch_card("Realtime Game Networking", "Server-authoritative 3D rollback", sky, "#192B38", scene, css,
+                       "Realtime Game Networking. Server-authoritative rollback architecture for a 3D game, with client prediction, server reconciliation, and entity interpolation.",
+                       shift, linked=False)
+
+
+def launch_lightbound(shift=None):
+    lavender, gold = "#C9B7FF", "#FFD486"
+    css = ['@keyframes lightbound-ring{from{r:15px;opacity:.8}to{r:43px;opacity:0}}']
+    souls = "".join(
+        f'<g transform="translate({x} {y})"><path d="M-6 7v-7a6 6 0 0 1 12 0v7l-3-3-3 3-3-3z" '
+        f'fill="#67558F" stroke="#8E76C7"/><circle cx="-2" cy="-1" r="1" fill="{lavender}"/>'
+        f'<circle cx="2" cy="-1" r="1" fill="{lavender}"/></g>'
+        for x, y in ((62, 57), (177, 49), (226, 82), (88, 111), (186, 115))
+    )
+    scene = f"""
+<ellipse cx="143" cy="80" rx="111" ry="43" fill="#2B2145" stroke="#594783"/>
+<ellipse cx="143" cy="80" rx="79" ry="30" fill="none" stroke="#594783" stroke-dasharray="3 4"/>
+<path d="M33 80h220m-110-40v81" stroke="#6B568E" stroke-opacity=".65"/>
+{souls}
+<circle cx="143" cy="80" r="15" fill="none" stroke="{gold}" stroke-opacity=".7"
+        style="animation:lightbound-ring 3.4s ease-out infinite"/>
+<path d="M143 72l8 8-8 8-8-8z" fill="{gold}" filter="url(#glow)"/>
+<rect x="267" y="53" width="125" height="57" rx="4" fill="#332A4A" stroke="#715D98"/>
+<text x="329" y="71" font-size="10" text-anchor="middle" fill="{lavender}">STAT SWAP</text>
+<text x="329" y="94" font-size="15" text-anchor="middle" fill="{gold}">HP ⇄ DMG</text>
+"""
+    return launch_card("Lightbound", "2023 game jam · Survive stat swaps", lavender, "#231B37", scene, css,
+                       "Lightbound. Fight waves of lost souls while two stats swap every minute. Made for the 2023 GMTK Game Jam.", shift)
+
+
+def launch_dice_knight(shift=None):
+    jade, gold = "#B1E6BE", "#FFD385"
+    css = ['@keyframes dice-rock{0%,100%{transform:rotate(-12deg)}50%{transform:rotate(11deg)}}']
+    floor = "".join(
+        f'<rect x="{40 + 16 * col}" y="{29 + 16 * row}" width="14" height="14" rx="1" '
+        f'fill="{"#517266" if tile == "." else "#32483F"}"/>'
+        for row, pattern in enumerate(("####..######", "#......#####", "#.###...####", "#...###....#", "###.....#..#", "#####..#####"))
+        for col, tile in enumerate(pattern)
+    )
+    pip_dots = "".join(f'<circle cx="{x}" cy="{y}" r="2.8" fill="#49403F"/>'
+                       for x, y in ((-9, -9), (9, -9), (0, 0), (-9, 9), (9, 9)))
+    scene = f"""
+{floor}
+<path d="M112 53v17h47v16h49" fill="none" stroke="{jade}" stroke-width="1.5" stroke-dasharray="3 3" opacity=".7"/>
+<path d="M109 50h6v6h-6z" fill="{jade}"/>
+<circle cx="208" cy="86" r="4" fill="{gold}"/>
+<path d="M238 83h27m-5-5 5 5-5 5" fill="none" stroke="{jade}" stroke-width="1.5"/>
+<g transform="translate(330 72)">
+  <g style="animation:dice-rock 4s ease-in-out infinite">
+    <rect x="-23" y="-20" width="46" height="46" rx="6" fill="#77694B"/>
+    <rect x="-24" y="-24" width="46" height="46" rx="6" fill="#E9DCC0" stroke="{gold}"/>
+    {pip_dots}
+  </g>
+</g>
+<circle cx="368" cy="111" r="5" fill="none" stroke="{gold}"/>
+<circle cx="381" cy="108" r="4" fill="none" stroke="{gold}"/>
+"""
+    return launch_card("Dice Knight", "2022 game jam · Fight with dice", jade, "#21322A", scene, css,
+                       "Dice Knight. Fight with dice, collect gold, and explore randomly generated dungeons. Made for the 2022 GMTK Game Jam.", shift)
+
+
+def launch_factory(shift=None):
+    lilac = "#DABAFB"
+    boxes = "".join(
+        f'<rect x="{x}" y="63" width="76" height="33" rx="4" fill="#241C30" stroke="{lilac}" stroke-opacity=".45"/>'
+        f'<text x="{x + 38}" y="83" text-anchor="middle" fill="{lilac}" font-size="11">{name}</text>'
+        for x, name in ((37, "Plan"), (133, "Build"), (229, "Review"), (325, "Open PR"))
+    )
+    css = [
+        '@keyframes factorypulse{0%{transform:translateX(0);opacity:0}8%{opacity:1}'
+        '90%{opacity:1}100%{transform:translateX(288px);opacity:0}}',
+        '.factory-pulse{animation:factorypulse 4.6s linear infinite}',
+    ]
+    scene = f"""
+<path d="M75 53h288M113 79h20m76 0h20m76 0h20" stroke="#78668A" stroke-dasharray="2 3"/>
+{boxes}
+<circle cx="75" cy="53" r="3.2" fill="{lilac}" class="factory-pulse"/>
+<path d="M171 99v12h96V99" fill="none" stroke="#78668A" stroke-dasharray="2 3"/>
+"""
+    return launch_card("Software Factory", "Plan, build, review, open a PR", lilac, "#20182B", scene, css,
+                       "Software Factory, a coding tool that assigns planning, implementation, and review to AI agents and opens a pull request.",
+                       shift, linked=False)
+
+
+def launch_polybot(shift=None):
+    green, rose = "#A7E393", "#EE9EA6"
+    css = ['@keyframes chartscan{0%,12%{transform:translateX(0);opacity:0}'
+           '20%,84%{opacity:.8}95%,100%{transform:translateX(262px);opacity:0}}']
+    chart = "".join(
+        f'<path d="{spark_path(seed, width=264, amp=11, step=8)}" fill="none" stroke="{color}" stroke-width="1.6"/>'
+        for seed, color in ((7, green), (23, rose))
+    )
+    scene = f"""
+<rect x="43" y="34" width="352" height="85" rx="4" fill="#15201A" stroke="#49604B"/>
+<path d="M57 54h300m-300 22h300m-300 22h300" stroke="#36513D" stroke-dasharray="3 4"/>
+<clipPath id="polybot-chart"><rect x="57" y="43" width="300" height="65"/></clipPath>
+<g clip-path="url(#polybot-chart)"><g transform="translate(59 76)">{chart}</g></g>
+<path d="M59 44v64" stroke="{green}" stroke-opacity=".6" style="animation:chartscan 5s linear infinite"/>
+<circle cx="371" cy="57" r="3" fill="{green}"/><circle cx="371" cy="78" r="3" fill="{rose}"/>
+"""
+    return launch_card("Polybot", "Prediction-market paper trading", green, "#162219", scene, css,
+                       "Polybot, a paper-trading lab that runs Polymarket strategies in separate containers and shows their results on one dashboard.",
+                       shift, linked=False)
+
+
+def launch_crossword(shift=None):
+    lilac = "#D9BEFF"
+    css = [
+        '@keyframes crossword-letter{0%,8%{opacity:0}16%,83%{opacity:1}95%,100%{opacity:0}}',
+    ]
+    board = []
+    for row, pattern in enumerate(("#....", ".....", ".....", ".....", "....#")):
+        for col, cell in enumerate(pattern):
+            x, y = 225 + col * 20, 26 + row * 20
+            fill = "#877499" if row == 2 else "#493D57"
+            if cell == "#":
+                fill = "#1F1929"
+            board.append(f'<rect x="{x}" y="{y}" width="18" height="18" rx="1" fill="{fill}" stroke="#A78CB3" stroke-opacity=".42"/>')
+    for col, letter in enumerate("SOLVE"):
+        board.append(f'<text x="{234 + col * 20}" y="79" text-anchor="middle" fill="#FFF5FF" font-size="12" '
+                     f'style="animation:crossword-letter 5.5s linear {f(col * .17)}s infinite">{letter}</text>')
+    scene = f"""
+<text x="51" y="66" font-size="28" fill="{lilac}">5 × 5</text>
+<text x="51" y="87" font-size="12" fill="#BBAECD">A new puzzle daily</text>
+<path d="M52 99h122" stroke="#8A709E" stroke-dasharray="2 4"/>
+{''.join(board)}
+<rect x="305" y="66" width="18" height="18" rx="1" fill="none" stroke="#FFF5FF" stroke-width="1.5"/>
+"""
+    return launch_card("Totally Not the Mini", "Play today’s crossword", lilac, "#281E32", scene, css,
+                       "Totally Not the Mini, a daily crossword with original clues, saved progress, and shareable scores.", shift)
+
+
+def launch_addons(shift=None):
+    gold = "#ECCC8D"
+    css = ['@keyframes addon-status{0%,100%{opacity:1}50%{opacity:.45}}']
+    scene = f"""
+<rect x="53" y="27" width="332" height="98" rx="4" fill="#211C1D" stroke="#765E47"/>
+<path d="M54 49h330m-224 0v76" stroke="#624C3F"/>
+<text x="65" y="42" fill="{gold}" font-size="11">Installations</text>
+<text x="174" y="42" fill="{gold}" font-size="11">Addon library</text>
+<rect x="62" y="57" width="89" height="20" rx="3" fill="#594735"/>
+<text x="71" y="71" fill="{gold}" font-size="10">Retail</text>
+<text x="71" y="93" fill="#C2AB93" font-size="10">Classic</text>
+<g fill="#D8C3AB" font-size="10">
+  <text x="196" y="67">Action bars</text><text x="196" y="88">Raid tools</text><text x="196" y="109">Quest tracker</text>
+</g>
+<path d="M171 73h203m-203 22h203" stroke="#4D3D37"/>
+<path d="M178 59h10v9h-10zM178 81h10v9h-10zM178 102h10v9h-10z" fill="none" stroke="{gold}"/>
+<path d="M361 61l3 3 5-5m-8 24 3 3 5-5m-8 23 3 3 5-5" fill="none" stroke="#B8CDA0" stroke-width="1.5"
+      style="animation:addon-status 3.5s ease-in-out infinite"/>
+"""
+    return launch_card("AddOn Ledger", "See the WoW addon manager", gold, "#332722", scene, css,
+                       "AddOn Ledger, a work-in-progress desktop app that keeps the addon libraries of separate World of Warcraft installations organized.", shift)
+
+
+def launch_construction_map(shift=None):
+    orange, blue = "#FFB677", "#90CCE8"
+    points = ((89, 61), (176, 86), (247, 61), (319, 100), (348, 75))
+    markers = "".join(
+        f'<circle cx="{x}" cy="{y}" r="6" fill="#513827" stroke="{orange}" stroke-width="1.5"/>'
+        f'<circle cx="{x}" cy="{y}" r="2" fill="{orange}"/>'
+        for x, y in points
+    )
+    css = ['@keyframes project-ring{0%{r:7px;opacity:.85}70%,100%{r:18px;opacity:0}}']
+    scene = f"""
+<path d="M29 75c35 2 53-40 91-39s64 26 94 22 74-33 111-25 48 38 82 26" fill="none" stroke="#235169" stroke-width="19"/>
+<g fill="none" stroke="#506258" stroke-width="1.2">
+  <path d="M28 101l87-15 52-26 46 7 64 33 128 15m-373 12 101-6 67-19 46-41 67-6 95 23"/>
+  <path d="M47 43l20 39 8 46m43-79 24 28 12 51m29-84-7 42 14 42m50-80 25 34-4 47m36-83 22 54 20 27m29-76-20 26 22 53"/>
+  <path d="M33 55h38m64 45 16 15m155-28 40 14m-132 21 49-7"/>
+</g>
+<path d="M62 109c46-6 72-26 114-23l71-25 72 39 29-25" fill="none" stroke="{orange}" stroke-dasharray="3 4" stroke-opacity=".55"/>
+<text x="135" y="39" font-size="10" fill="{blue}">Ottawa River</text>
+{markers}
+<circle cx="247" cy="61" r="7" fill="none" stroke="{orange}" opacity="0" style="animation:project-ring 2.9s ease-out infinite"/>
+"""
+    return launch_card("Ottawa Construction Map", "Explore projects on the map", orange, "#182827", scene, css,
+                       "Ottawa Construction Map. Explore City of Ottawa construction and development applications on a live map.", shift)
+
+
+def launch_earlier(shift=None):
+    aqua = "#91DCD8"
+    cells = {(2, 0), (3, 1), (1, 2), (2, 2), (3, 2)}
+    blocks = "".join(
+        f'<rect x="{49 + col * 19}" y="{35 + row * 19}" width="16" height="16" rx="1" '
+        f'fill="{aqua if (col, row) in cells else LINE}"/>'
+        for row in range(5) for col in range(7)
+    )
+    body = f"""
+{frame(830, 116, rx=9)}
+<rect x="13" y="13" width="400" height="90" rx="5" fill="#18272A" stroke="{aqua}" stroke-opacity=".36"/>
+<g transform="translate(28 -3) scale(.83)">
+  {blocks}
+  <path d="M203 31v92" stroke="{LINE}"/>
+  <rect x="226" y="40" width="165" height="75" rx="4" fill="{SCREEN}" stroke="#46656A"/>
+  <text x="240" y="65" font-size="13" fill="{aqua}">&gt; flash OS image</text>
+  <path d="M241 85h132" stroke="{LINE}" stroke-width="6"/>
+  <path d="M241 85h102" stroke="{aqua}" stroke-width="6"/>
+</g>
+<text x="440" y="53" font-size="26" font-weight="700" fill="{WHITE}">Earlier work</text>
+<text x="441" y="78" font-size="16" fill="{aqua}">Minecraft plugins and OS tools</text>
+<path d="M782 72h24m-7-7 7 7-7 7" fill="none" stroke="{aqua}" stroke-width="1.5"/>
+"""
+    return shell(830, 116, [], body,
+                 "Earlier work, including Conway's Game of Life inside Minecraft and Tailor, an OS flashing tool.", shift)
+
+
+# ------------------------------------------------------------- Gadget work
+
+def gadget_api_upgrades(shift=None):
+    blue, lilac = "#ADD8FF", "#DBBBF1"
+    scene = f"""
+<rect x="31" y="36" width="178" height="83" rx="4" fill="#192A36" stroke="#506F85"/>
+<rect x="229" y="36" width="178" height="83" rx="4" fill="#2C2436" stroke="#735B85"/>
+<text x="44" y="61" font-size="18" font-weight="700" fill="{blue}">2026-07</text>
+<text x="242" y="61" font-size="18" font-weight="700" fill="{lilac}">2026-10</text>
+<path d="M44 70h152m46 0h152" stroke="#536073"/>
+<g font-size="11">
+  <text x="44" y="89" fill="{blue}">Flexible collections</text>
+  <text x="44" y="106" fill="#ACC2CE">Model updates</text>
+  <text x="242" y="89" fill="{lilac}">Requested order edits</text>
+  <text x="242" y="106" fill="#C8B3D4">Webhook updates</text>
+</g>
+<path d="M212 77h14m-4-4 4 4-4 4" fill="none" stroke="{WHITE}"/>
+"""
+    return launch_card("Shopify API upgrades", "2026-07 and 2026-10 connector releases", blue, "#1D2835", scene, [],
+                       "Shopify API upgrades. Worked on Gadget’s managed connector releases for 2026-07 and 2026-10, including flexible collections and requested order edits.",
+                       shift, linked=False)
+
+
+def gadget_support_bot(shift=None):
+    mint = "#A4E8B8"
+    css = ['@keyframes draft-message{0%,15%{opacity:.6;transform:translateY(3px)}35%,100%{opacity:1;transform:translateY(0)}}']
+    scene = f"""
+<rect x="57" y="29" width="324" height="96" rx="4" fill="#192B25" stroke="#527360"/>
+<path d="M58 49h322" stroke="#395748"/>
+<text x="69" y="43" font-size="10" fill="{mint}">SUPPORT INBOX</text>
+<rect x="70" y="58" width="166" height="22" rx="4" fill="#30463D"/>
+<text x="80" y="72" font-size="10" fill="#CBDED0">Incoming support ticket</text>
+<g style="animation:draft-message 5s ease-out infinite">
+  <rect x="189" y="88" width="179" height="23" rx="4" fill="#294936" stroke="#638D70"/>
+  <text x="199" y="103" font-size="10" fill="{mint}">Draft ready for review</text>
+</g>
+"""
+    return launch_card("Automatic Support Bot", "Draft replies for staff review", mint, "#1B2923", scene, css,
+                       "Automatic Support Bot. Helps draft responses to incoming support tickets for staff to review.",
+                       shift, linked=False)
+
+
+def gadget_job_cancellation(shift=None):
+    coral, amber = "#FFAD92", "#F4CE88"
+    scene = f"""
+<rect x="47" y="28" width="344" height="97" rx="4" fill="#34242A" stroke="#7D535B"/>
+<text x="61" y="48" font-size="10" fill="{coral}">FILTER BY</text>
+<g font-size="10" text-anchor="middle" fill="{coral}">
+  <rect x="128" y="35" width="53" height="18" rx="3" fill="#4C333B"/><text x="154" y="48">Queue</text>
+  <rect x="188" y="35" width="62" height="18" rx="3" fill="#4C333B"/><text x="219" y="48">Action</text>
+  <rect x="257" y="35" width="52" height="18" rx="3" fill="#4C333B"/><text x="283" y="48">Shop</text>
+</g>
+<path d="M60 61h318m-318 28h318" stroke="#60434A"/>
+<g font-size="11" fill="#E5C9C5">
+  <text x="64" y="78">Matching queued jobs</text><text x="64" y="107">Running jobs</text>
+</g>
+<g font-size="10" text-anchor="end">
+  <text x="372" y="78" fill="{coral}">Cancel pending</text><text x="372" y="107" fill="{amber}">Keep running</text>
+</g>
+"""
+    return launch_card("Cancel background jobs", "Clear queues or cancel matching jobs", coral, "#33232B", scene, [],
+                       "Background job cancellation. Lets users cancel queued jobs by queue, action, or Shopify shop while running jobs finish.",
+                       shift, linked=False)
+
+
+def gadget_data_exporter(shift=None):
+    amber = "#F4CE88"
+    css = ['@keyframes export-signal{0%,10%{transform:translateX(0);opacity:0}20%{opacity:1}'
+           '77%{transform:translateX(82px);opacity:1}90%,100%{transform:translateX(82px);opacity:0}}']
+    scene = f"""
+<rect x="47" y="36" width="132" height="83" rx="4" fill="#332A23" stroke="#786243"/>
+<text x="59" y="54" font-size="10" font-weight="700" fill="{amber}">APP CONTENTS</text>
+<g font-size="10" fill="#DCCAB0">
+  <text x="59" y="73">Model records</text><text x="59" y="90">Uploaded files</text><text x="59" y="107">App source</text>
+</g>
+<path d="M180 77h79m0-26v52m0-52h11m-11 26h11m-11 26h11" fill="none" stroke="#8D774F" stroke-dasharray="3 3"/>
+<circle cx="181" cy="77" r="3" fill="{amber}" opacity="0" style="animation:export-signal 4.3s linear infinite"/>
+<g font-size="11" fill="{amber}">
+  <rect x="272" y="41" width="119" height="20" rx="3" fill="#4B3C2D"/><text x="286" y="55">ZIP</text>
+  <rect x="272" y="67" width="119" height="20" rx="3" fill="#4B3C2D"/><text x="286" y="81">S3</text>
+  <rect x="272" y="93" width="119" height="20" rx="3" fill="#4B3C2D"/><text x="286" y="107">PostgreSQL</text>
+</g>
+"""
+    return launch_card("Data Exporter", "Export to ZIP, S3, or PostgreSQL", amber, "#2E251F", scene, css,
+                       "Data Exporter. Exports app data to a ZIP download, S3-compatible storage, or PostgreSQL.",
+                       shift, linked=False)
+
+
+def service_radio(shift=None):
+    # Morse timing: one unit per dot, three per dash or letter gap.
+    code = ("-...", ".-..", "---", "-...")
+    pulses = []
+    unit = 0
+    for letter in code:
+        for mark in letter:
+            length = 1 if mark == "." else 3
+            pulses.append((unit, length))
+            unit += length + 1
+        unit += 2
+    duration = (unit + 4) * .16
+    css = ['@keyframes tune{to{transform:translateX(647px)}}',
+           f'.tuner{{animation:tune {f(duration)}s linear infinite}}']
+    marks = "".join(
+        f'<rect x="{f(90 + start * 647 / (unit + 4))}" y="55" '
+        f'width="{f(length * 647 / (unit + 4))}" height="19" rx="2" fill="{AMBER}"/>'
+        for start, length in pulses
+    )
+    body = f"""
+{frame(830, 108, rx=8)}
+<text x="24" y="30" font-size="15" fill="{WHITE}">Maintenance radio</text>
+<text x="806" y="30" font-size="12" fill="#AAB6C1" text-anchor="end">Morse signal / repeat</text>
+<rect x="72" y="46" width="686" height="37" rx="3" fill="{SCREEN}" stroke="{LINE}"/>
+<path d="M89 64h654" stroke="#625241"/>
+{marks}
+<path d="M90 48v32" class="tuner" stroke="#FFF0D3" stroke-opacity=".8"/>
+"""
+    return shell(830, 108, css, body, "Maintenance radio. Morse code: dash dot dot dot, "
+                 "dot dash dot dot, dash dash dash, dash dot dot dot.", shift, hold=0)
+
+
 def build_story(shift=None):
     W, H = 830, 100
     x0, x1 = 24, 806
@@ -939,255 +1709,359 @@ def build_story(shift=None):
     out.append(f'<text x="{x1}" y="92" font-size="10" fill="{SLATE}" text-anchor="end">now</text>')
     label = ("Timeline from the beginning to now: blender games, then unity and c sharp, minecraft plugins "
              "overlapping them, then uOttawa with gadget running alongside it into the present.")
-    return shell(W, H, css, "".join(out), label, shift, hold=BOOT + 0.4)
+    return shell(W, H, css, "".join(out), label, shift)
 
 
 # ------------------------------------------------------------- 3d skyline
-# the contribution year extruded into a bar city, rendered in real 3D the
-# same way as the globe: rotate, project, painter-sort, bake frames.
 
-def build_skyline(shift=None, camera="flyover", fly_phi=48, fly_tilt=35):
-    data = json.load(open(os.path.join(ROOT, "tools", "skyline-data.json")))
+def build_skyline(shift=None, camera="flyover", fly_phi=20, fly_tilt=28):
+    with open(os.path.join(ROOT, "tools", "skyline-data.json")) as snapshot:
+        data = json.load(snapshot)
     weeks = data["weeks"]
-    counts = sorted(c for w in weeks for c in w if c > 0)
-    vmax = counts[-1] if counts else 1
+    peak = max((count for week in weeks for count in week), default=0)
 
-    W, H = 830, 260
-    cx, cy = W / 2, 170 if camera == "flyover" else 158
-    N, DUR = 44, 10.0
-    TILT = math.radians(fly_tilt if camera == "flyover" else 26)
-    ct, st = math.cos(TILT), math.sin(TILT)
-    ux, uz = 13.0, 15.0          # week and weekday spacing
-    bw, bd = 8.6, 9.4            # bar footprint, gapped so towers read apart
-    x_off, z_off = (len(weeks) - 1) / 2, 3.0
-
-    # a full turntable brings the long axis toward the camera, which needs
-    # a smaller scale to stay inside the card; the flyover renders larger
-    # than the card and lets the camera glide along it
-    scale = {"turntable": 0.78, "flyover": 1.42}.get(camera, 1.0)
-
-    def project(x, y, z, phi):
-        cp, sp = math.cos(phi), math.sin(phi)
-        x2 = x * cp + z * sp
-        z2 = -x * sp + z * cp
-        py = y * ct - z2 * st
-        depth = y * st + z2 * ct
-        return cx + x2 * scale, cy - py * scale, depth
-
-    def bucket(c):
-        return min(3, int(4 * counts.index(c) / len(counts)))
-
+    W, H = 830, 288
+    scene_top, scene_bottom = 42, H - 28
+    center_y = (scene_top + scene_bottom) / 2
+    tilt = fly_tilt if camera == "flyover" else 26
+    ux, uz = 13, 15
+    half_width, half_depth = 4.35, 4.7
+    x_off, z_off = (max(1, len(weeks)) - 1) / 2, 3
+    ground_x, ground_z = x_off * ux + 15, z_off * uz + 14
+    ground = [(-ground_x, 0, -ground_z), (ground_x, 0, -ground_z),
+              (ground_x, 0, ground_z), (-ground_x, 0, ground_z)]
+    palettes = [
+        ("#80636C", "#47303F", "#2F2C43"),
+        ("#C89277", "#6A444A", "#413047"),
+        ("#F6B471", "#925750", "#5C3A52"),
+        ("#FFE19B", "#B87751", "#774653"),
+    ]
     bars = []
-    tallest = None
     for wi, week in enumerate(weeks):
-        for di, c in enumerate(week):
-            if c > 0:
-                h = 5 + 58 * math.sqrt(c / vmax)
-                bar = ((wi - x_off) * ux, (di - z_off) * uz, h, bucket(c))
-                bars.append(bar)
-                if c == vmax and tallest is None:
-                    tallest = bar
+        for di, count in enumerate(week):
+            if count > 0:
+                level = math.sqrt(count / peak)
+                bars.append(((wi - x_off) * ux, (di - z_off) * uz,
+                             4 + 74 * level, min(3, int(4 * level)), wi + di))
+    tallest = max(bars, key=lambda bar: bar[2], default=None)
 
-    def face(corners, phi, cls):
-        pts = [project(x, y, z, phi) for x, y, z in corners]
-        d = "M" + "L".join(f"{round(px)},{round(py)}" for px, py, _ in pts) + "Z"
-        return f'<path class="{cls}" d="{d}"/>'
+    def roof(x, z, height):
+        return [(x - half_width, height, z - half_depth), (x + half_width, height, z - half_depth),
+                (x + half_width, height, z + half_depth), (x - half_width, height, z + half_depth)]
 
-    # lighting: brightness follows the day's count, same scale as the heatmap
-    css = []
-    tops = (0.5, 0.66, 0.83, 1.0)
-    for b, a in enumerate(tops):
-        css.append(f".kt{b}{{fill:{AMBER};fill-opacity:{f(a)}}}")
-        css.append(f".kl{b}{{fill:{AMBER};fill-opacity:{f(a * 0.48)}}}")
-        css.append(f".kr{b}{{fill:{AMBER};fill-opacity:{f(a * 0.22)}}}")
-    sel = ",".join(f".kt{b},.kl{b},.kr{b}" for b in range(4))
-    css.append(f"{sel}{{stroke:#05070A;stroke-width:.6;stroke-linejoin:round}}")
-    css.append("@keyframes skyrise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}")
+    # Include the roofs and platform in the fit so a new peak cannot get cropped.
+    bounds = ground + [(x, -6, z) for x, _, z in ground]
+    for bar in bars:
+        x, z, height, _, _ = bar
+        bounds.extend(roof(x, z, height + (14 if bar is tallest else 0)))
 
-    out = [frame(W, H, rx=10)]
-    out.append('<g style="animation:skyrise .8s cubic-bezier(.25,.6,.3,1) both;animation-delay:.15s">')
-
-    px2, pz2 = x_off * ux + 15, z_off * uz + 13
-
-    def render_frame(phi, mid_extra=""):
-        """one fully-culled render of the city at rotation phi (any angle).
-        mid_extra is injected between the platform and the towers, so things
-        like street traffic pass behind the buildings."""
+    def projection(phi, pitch=tilt):
         cp, sp = math.cos(phi), math.sin(phi)
-        el = []
+        ct, st = math.cos(math.radians(pitch)), math.sin(math.radians(pitch))
 
-        # platform slab: top plus whichever two skirts face the camera
-        top = [(-px2, 0, -pz2), (px2, 0, -pz2), (px2, 0, pz2), (-px2, 0, pz2)]
-        skirts = [
-            (cp, [top[3], top[2], (px2, -7, pz2), (-px2, -7, pz2)]),       # +z
-            (-cp, [top[1], top[0], (-px2, -7, -pz2), (px2, -7, -pz2)]),    # -z
-            (-sp, [top[2], top[1], (px2, -7, -pz2), (px2, -7, pz2)]),      # +x
-            (sp, [top[0], top[3], (-px2, -7, pz2), (-px2, -7, -pz2)]),     # -x
-        ]
-        for vis, quad in skirts:
-            if vis > 0.001:
-                pts = [project(*p, phi) for p in quad]
-                d = "M" + "L".join(f"{round(px)},{round(py)}" for px, py, _ in pts) + "Z"
-                el.append(f'<path d="{d}" fill="#0B0E12" stroke="#232B33" stroke-width=".6"/>')
-        tp = [project(*p, phi) for p in top]
-        d = "M" + "L".join(f"{round(px)},{round(py)}" for px, py, _ in tp) + "Z"
-        el.append(f'<path d="{d}" fill="{PANEL}" stroke="#2A333C" stroke-width=".8"/>')
-        for qw in (13, 26, 39):
-            qx = (qw - x_off) * ux
-            a = project(qx, 0.3, -pz2 + 3, phi)
-            b = project(qx, 0.3, pz2 - 3, phi)
-            el.append(f'<line x1="{round(a[0])}" y1="{round(a[1])}" x2="{round(b[0])}" y2="{round(b[1])}" stroke="#1E262E" stroke-width=".7"/>')
-        if mid_extra:
-            el.append(mid_extra)
+        def rotate(x, y, z):
+            x2 = x * cp + z * sp
+            z2 = -x * sp + z * cp
+            return x2, z2 * st - y * ct, z2 * ct
 
-        for bx, bz, h, bk in sorted(bars, key=lambda b: project(b[0], 0, b[1], phi)[2]):
-            x0, x1 = bx - bw / 2, bx + bw / 2
-            z0, z1 = bz - bd / 2, bz + bd / 2
-            zface = [(x0, h, z1), (x1, h, z1), (x1, 0, z1), (x0, 0, z1)] if cp > 0 else \
-                    [(x1, h, z0), (x0, h, z0), (x0, 0, z0), (x1, 0, z0)]
-            xface = [(x0, h, z0), (x0, h, z1), (x0, 0, z1), (x0, 0, z0)] if sp > 0 else \
-                    [(x1, h, z1), (x1, h, z0), (x1, 0, z0), (x1, 0, z1)]
-            if abs(cp) > 0.001:
-                el.append(face(zface, phi, f"kl{bk}"))
-            if abs(sp) > 0.001:
-                el.append(face(xface, phi, f"kr{bk}"))
-            el.append(face([(x0, h, z0), (x1, h, z0), (x1, h, z1), (x0, h, z1)], phi, f"kt{bk}"))
-        return el
+        xs, ys, _ = zip(*(rotate(*point) for point in bounds))
+        scale = min((W - 60) / (max(xs) - min(xs)),
+                    (scene_bottom - scene_top - 22) / (max(ys) - min(ys)), 1.24)
+        dx = W / 2 - (min(xs) + max(xs)) * scale / 2
+        dy = center_y - (min(ys) + max(ys)) * scale / 2
 
-    def tag(phi):
-        # tag the tallest tower: a small backed chip so it reads at any zoom
-        tx, tz, th, _ = tallest
-        tp1 = project(tx, th, tz, phi)
-        tipy = max(round(tp1[1]) - 18, 40)
-        label_txt = f"{vmax} in one day"
-        tw = len(label_txt) * 5.6 + 12
-        bx0 = round(tp1[0]) - 8 - tw
+        def project(x, y, z):
+            px, py, depth = rotate(x, y, z)
+            return dx + px * scale, dy + py * scale, depth
+
+        return project
+
+    def path(points, project, close=False):
+        coords = (project(*point) for point in points)
+        return "M" + "L".join(f"{px:.1f},{py:.1f}" for px, py, _ in coords) + ("Z" if close else "")
+
+    css = [
+        ".sky-top{fill:var(--roof);stroke:#251D2B;stroke-width:.55;stroke-linejoin:round}",
+        ".sky-front{fill:var(--front)}.sky-side{fill:var(--side)}",
+        ".sky-windows{fill:none;stroke:#FFE8B8;stroke-width:.68;stroke-opacity:.54}",
+        ".sky-title{font-size:17px;font-weight:700}.sky-meta{font-size:12px}",
+        "@media (max-width:500px){.sky-title{font-size:26px}.sky-meta{font-size:20px}.sky-snapshot{display:none}}",
+        "@keyframes roof-beacon{0%,100%{opacity:.28}42%{opacity:.9}}",
+    ]
+    for i, (top, front, side) in enumerate(palettes):
+        css.append(f".sky-tier{i}{{--roof:{top};--front:{front};--side:{side}}}")
+
+    def render_tower(bar, project, front, side, show_roof=True, pane_height=0):
+        bx, bz, height, tier, offset = bar
+        x0, x1 = bx - half_width, bx + half_width
+        z0, z1 = bz - half_depth, bz + half_depth
+        front_z = bz + front * half_depth
+        side_x = bx + side * half_width
+        tower = [f'<g class="sky-tier{tier}">']
+        if front:
+            facade = [(x0, height, front_z), (x1, height, front_z), (x1, 0, front_z), (x0, 0, front_z)]
+            tower.append(f'<path class="sky-front" d="{path(facade, project, True)}"/>')
+        if side:
+            facade = [(side_x, height, z0), (side_x, height, z1), (side_x, 0, z1), (side_x, 0, z0)]
+            tower.append(f'<path class="sky-side" d="{path(facade, project, True)}"/>')
+        if show_roof:
+            tower.append(f'<path class="sky-top" d="{path(roof(bx, bz, height), project, True)}"/>')
+
+        def window(a, b):
+            if pane_height:
+                ax, ay, az = a
+                bx, by, bz = b
+                return path([a, b, (bx, by + pane_height, bz), (ax, ay + pane_height, az)], project, True)
+            return path([a, b], project)
+
+        windows = []
+        floor_gap = 5 if pane_height else 8
+        for floor, y in enumerate(range(floor_gap, int(height - 5), floor_gap)):
+            if front:
+                for col, start in enumerate((1.4, 4.9)):
+                    if (offset + 2 * floor + col) % 5:
+                        windows.append(window((x0 + start, y, front_z), (x0 + start + 2, y, front_z)))
+            if side:
+                if pane_height:
+                    for col, start in enumerate((1.4, 4, 6.6)):
+                        if (offset + floor + col) % 4:
+                            windows.append(window((side_x, y, z0 + start), (side_x, y, z0 + start + 1.35)))
+                elif (offset + floor) % 3 == 0:
+                    windows.append(window((side_x, y, z0 + 2.2), (side_x, y, z1 - 2.2)))
+        if windows:
+            window_class = "sky-panes" if pane_height else "sky-windows"
+            tower.append(f'<path class="{window_class}" d="{"".join(windows)}"/>')
+        return "".join(tower) + "</g>"
+
+    def render_beacon(project):
+        if not tallest:
+            return ""
+        tx, tz, th, _, _ = tallest
+        x, y, _ = project(tx, th + 11, tz)
+        mast = path([(tx, th, tz), (tx, th + 11, tz)], project)
         return (
-            f'<line x1="{round(tp1[0])}" y1="{round(tp1[1])}" x2="{round(tp1[0])}" y2="{tipy + 2}" stroke="{AMBER}" stroke-opacity=".6" stroke-width=".8"/>'
-            f'<circle cx="{round(tp1[0])}" cy="{tipy}" r="1.6" fill="{AMBER}"/>'
-            f'<rect x="{f(bx0)}" y="{tipy - 9}" width="{f(tw)}" height="16" rx="3" fill="{PANEL}" fill-opacity=".92" stroke="#2A333C" stroke-width=".7"/>'
-            f'<text x="{f(bx0 + tw / 2)}" y="{tipy + 3}" font-size="9" fill="{AMBER}" text-anchor="middle">{label_txt}</text>'
+            f'<path d="{mast}" fill="none" stroke="#FFE19B" stroke-width="1.1"/>'
+            f'<circle cx="{f(x)}" cy="{f(y)}" r="5.2" fill="#FFE19B" opacity=".32" '
+            'style="animation:roof-beacon 2.8s ease-in-out infinite"/>'
+            f'<circle cx="{f(x)}" cy="{f(y)}" r="1.7" fill="#FFF2CD"/>'
         )
 
-    if camera == "flyover":
-        # one fixed-angle render, then the CAMERA moves: pure CSS pan and
-        # zoom, browser-interpolated, so motion is smooth with no frames
-        PHI = math.radians(34)
-
-        # street traffic: cars run the lanes between tower rows, drawn under
-        # the buildings so they disappear behind them
-        cars = []
-        lanes = [(-2.5, 11.0, 1), (-0.5, 14.0, -1), (1.5, 9.5, 1), (3.4, 12.5, -1)]
-        for li, (lane, dur, direction) in enumerate(lanes):
-            zl = lane * uz
-            a = project(-px2 + 6, 0.8, zl, PHI)
-            bpt = project(px2 - 6, 0.8, zl, PHI)
-            if direction < 0:
-                a, bpt = bpt, a
-            dx, dy = bpt[0] - a[0], bpt[1] - a[1]
-            for ci in range(2):
-                p = f"car{li}_{ci}"
-                css.append(f"@keyframes {p}{{from{{transform:translate(0,0)}}to{{transform:translate({f(dx)}px,{f(dy)}px)}}}}")
-                delay = -(dur * (0.13 + 0.47 * ci + 0.19 * li))
-                op = 0.9 if (li + ci) % 2 == 0 else 0.55
-                cars.append(
-                    f'<circle cx="{f(a[0])}" cy="{f(a[1])}" r="1.7" fill="{AMBER}" opacity="{op}" '
-                    f'style="animation:{p} {f(dur)}s linear infinite;animation-delay:{f(delay)}s"/>'
-                )
-
-        # the chip-backed tag stays readable at any zoom, so it flies along
-        scene = "".join(render_frame(PHI, mid_extra="".join(cars))) + tag(PHI)
-
-        # a slow beacon on the tallest tower
-        css.append("@keyframes beacon{0%,100%{opacity:1}50%{opacity:.15}}")
-        tx_, tz_, th_, _ = tallest
-        bp = project(tx_, th_ + 2, tz_, PHI)
-        scene += f'<circle cx="{f(bp[0])}" cy="{f(bp[1])}" r="1.5" fill="{AMBER}" style="animation:beacon 2.4s ease-in-out infinite"/>'
-
-        # camera path: whole city, dive to the quiet end, glide the year,
-        # hold on downtown, pull back out. focus points are computed, not guessed
-        s = 1.45
-        C = (W / 2, 145)
-        jan = project((2 - x_off) * ux, 16, 0, PHI)
-        jun = project((47 - x_off) * ux, 30, 0, PHI)
-        focus = {13: jan, 17: jan, 63: jun, 71: jun}
-        stops = [
-            (0, True, "ease-in-out"), (13, False, "ease-in-out"), (17, False, "linear"),
-            (63, False, "ease-in-out"), (71, False, "ease-in-out"), (86, True, "ease-in-out"),
-            (100, True, "linear"),
-        ]
-        kf = []
-        for t, whole, ease in stops:
-            if whole:
-                tx, ty, sc = 0, 0, 1.0
-            else:
-                px, py = focus[t][0], focus[t][1]
-                tx, ty, sc = C[0] - s * px, C[1] - s * py, s
-            kf.append(f"{t}%{{transform:translate({f(tx)}px,{f(ty)}px) scale({f(sc)});animation-timing-function:{ease}}}")
-        css.append("@keyframes flyover{" + "".join(kf) + "}")
-        out.append(f'<clipPath id="skclip"><rect x="8" y="36" width="{W - 16}" height="{H - 62}" rx="6"/></clipPath>')
-        out.append(f'<g clip-path="url(#skclip)"><g style="animation:flyover 28s infinite">{scene}</g></g>')
-        frames = []
-    elif camera == "fixed":
-        out.append("".join(render_frame(math.radians(34))) + tag(math.radians(34)))
-        frames = []
-    elif camera == "flyover":
-        # one static render, camera motion is a pure CSS glide: perfectly
-        # smooth because nothing is re-rendered, just translated
-        phi = math.radians(fly_phi)
+    def render_frame(phi, project, traffic=""):
         cp, sp = math.cos(phi), math.sin(phi)
-        amp = 80.0
-        ax, ay = amp * cp, -amp * sp * st * 0.5
-        css.append(
-            f"@keyframes fly{{0%{{transform:translate({f(ax)}px,{f(ay)}px) scale(1)}}"
-            f"50%{{transform:translate({f(-ax)}px,{f(-ay)}px) scale(1.06)}}"
-            f"100%{{transform:translate({f(ax)}px,{f(ay)}px) scale(1)}}}}"
-        )
-        out.append(f'<clipPath id="skc"><rect x="2" y="2" width="{W - 4}" height="{H - 4}" rx="9"/></clipPath>')
-        out.append(
-            f'<g clip-path="url(#skc)"><g style="animation:fly 30s cubic-bezier(.42,0,.58,1) infinite;'
-            f'transform-origin:{f(cx)}px {f(cy - 30)}px">'
-            + "".join(render_frame(phi)) + tag(phi) + "</g></g>"
-        )
-        frames = []
-    else:
-        if camera == "turntable":
-            N, DUR = 96, 22.0
-        else:
-            N, DUR = 72, 12.0
-        frames = []
-        for fi in range(N):
-            if camera == "turntable":
-                phi = math.radians(28) + 2 * math.pi * fi / N
-            else:
-                # swing between 10 and 46 degrees: always oblique, never edge-on
-                phi = math.radians(28 + 18 * math.sin(2 * math.pi * fi / N))
-            frames.append("".join(render_frame(phi)) + tag(phi))
+        scene = []
 
-    # hard frame cuts: partial-opacity blends of line art shimmer, so
-    # smoothness comes from frame count and small angle steps instead
-    for fi, content in enumerate(frames):
-        p = f"skf{fi}"
-        t0, t1 = fi / N * 100, (fi + 1) / N * 100
-        if fi == 0:
-            css.append(f"@keyframes {p}{{0%{{opacity:1}}{f(t1 - 0.004)}%{{opacity:1}}{f(t1)}%{{opacity:0}}100%{{opacity:0}}}}")
-            base = 1
-        else:
-            css.append(
-                f"@keyframes {p}{{0%,{f(t0 - 0.004)}%{{opacity:0}}{f(t0)}%{{opacity:1}}"
-                f"{f(t1 - 0.004)}%{{opacity:1}}{f(t1)}%{{opacity:0}}100%{{opacity:0}}}}"
+        for i, facing in enumerate((-cp, -sp, cp, sp)):
+            if facing > .001:
+                a, b = ground[i], ground[(i + 1) % 4]
+                skirt = (a, b, (b[0], -6, b[2]), (a[0], -6, a[2]))
+                scene.append(f'<path d="{path(skirt, project, True)}" fill="url(#sky-skirt)" stroke="#40505C" stroke-width=".7"/>')
+        scene.append(f'<path d="{path(ground, project, True)}" fill="url(#sky-streets)" stroke="#507485" stroke-width=".85"/>')
+
+        avenues = []
+        for day in range(6):
+            z = (day + .5 - z_off) * uz
+            avenues.append(path([(-ground_x + 4, .1, z), (ground_x - 4, .1, z)], project))
+        scene.append(f'<path d="{"".join(avenues)}" fill="none" stroke="#497084" stroke-opacity=".35" stroke-width=".65"/>')
+        for quarter in range(1, 4):
+            x = ((len(weeks) - 1) * quarter / 4 - x_off) * ux
+            divider = path([(x, .1, -ground_z + 3), (x, .1, ground_z - 3)], project)
+            scene.append(f'<path d="{divider}" fill="none" stroke="#618D98" stroke-opacity=".64" stroke-width=".75" stroke-dasharray="2 3"/>')
+        route = path([(-ground_x + 5, .1, ground_z - 5), (ground_x - 5, .1, ground_z - 5)], project)
+        scene.append(f'<path d="{route}" fill="none" stroke="#6DD9CF" stroke-opacity=".55" stroke-width=".85"/>')
+        scene.append(traffic)
+
+        front = 1 if cp > .001 else -1 if cp < -.001 else 0
+        side = -1 if sp > .001 else 1 if sp < -.001 else 0
+        for bar in sorted(bars, key=lambda bar: project(bar[0], 0, bar[1])[2]):
+            scene.append(render_tower(bar, project, front, side))
+        scene.append(render_beacon(project))
+        return "".join(scene)
+
+    def street_lights(project):
+        lights = []
+        for lane, z, duration, direction in ((0, -2.5 * uz, 13, 1), (1, .5 * uz, 17, -1),
+                                             (2, ground_z - 5, 15, 1)):
+            start = project(direction * (-ground_x + 7), .7, z)
+            end = project(direction * (ground_x - 7), .7, z)
+            dx, dy = end[0] - start[0], end[1] - start[1]
+            distance = math.hypot(dx, dy)
+            trail_x, trail_y = dx * 11 / distance, dy * 11 / distance
+            name = f"skylane{lane}"
+            css.append(f"@keyframes {name}{{to{{transform:translate({f(dx)}px,{f(dy)}px)}}}}")
+            for car in range(2):
+                delay = -duration * (.18 + .43 * car + .07 * lane)
+                x, y, _ = start
+                tint = "#6DD9CF" if lane != 1 else "#FFCF84"
+                lights.append(
+                    f'<g style="animation:{name} {duration}s linear {f(delay)}s infinite">'
+                    f'<path d="M{f(x - trail_x)} {f(y - trail_y)}L{f(x)} {f(y)}" '
+                    f'stroke="{tint}" stroke-width="1.25" stroke-opacity=".68"/>'
+                    f'<circle cx="{f(x)}" cy="{f(y)}" r="2.7" fill="{tint}" opacity=".22"/>'
+                    f'<circle cx="{f(x)}" cy="{f(y)}" r="1.24" fill="{tint}"/></g>'
+                )
+        return "".join(lights)
+
+    def render_street():
+        # The camera is in the gap between two rows, looking along the week axis.
+        street_z, eye_y, focal_length = -uz / 2, 19, 240
+        start = max(-ground_x, tallest[0] - 12.5 * ux)
+        eye_x = start - 26
+        horizon = center_y + 12
+        advance = 12
+
+        def project(x, y, z):
+            depth = x - eye_x
+            scale = focal_length / depth
+            return W / 2 + (z - street_z) * scale, horizon + (eye_y - y) * scale, depth
+
+        def moving_row(x, art):
+            depth = x - eye_x
+            zoom = depth / (depth - advance)
+            return (f'<g class="sky-street-row sky-shot-motion" style="--street-zoom:{f(zoom)};'
+                    f'transform-origin:{f(W / 2)}px {f(horizon)}px">{art}</g>')
+
+        street = [(start, 0, -ground_z), (ground_x, 0, -ground_z),
+                  (ground_x, 0, ground_z), (start, 0, ground_z)]
+        scene = [f'<path d="{path(street, project, True)}" fill="url(#sky-streets)"/>']
+        for z in (street_z - 2.7, street_z + 2.7):
+            lane_edge = path([(start, .1, z), (ground_x, .1, z)], project)
+            scene.append(f'<path d="{lane_edge}" stroke="#6DD9CF" stroke-opacity=".5" stroke-width="1"/>')
+        for x in range(math.ceil(start / 8) * 8, int(ground_x), 8):
+            dash = path([(x, .1, street_z), (x + 3, .1, street_z)], project)
+            marker = f'<path d="{dash}" stroke="#6DD9CF" stroke-opacity=".36" stroke-width="1"/>'
+            scene.append(moving_row(x, marker))
+
+        for lane, z, color in ((0, street_z - 1.35, "#6DD9CF"), (1, street_z + 1.35, "#FFE19B")):
+            far_x, far_y, _ = project(ground_x, .6, z)
+            near_x, near_y, _ = project(start, .6, z)
+            name = f"sky-headlight{lane}"
+            css.append(f"@keyframes {name}{{0%{{opacity:0;transform:scale(.42)}}"
+                       "20%{opacity:.88}86%{opacity:1}"
+                       f"100%{{opacity:0;transform:translate({f(near_x - far_x)}px,{f(near_y - far_y)}px) scale(3)}}}}")
+            delay = -lane * 1.8
+            scene.append(
+                f'<g style="animation:{name} 3.6s cubic-bezier(.55,0,.98,.56) {f(delay)}s infinite;'
+                f'transform-origin:{f(far_x)}px {f(far_y)}px">'
+                f'<circle cx="{f(far_x)}" cy="{f(far_y)}" r="3.5" fill="{color}" opacity=".3"/>'
+                f'<circle cx="{f(far_x)}" cy="{f(far_y)}" r="1.4" fill="{color}"/></g>'
             )
-            base = 0
-        css.append(f".{p}{{animation:{p} {f(DUR)}s linear infinite;}}")
-        out.append(f'<g class="{p}" opacity="{base}">{content}</g>')
+        # A row scales about the vanishing point as the camera advances. Near
+        # rows pass faster than distant rows without a full SVG for every frame.
+        rows = {}
+        for bar in reversed(bars):
+            x, z, height, _, _ = bar
+            if x - half_width >= start:
+                front = 1 if street_z > z else -1
+                art = render_tower(bar, project, front, -1, show_roof=height < eye_y, pane_height=1.15)
+                rows.setdefault(x, []).append(art)
+        scene.extend(moving_row(x, "".join(towers)) for x, towers in rows.items())
+        return "".join(scene)
 
-    out.append("</g>")
-    out.append(f'<text x="18" y="29" font-size="12" letter-spacing="1.6" fill="{AMBER}">SKYLINE</text>')
-    out.append(f'<text x="{W - 18}" y="29" font-size="10" fill="{SLATE2}" text-anchor="end">the same year, extruded</text>')
-    out.append(f'<text x="18" y="{H - 14}" font-size="10" fill="{SLATE2}">{data["total"]:,} contributions as a city · one tower per day</text>')
-    label = (f"Skyline: the contribution year as a 3D bar city, one tower per active day, "
-             f"{data['total']:,} contributions total.")
-    return shell(W, H, css, "".join(out), label, shift, hold=BOOT + 0.4)
+    def render_shots(overview):
+        loop = 18
+        css.extend((
+            f".sky-shot{{animation-duration:{loop}s;animation-delay:{f(BOOT)}s;"
+            "animation-iteration-count:infinite;animation-timing-function:step-end}",
+            f".sky-shot-motion{{animation-duration:{loop}s;animation-delay:{f(BOOT)}s;"
+            "animation-iteration-count:infinite;animation-timing-function:ease-in-out}",
+            ".sky-overview{animation-name:sky-overview-shot}.sky-overview>.sky-shot-motion{animation-name:sky-overview-drift}",
+            ".sky-street{animation-name:sky-street-shot}.sky-street>.sky-shot-motion{animation-name:sky-street-drift}",
+            ".sky-peak{animation-name:sky-peak-shot}.sky-peak>.sky-shot-motion{animation-name:sky-peak-drift}",
+            ".sky-street .sky-side{fill:var(--front)}.sky-street .sky-front{fill:var(--side)}",
+            ".sky-panes{fill:#FFDEA4;fill-opacity:.52}.sky-street-row{animation-name:sky-street-travel;animation-timing-function:linear}",
+            "@keyframes sky-overview-shot{0%,87%,100%{opacity:1}28%{opacity:0}}",
+            "@keyframes sky-street-shot{0%,63%,100%{opacity:0}28%{opacity:1}}",
+            "@keyframes sky-peak-shot{0%,87%,100%{opacity:0}63%{opacity:1}}",
+            "@keyframes sky-overview-drift{0%,100%{transform:translate(0,0) scale(1)}"
+            "28%{transform:translate(-33px,-12px) scale(1.08)}87%{transform:translate(-20px,-7px) scale(1.05)}}",
+            "@keyframes sky-street-drift{0%,28%{transform:translate(0,0)}63%,100%{transform:translate(7px,-3px)}}",
+            "@keyframes sky-street-travel{0%,28%{transform:scale(1)}63%,100%{transform:scale(var(--street-zoom))}}",
+        ))
+        tx, tz, th, _, _ = tallest
+        peak_phi = math.radians(-34)
+        peak_project = projection(peak_phi, 19)
+        x, base, _ = peak_project(tx, 0, tz)
+        _, beacon, _ = peak_project(tx, th + 11, tz)
+        y = (base + beacon) / 2
+        zoom = 146 / (base - beacon)
+        peak_target = W * (.58 if tx >= 0 else .42)
+        poses = []
+        for stop, scale, target_x, target_y in (
+            ("0%,63%", zoom, peak_target, center_y + 8),
+            ("87%,100%", zoom * 1.17, peak_target - 24, center_y - 4),
+        ):
+            dx, dy = target_x - x * scale, target_y - y * scale
+            poses.append(f"{stop}{{transform:translate({f(dx)}px,{f(dy)}px) scale({f(scale)})}}")
+        css.append("@keyframes sky-peak-drift{" + "".join(poses) + "}")
+
+        scenes = (
+            ("overview", 1, overview),
+            ("street", 0, render_street()),
+            ("peak", 0, render_frame(peak_phi, peak_project)),
+        )
+        return "".join(
+            f'<g class="sky-shot sky-{name}" opacity="{opacity}">'
+            f'<g class="sky-shot-motion">{art}</g></g>'
+            for name, opacity, art in scenes
+        )
+
+    if camera in ("flyover", "fixed"):
+        phi = math.radians(fly_phi if camera == "flyover" else 34)
+        project = projection(phi)
+        scene = render_frame(phi, project, street_lights(project) if camera == "flyover" else "")
+        if camera == "flyover" and tallest and len(bars) >= 5:
+            scene = render_shots(scene)
+    else:
+        num_frames, duration = (96, 22) if camera == "turntable" else (72, 12)
+        frames = []
+        for i in range(num_frames):
+            turn = 2 * math.pi * i / num_frames
+            phi = math.radians(28) + turn if camera == "turntable" else math.radians(28 + 18 * math.sin(turn))
+            name = f"skyframe{i}"
+            begin, end = 100 * i / num_frames, 100 * (i + 1) / num_frames
+            keyframes = f"{f(begin)}%{{opacity:1}}{f(end)}%{{opacity:0}}"
+            if i:
+                keyframes = "0%{opacity:0}" + keyframes
+            css.append(f"@keyframes {name}{{{keyframes}}}")
+            frames.append(f'<g opacity="{1 if i == 0 else 0}" style="animation:{name} {duration}s steps(1) infinite">'
+                          + render_frame(phi, projection(phi)) + "</g>")
+        scene = "".join(frames)
+
+    peak_label = ""
+    if peak:
+        peak_label = f'<text x="807" y="29" text-anchor="end" class="sky-meta" fill="#FFE19B">Peak day {peak:,}</text>'
+    out = f"""
+<defs>
+  <clipPath id="sky-view"><rect x="10" y="{scene_top}" width="{W - 20}" height="{scene_bottom - scene_top}" rx="6"/></clipPath>
+  <radialGradient id="sky-night" cx=".73" cy=".24" r=".86">
+    <stop stop-color="#26324B"/><stop offset=".58" stop-color="#111C2B"/><stop offset="1" stop-color="#0D121E"/>
+  </radialGradient>
+  <linearGradient id="sky-streets" x2=".2" y2="1">
+    <stop stop-color="#27354A"/><stop offset="1" stop-color="#172131"/>
+  </linearGradient>
+  <linearGradient id="sky-skirt" x2="0" y2="1">
+    <stop stop-color="#25394A"/><stop offset="1" stop-color="#10131E"/>
+  </linearGradient>
+  <pattern id="sky-grid" width="28" height="28" patternUnits="userSpaceOnUse" patternTransform="rotate(-9)">
+    <path d="M0 0h28M0 0v28" stroke="#769CAD" stroke-opacity=".17" stroke-width="1"/>
+  </pattern>
+</defs>
+{frame(W, H)}
+<text x="21" y="29" class="sky-title" fill="{WHITE}">Contribution skyline</text>
+{peak_label}
+<g clip-path="url(#sky-view)">
+  <rect x="10" y="{scene_top}" width="{W - 20}" height="{scene_bottom - scene_top}" fill="url(#sky-night)"/>
+  <rect x="10" y="{scene_top}" width="{W - 20}" height="{scene_bottom - scene_top}" fill="url(#sky-grid)"/>
+  {scene}
+</g>
+<text x="22" y="{H - 10}" class="sky-meta" fill="{AMBER}">{data["total"]:,}<tspan fill="{SLATE}"> contributions</tspan></text>
+<text x="{W / 2:g}" y="{H - 10}" class="sky-snapshot" text-anchor="middle" font-size="11" fill="{SLATE2}">Nightly snapshot</text>
+<text x="808" y="{H - 10}" class="sky-meta" fill="{SLATE}" text-anchor="end">1 tower per active day</text>
+"""
+    label = f"Contribution skyline. {data['total']:,} contributions visualized as a city with one tower per active day."
+    if peak:
+        label += f" The busiest day had {peak:,} contributions."
+    return shell(W, H, css, out, label, shift)
 
 
 # ------------------------------------------------------------- main
@@ -1203,11 +2077,31 @@ def main():
         "hero-header": build_hero_header(shift),
         "story": build_story(shift),
         "skyline": build_skyline(shift),
+        "featured-reciped": featured_reciped(shift),
+        "launch-oberon": launch_oberon(shift),
+        "launch-worldmesh": launch_worldmesh(shift),
+        "launch-uschedule": launch_uschedule(shift),
+        "launch-navsim": launch_navsim(shift),
+        "launch-game-networking": launch_game_networking(shift),
+        "launch-lightbound": launch_lightbound(shift),
+        "launch-dice-knight": launch_dice_knight(shift),
+        "launch-factory": launch_factory(shift),
+        "launch-polybot": launch_polybot(shift),
+        "launch-crossword": launch_crossword(shift),
+        "launch-addons": launch_addons(shift),
+        "launch-construction-map": launch_construction_map(shift),
+        "launch-earlier": launch_earlier(shift),
+        "gadget-api-upgrades": gadget_api_upgrades(shift),
+        "gadget-support-bot": gadget_support_bot(shift),
+        "gadget-job-cancellation": gadget_job_cancellation(shift),
+        "gadget-data-exporter": gadget_data_exporter(shift),
+        "service-radio": service_radio(shift),
     }
     outputs.update(build_text_panels(shift))
     outputs.update(build_buttons(shift))
     outputs.update(build_socials(shift))
     outputs.update(build_hero_modules(shift))
+    outputs.update(build_header_tiles(shift))
     for fn in (card_reciped, card_uschedule, card_factory, card_polybot,
                card_navsim, card_netcode, card_earlier):
         name, svg = fn(shift)

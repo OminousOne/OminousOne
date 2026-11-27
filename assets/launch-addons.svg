@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="446" height="218" viewBox="-4 0 446 218" role="img" aria-label="AddOn Ledger, a work-in-progress desktop app that keeps the addon libraries of separate World of Warcraft installations organized.">
+<style><![CDATA[
+text{font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;}
+@keyframes addon-status{0%,100%{opacity:1}50%{opacity:.45}}
+@keyframes bootrev{0%{opacity:0}30%{opacity:.8}55%{opacity:.15}100%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;}}
+]]></style>
+
+<defs>
+  <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <pattern id="scan" width="3" height="3" patternUnits="userSpaceOnUse">
+    <rect width="3" height="1" y="2" fill="#000"/>
+  </pattern>
+</defs>
+<g style="animation:bootrev .5s linear both;animation-delay:4.8s">
+<rect x="0.75" y="0.75" width="436.5" height="216.5" rx="9" fill="#211B24" stroke="#51444F" stroke-width="1.5"/>
+<rect x="12" y="12" width="414" height="128" rx="5" fill="#332722" stroke="#ECCC8D" stroke-opacity=".36"/>
+
+<rect x="53" y="27" width="332" height="98" rx="4" fill="#211C1D" stroke="#765E47"/>
+<path d="M54 49h330m-224 0v76" stroke="#624C3F"/>
+<text x="65" y="42" fill="#ECCC8D" font-size="11">Installations</text>
+<text x="174" y="42" fill="#ECCC8D" font-size="11">Addon library</text>
+<rect x="62" y="57" width="89" height="20" rx="3" fill="#594735"/>
+<text x="71" y="71" fill="#ECCC8D" font-size="10">Retail</text>
+<text x="71" y="93" fill="#C2AB93" font-size="10">Classic</text>
+<g fill="#D8C3AB" font-size="10">
+  <text x="196" y="67">Action bars</text><text x="196" y="88">Raid tools</text><text x="196" y="109">Quest tracker</text>
+</g>
+<path d="M171 73h203m-203 22h203" stroke="#4D3D37"/>
+<path d="M178 59h10v9h-10zM178 81h10v9h-10zM178 102h10v9h-10z" fill="none" stroke="#ECCC8D"/>
+<path d="M361 61l3 3 5-5m-8 24 3 3 5-5m-8 23 3 3 5-5" fill="none" stroke="#B8CDA0" stroke-width="1.5"
+      style="animation:addon-status 3.5s ease-in-out infinite"/>
+
+<path d="M13 148h412" stroke="#38313C"/>
+<path d="M13 148h36" stroke="#ECCC8D" stroke-width="2"/>
+<text x="16" y="179" fill="#F6E9D0" font-size="26" font-weight="700">AddOn Ledger</text>
+<text x="17" y="203" fill="#ECCC8D" font-size="16">See the WoW addon manager</text>
+<path d="M402 198h18m-6-6 6 6-6 6" fill="none" stroke="#ECCC8D" stroke-width="1.5"/>
+<rect x="1" y="1" width="436" height="216" rx="8" fill="url(#scan)" opacity="0.10"/></g>
+
+</svg>

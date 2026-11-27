@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="276" height="170" viewBox="-4 0 276 170" role="img" aria-label="Reciped. A cooking video is imported and turned into a recipe.">
+<style><![CDATA[
+text{font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;}
+@keyframes receipt{0%,16%,100%{transform:translateY(-5px);opacity:.72}42%,87%{transform:translateY(0);opacity:1}}
+@keyframes recipe-link{0%,12%{transform:translateX(0);opacity:0}20%{opacity:1}54%,100%{transform:translateX(46px);opacity:0}}
+@keyframes bootrev{0%{opacity:0}30%{opacity:.8}55%{opacity:.15}100%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;}}
+]]></style>
+
+<defs>
+  <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <pattern id="scan" width="3" height="3" patternUnits="userSpaceOnUse">
+    <rect width="3" height="1" y="2" fill="#000"/>
+  </pattern>
+</defs>
+<g style="animation:bootrev .5s linear both;animation-delay:4.9s">
+<rect x="0.75" y="0.75" width="266.5" height="168.5" rx="8" fill="#211B24" stroke="#51444F" stroke-width="1.5"/>
+<rect x="9" y="34" width="250" height="107" rx="4" fill="#34202A" stroke="#FFA98F" stroke-opacity=".38"/>
+<path d="M10 40v-5h22m204 105h22v-5" fill="none" stroke="#FFA98F" stroke-opacity=".68"/>
+<text x="13" y="23" font-size="15" font-weight="700" fill="#F6E9D0">Reciped</text>
+<g style="--art-start:4.9s">
+<rect x="25" y="59" width="67" height="49" rx="5" fill="#542832" stroke="#95594F"/>
+<path d="M25 68h67" stroke="#8C554D"/>
+<path d="M52 78l14 7-14 7z" fill="#FFA98F"/>
+<path d="M97 85h43" stroke="#FFA98F" stroke-dasharray="2 4" opacity=".55"/>
+<circle cx="97" cy="85" r="3" fill="#FFA98F" opacity="0" style="animation:recipe-link 5.5s linear var(--art-start) infinite"/>
+<g style="animation:receipt 5.5s ease-out var(--art-start) infinite">
+  <path d="M145 46h64l14 14v68l-5-3-5 3-5-3-5 3-5-3-5 3-5-3-5 3-5-3-5 3-5-3-5 3-5-3-5 3-5-3z" fill="#F6E4CD"/>
+  <path d="M209 46v14h14" fill="none" stroke="#AA7864"/>
+  <text x="154" y="70" font-size="10" font-weight="700" fill="#713841">RECIPE</text>
+  <path d="M154 76h57m-48 9h45m-45 8h33m-42 9h57m-57 8h46" stroke="#B28776"/>
+  <path d="M154 85h4m-4 8h4" stroke="#9D4F53" stroke-width="1.6"/>
+</g>
+</g>
+<text x="13" y="158" font-size="10.5" fill="#FFA98F">Explore the recipe app</text>
+<path d="M241 154h13m-5-4 5 4-5 4" fill="none" stroke="#FFA98F" stroke-width="1.2"/>
+<rect x="1" y="1" width="266" height="168" rx="8" fill="url(#scan)" opacity="0.10"/></g>
+
+</svg>

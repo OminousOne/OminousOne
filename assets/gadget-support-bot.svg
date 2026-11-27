@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="446" height="218" viewBox="-4 0 446 218" role="img" aria-label="Automatic Support Bot. Helps draft responses to incoming support tickets for staff to review.">
+<style><![CDATA[
+text{font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;}
+@keyframes draft-message{0%,15%{opacity:.6;transform:translateY(3px)}35%,100%{opacity:1;transform:translateY(0)}}
+@keyframes bootrev{0%{opacity:0}30%{opacity:.8}55%{opacity:.15}100%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;}}
+]]></style>
+
+<defs>
+  <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <pattern id="scan" width="3" height="3" patternUnits="userSpaceOnUse">
+    <rect width="3" height="1" y="2" fill="#000"/>
+  </pattern>
+</defs>
+<g style="animation:bootrev .5s linear both;animation-delay:4.8s">
+<rect x="0.75" y="0.75" width="436.5" height="216.5" rx="9" fill="#211B24" stroke="#51444F" stroke-width="1.5"/>
+<rect x="12" y="12" width="414" height="128" rx="5" fill="#1B2923" stroke="#A4E8B8" stroke-opacity=".36"/>
+
+<rect x="57" y="29" width="324" height="96" rx="4" fill="#192B25" stroke="#527360"/>
+<path d="M58 49h322" stroke="#395748"/>
+<text x="69" y="43" font-size="10" fill="#A4E8B8">SUPPORT INBOX</text>
+<rect x="70" y="58" width="166" height="22" rx="4" fill="#30463D"/>
+<text x="80" y="72" font-size="10" fill="#CBDED0">Incoming support ticket</text>
+<g style="animation:draft-message 5s ease-out infinite">
+  <rect x="189" y="88" width="179" height="23" rx="4" fill="#294936" stroke="#638D70"/>
+  <text x="199" y="103" font-size="10" fill="#A4E8B8">Draft ready for review</text>
+</g>
+
+<path d="M13 148h412" stroke="#38313C"/>
+<path d="M13 148h36" stroke="#A4E8B8" stroke-width="2"/>
+<text x="16" y="179" fill="#F6E9D0" font-size="26" font-weight="700">Automatic Support Bot</text>
+<text x="17" y="203" fill="#A4E8B8" font-size="16">Draft replies for staff review</text>
+
+<rect x="1" y="1" width="436" height="216" rx="8" fill="url(#scan)" opacity="0.10"/></g>
+
+</svg>

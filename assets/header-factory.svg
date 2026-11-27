@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="276" height="170" viewBox="-4 0 276 170" role="img" aria-label="Software Factory. A task moves through planning, coding, and review before opening a pull request.">
+<style><![CDATA[
+text{font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;}
+@keyframes ticket-relay{0%,8%{transform:translateX(0);opacity:0}17%{opacity:1}33%{transform:translateX(55px)}62%{transform:translateX(110px)}85%{transform:translateX(165px);opacity:1}96%,100%{transform:translateX(165px);opacity:0}}
+@keyframes bootrev{0%{opacity:0}30%{opacity:.8}55%{opacity:.15}100%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;}}
+]]></style>
+
+<defs>
+  <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <pattern id="scan" width="3" height="3" patternUnits="userSpaceOnUse">
+    <rect width="3" height="1" y="2" fill="#000"/>
+  </pattern>
+</defs>
+<g style="animation:bootrev .5s linear both;animation-delay:5.3s">
+<rect x="0.75" y="0.75" width="266.5" height="168.5" rx="8" fill="#211B24" stroke="#51444F" stroke-width="1.5"/>
+<rect x="9" y="34" width="250" height="107" rx="4" fill="#292138" stroke="#D9B7F6" stroke-opacity=".38"/>
+<path d="M10 40v-5h22m204 105h22v-5" fill="none" stroke="#D9B7F6" stroke-opacity=".68"/>
+<text x="13" y="23" font-size="15" font-weight="700" fill="#F6E9D0">Software Factory</text>
+<g style="--art-start:5.3s">
+<rect x="30" y="56" width="42" height="43" rx="4" fill="#34263F" stroke="#7B6191"/><path d="M-7-10h11l4 4v17H-7zM-3-3h6m-6 5h6" transform="translate(51 76)" fill="none" stroke="#D9B7F6" stroke-width="1.3"/><text x="51" y="124" text-anchor="middle" font-size="9" fill="#D9B7F6">Plan</text><rect x="85" y="56" width="42" height="43" rx="4" fill="#34263F" stroke="#7B6191"/><path d="M-5-6l-6 6 6 6m10-12 6 6-6 6m-3-16-4 20" transform="translate(106 76)" fill="none" stroke="#D9B7F6" stroke-width="1.3"/><text x="106" y="124" text-anchor="middle" font-size="9" fill="#D9B7F6">Build</text><rect x="140" y="56" width="42" height="43" rx="4" fill="#34263F" stroke="#7B6191"/><path d="M-9 0l6 6 12-13" transform="translate(161 76)" fill="none" stroke="#D9B7F6" stroke-width="1.3"/><text x="161" y="124" text-anchor="middle" font-size="9" fill="#D9B7F6">Review</text><rect x="195" y="56" width="42" height="43" rx="4" fill="#34263F" stroke="#7B6191"/><path d="M-6-8v16m12-14v8q0 5-7 5h-5M-8-9h4v4h-4zm12 0h4v4h-4z" transform="translate(216 76)" fill="none" stroke="#A7E3C1" stroke-width="1.3"/><text x="216" y="124" text-anchor="middle" font-size="9" fill="#A7E3C1">PR</text>
+<path d="M51 109h165" stroke="#896BA2" stroke-dasharray="2 4"/>
+<circle cx="51" cy="109" r="3.5" fill="#A7E3C1" opacity="0" style="animation:ticket-relay 5s linear var(--art-start) infinite"/>
+</g>
+<text x="13" y="158" font-size="10.5" fill="#D9B7F6">See the agent pipeline</text>
+<path d="M241 154h13m-5-4 5 4-5 4" fill="none" stroke="#D9B7F6" stroke-width="1.2"/>
+<rect x="1" y="1" width="266" height="168" rx="8" fill="url(#scan)" opacity="0.10"/></g>
+
+</svg>

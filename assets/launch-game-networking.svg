@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="446" height="218" viewBox="-4 0 446 218" role="img" aria-label="Realtime Game Networking. Server-authoritative rollback architecture for a 3D game, with client prediction, server reconciliation, and entity interpolation.">
+<style><![CDATA[
+text{font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;}
+@keyframes snapshot{0%,12%{transform:translateX(0);opacity:0}20%{opacity:1}72%{transform:translateX(-73px);opacity:1}88%,100%{transform:translateX(-73px);opacity:0}}
+@keyframes bootrev{0%{opacity:0}30%{opacity:.8}55%{opacity:.15}100%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;}}
+]]></style>
+
+<defs>
+  <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <pattern id="scan" width="3" height="3" patternUnits="userSpaceOnUse">
+    <rect width="3" height="1" y="2" fill="#000"/>
+  </pattern>
+</defs>
+<g style="animation:bootrev .5s linear both;animation-delay:4.8s">
+<rect x="0.75" y="0.75" width="436.5" height="216.5" rx="9" fill="#211B24" stroke="#51444F" stroke-width="1.5"/>
+<rect x="12" y="12" width="414" height="128" rx="5" fill="#192B38" stroke="#ADD8FF" stroke-opacity=".36"/>
+
+<path d="M40 84l70-46 83 43-69 29zM57 74l82 30M74 62l80 35m-64-45 80 37M60 91l71-42m-52 49 71-39m-52 46 71-37"
+      fill="none" stroke="#45677A"/>
+<g color="#6596A7" opacity=".5" transform="translate(87 68)"><path d="M0-20l19 10v19L0 20-19 9v-19zM-19-10 0 0l19-10M0 0v20" fill="none" stroke="currentColor" stroke-width="1.4"/></g>
+<g color="#ADD8FF" transform="translate(119 59)"><path d="M0-20l19 10v19L0 20-19 9v-19zM-19-10 0 0l19-10M0 0v20" fill="none" stroke="currentColor" stroke-width="1.4"/></g>
+<g color="#ADF0CF" transform="translate(146 71)"><path d="M0-20l19 10v19L0 20-19 9v-19zM-19-10 0 0l19-10M0 0v20" fill="none" stroke="currentColor" stroke-width="1.4"/></g>
+<path d="M182 61h75m-71-4-4 4 4 4" stroke="#749EA9" stroke-dasharray="3 3" fill="none"/>
+<circle cx="256" cy="61" r="3.2" fill="#ADF0CF" opacity="0" style="animation:snapshot 4.2s linear infinite"/>
+<rect x="260" y="36" width="142" height="54" rx="4" fill="#1D3542" stroke="#547589"/>
+<text x="331" y="56" text-anchor="middle" font-size="10" fill="#ADF0CF">AUTHORITATIVE SERVER</text>
+<path d="M274 65h113" stroke="#516F80"/>
+<text x="331" y="80" text-anchor="middle" font-size="10" fill="#ADD8FF">State snapshots</text>
+<path d="M25 114h388" stroke="#45677A"/>
+<g font-size="10" text-anchor="middle" fill="#ADD8FF">
+  <text x="83" y="129">Client prediction</text><text x="219" y="129">Server reconciliation</text><text x="355" y="129">Entity interpolation</text>
+</g>
+
+<path d="M13 148h412" stroke="#38313C"/>
+<path d="M13 148h36" stroke="#ADD8FF" stroke-width="2"/>
+<text x="16" y="179" fill="#F6E9D0" font-size="26" font-weight="700">Realtime Game Networking</text>
+<text x="17" y="203" fill="#ADD8FF" font-size="16">Server-authoritative 3D rollback</text>
+
+<rect x="1" y="1" width="436" height="216" rx="8" fill="url(#scan)" opacity="0.10"/></g>
+
+</svg>

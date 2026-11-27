@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="838" height="108" viewBox="-4 0 838 108" role="img" aria-label="Maintenance radio. Morse code: dash dot dot dot, dot dash dot dot, dash dash dash, dash dot dot dot.">
+<style><![CDATA[
+text{font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;}
+@keyframes tune{to{transform:translateX(647px)}}
+.tuner{animation:tune 8.64s linear infinite}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;}}
+]]></style>
+
+<defs>
+  <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <pattern id="scan" width="3" height="3" patternUnits="userSpaceOnUse">
+    <rect width="3" height="1" y="2" fill="#000"/>
+  </pattern>
+</defs>
+
+<rect x="0.75" y="0.75" width="828.5" height="106.5" rx="8" fill="#211B24" stroke="#51444F" stroke-width="1.5"/>
+<text x="24" y="30" font-size="15" fill="#F6E9D0">Maintenance radio</text>
+<text x="806" y="30" font-size="12" fill="#AAB6C1" text-anchor="end">Morse signal / repeat</text>
+<rect x="72" y="46" width="686" height="37" rx="3" fill="#111017" stroke="#38313C"/>
+<path d="M89 64h654" stroke="#625241"/>
+<rect x="90" y="55" width="35.944" height="19" rx="2" fill="#FFC164"/><rect x="137.926" y="55" width="11.981" height="19" rx="2" fill="#FFC164"/><rect x="161.889" y="55" width="11.981" height="19" rx="2" fill="#FFC164"/><rect x="185.852" y="55" width="11.981" height="19" rx="2" fill="#FFC164"/><rect x="233.778" y="55" width="11.981" height="19" rx="2" fill="#FFC164"/><rect x="257.741" y="55" width="35.944" height="19" rx="2" fill="#FFC164"/><rect x="305.667" y="55" width="11.981" height="19" rx="2" fill="#FFC164"/><rect x="329.63" y="55" width="11.981" height="19" rx="2" fill="#FFC164"/><rect x="377.556" y="55" width="35.944" height="19" rx="2" fill="#FFC164"/><rect x="425.481" y="55" width="35.944" height="19" rx="2" fill="#FFC164"/><rect x="473.407" y="55" width="35.944" height="19" rx="2" fill="#FFC164"/><rect x="545.296" y="55" width="35.944" height="19" rx="2" fill="#FFC164"/><rect x="593.222" y="55" width="11.981" height="19" rx="2" fill="#FFC164"/><rect x="617.185" y="55" width="11.981" height="19" rx="2" fill="#FFC164"/><rect x="641.148" y="55" width="11.981" height="19" rx="2" fill="#FFC164"/>
+<path d="M90 48v32" class="tuner" stroke="#FFF0D3" stroke-opacity=".8"/>
+
+<rect x="1" y="1" width="828" height="106" rx="8" fill="url(#scan)" opacity="0.10"/>
+</svg>

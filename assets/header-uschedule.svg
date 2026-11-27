@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="276" height="170" viewBox="-4 0 276 170" role="img" aria-label="uschedule.ca. A conflict-free timetable takes shape across five weekdays.">
+<style><![CDATA[
+text{font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;}
+@keyframes match-slot{0%,12%,100%{opacity:.67;transform:translateY(-4px)}36%,88%{opacity:1;transform:translateY(0)}}
+@keyframes bootrev{0%{opacity:0}30%{opacity:.8}55%{opacity:.15}100%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;}}
+]]></style>
+
+<defs>
+  <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <pattern id="scan" width="3" height="3" patternUnits="userSpaceOnUse">
+    <rect width="3" height="1" y="2" fill="#000"/>
+  </pattern>
+</defs>
+<g style="animation:bootrev .5s linear both;animation-delay:5.14s">
+<rect x="0.75" y="0.75" width="266.5" height="168.5" rx="8" fill="#211B24" stroke="#51444F" stroke-width="1.5"/>
+<rect x="9" y="34" width="250" height="107" rx="4" fill="#1D3028" stroke="#A4D894" stroke-opacity=".38"/>
+<path d="M10 40v-5h22m204 105h22v-5" fill="none" stroke="#A4D894" stroke-opacity=".68"/>
+<text x="13" y="23" font-size="15" font-weight="700" fill="#F6E9D0">uschedule.ca</text>
+<g style="--art-start:5.14s">
+<rect x="29" y="64" width="171" height="62" rx="2" fill="#172B23" stroke="#436859"/>
+<g font-size="10" text-anchor="middle" fill="#ADCAAD"><text x="47" y="58">M</text><path d="M30 64v62" stroke="#375345"/><text x="81" y="58">T</text><path d="M64 64v62" stroke="#375345"/><text x="115" y="58">W</text><path d="M98 64v62" stroke="#375345"/><text x="149" y="58">T</text><path d="M132 64v62" stroke="#375345"/><text x="183" y="58">F</text><path d="M166 64v62" stroke="#375345"/></g>
+<path d="M30 94h169" stroke="#375345"/>
+<rect x="34" y="70" width="25" height="22" rx="2" fill="#A4D894" fill-opacity=".25" stroke="#A4D894"/><rect x="68" y="98" width="25" height="22" rx="2" fill="#A3C9EE" fill-opacity=".25" stroke="#A3C9EE"/><rect x="102" y="70" width="25" height="22" rx="2" fill="#A4D894" fill-opacity=".25" stroke="#A4D894"/><rect x="170" y="95" width="25" height="25" rx="2" fill="#D6B9EF" fill-opacity=".25" stroke="#D6B9EF"/>
+<rect x="136" y="81" width="25" height="27" rx="2" fill="#A3C9EE" fill-opacity=".22" stroke="#A3C9EE"
+      style="animation:match-slot 5s ease-out var(--art-start) infinite"/>
+<circle cx="228" cy="90" r="13" fill="#2B4432" stroke="#A4D894"/>
+<path d="M222 90l4 4 8-9" fill="none" stroke="#A4D894" stroke-width="2"/>
+</g>
+<text x="13" y="158" font-size="10.5" fill="#A4D894">Build a timetable</text>
+<path d="M241 154h13m-5-4 5 4-5 4" fill="none" stroke="#A4D894" stroke-width="1.2"/>
+<rect x="1" y="1" width="266" height="168" rx="8" fill="url(#scan)" opacity="0.10"/></g>
+
+</svg>

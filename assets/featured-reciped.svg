@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="838" height="260" viewBox="-4 0 838 260" role="img" aria-label="Reciped. Turn cooking videos and links into recipes you can cook.">
+<style><![CDATA[
+text{font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;}
+@keyframes importProgress{0%,12%{transform:scaleX(.12)}57%,92%{transform:scaleX(1)}100%{transform:scaleX(.12)}}
+@keyframes recipePaper{0%,22%{transform:translateY(-5px);opacity:.72}61%,100%{transform:translateY(0);opacity:1}}
+.import-progress{animation:importProgress 5s ease-in-out infinite;transform-origin:481px 106px}
+.recipe-paper{animation:recipePaper 5s ease-out infinite}
+@keyframes bootrev{0%{opacity:0}30%{opacity:.8}55%{opacity:.15}100%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;}}
+]]></style>
+
+<defs>
+  <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <pattern id="scan" width="3" height="3" patternUnits="userSpaceOnUse">
+    <rect width="3" height="1" y="2" fill="#000"/>
+  </pattern>
+</defs>
+<g style="animation:bootrev .5s linear both;animation-delay:4.8s">
+<rect x="0.75" y="0.75" width="828.5" height="258.5" rx="10" fill="#211B24" stroke="#51444F" stroke-width="1.5"/>
+<rect x="12" y="12" width="806" height="236" rx="6" fill="#35191D" stroke="#805047"/>
+<path d="M426 24v212" stroke="#64413E" stroke-dasharray="2 5"/>
+<text x="35" y="94" fill="#F7E7D1" font-size="59" font-weight="700">Reciped</text>
+<g fill="#F7E7D1" font-size="21">
+  <text x="38" y="137">Turn cooking videos and links</text>
+  <text x="38" y="165">into recipes you can cook.</text>
+</g>
+<path d="M38 199h32" stroke="#FFAD92" stroke-width="2"/>
+<text x="38" y="224" fill="#FFAD92" font-size="19">Explore Reciped</text>
+<path d="M229 217h22m-7-7 7 7-7 7" fill="none" stroke="#FFAD92" stroke-width="1.6"/>
+<rect x="464" y="39" width="314" height="73" rx="5" fill="#21171B" stroke="#8A5249"/>
+<text x="481" y="60" fill="#FFAD92" font-size="12">Recipe import</text>
+<rect x="481" y="68" width="280" height="21" rx="3" fill="#3A2629"/>
+<path d="M490 75h9l4 4-4 4h-9m9-4h10" fill="none" stroke="#FFAD92"/>
+<text x="517" y="83" fill="#F7E7D1" font-size="12">Cooking video or link</text>
+<rect x="481" y="100" width="280" height="4" rx="2" fill="#503539"/>
+<rect x="481" y="100" width="280" height="4" rx="2" fill="#FFAD92" class="import-progress"/>
+<path d="M621 113v16m-4-4 4 4 4-4" fill="none" stroke="#FFAD92"/>
+<g class="recipe-paper">
+  <rect x="481" y="138" width="280" height="86" rx="4" fill="#F7E7D1"/>
+  <text x="495" y="162" fill="#66282E" font-size="17" font-weight="700">Recipe draft</text>
+  <path d="M495 171h251m-128 7v35" stroke="#AA7871" stroke-opacity=".65"/>
+  <g font-size="11" fill="#66282E">
+    <text x="495" y="190">Ingredients</text><text x="630" y="190">Steps</text>
+  </g>
+  <path d="M495 201h93m-93 8h64m71-8h108m-108 8h72" stroke="#A46760" stroke-opacity=".65" stroke-width="2"/>
+</g>
+<rect x="1" y="1" width="828" height="258" rx="8" fill="url(#scan)" opacity="0.10"/></g>
+
+</svg>

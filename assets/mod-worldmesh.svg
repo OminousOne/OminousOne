@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="276" height="170" viewBox="-4 0 276 170" role="img" aria-label="Worldmesh: an entity moves through a world simulated across servers. Links to the docs.">
+<style><![CDATA[
+text{font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;}
+@keyframes handoff{0%,100%{transform:translate(146px,77px)}28%{transform:translate(222px,60px)}52%{transform:translate(292px,76px)}76%{transform:translate(220px,94px)}}
+@keyframes owner{0%,38%,84%,100%{fill:#88E5C9}39%,83%{fill:#FDC471}}
+.entity{animation:handoff 6s linear infinite;transform:translate(222px,60px)}
+.entity circle{animation:owner 6s steps(1) infinite}
+@keyframes pwr{0%{opacity:0}18%{opacity:.85}38%{opacity:.15}62%{opacity:1}100%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;}}
+]]></style>
+
+<defs>
+  <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <pattern id="scan" width="3" height="3" patternUnits="userSpaceOnUse">
+    <rect width="3" height="1" y="2" fill="#000"/>
+  </pattern>
+</defs>
+<g style="animation:pwr .55s linear both;animation-delay:5.22s">
+<rect x="0.75" y="0.75" width="266.5" height="168.5" rx="8" fill="#19161D" stroke="#51444F" stroke-width="1.5"/><path d="M12 28h244" stroke="#38313C"/><path d="M12 28h26" stroke="#88E5C9" stroke-width="1.5"/><text x="12" y="20" font-size="12" font-weight="700" letter-spacing=".8" fill="#88E5C9">WORLDMESH</text><text x="256" y="20" font-size="9" fill="#A79E95" text-anchor="end">RUST</text>
+<rect x="10" y="36" width="248" height="106" rx="4" fill="#0D2024" stroke="#38313C"/>
+<g transform="translate(0 40) scale(0.612)">
+<path d="M110 78l110-33 110 33-110 33z" fill="#1A3535" stroke="#426662"/>
+<g fill="none" stroke="#345855"><path d="M132 71.4l110 33M132 84.6l110 -33"/><path d="M154 64.8l110 33M154 91.2l110 -33"/><path d="M176 58.2l110 33M176 97.8l110 -33"/><path d="M198 51.6l110 33M198 104.4l110 -33"/></g>
+<path d="M146 77 222 60 292 76 220 94z" fill="none" stroke="#72918B" stroke-dasharray="3 4"/>
+<path d="M88 75h38m198 0h27" stroke="#72918B" stroke-dasharray="3 4"/>
+<g font-size="10" text-anchor="middle">
+  <rect x="26" y="49" width="62" height="46" rx="4" fill="#112328" stroke="#88E5C9" stroke-opacity=".5"/>
+  <text x="57" y="69" fill="#88E5C9">group A</text><path d="M42 81h30" stroke="#88E5C9" stroke-dasharray="3 3"/>
+  <rect x="351" y="49" width="61" height="46" rx="4" fill="#26241D" stroke="#FDC471" stroke-opacity=".5"/>
+  <text x="381" y="69" fill="#FDC471">group B</text><path d="M367 81h29" stroke="#FDC471" stroke-dasharray="3 3"/>
+</g>
+<path d="M175 68h5m-2.5-2.5v5m21 16h5m-2.5-2.5v5" stroke="#88E5C9" stroke-width="2"/>
+<path d="M265 69h5m-2.5-2.5v5m-17 13h5m-2.5-2.5v5" stroke="#FDC471" stroke-width="2"/>
+<g class="entity"><circle r="5" fill="#88E5C9" stroke="#E8FFF9" stroke-width="1.5"/></g>
+<text x="219" y="128" text-anchor="middle" font-size="10" fill="#A4BDB8">one world / entity groups A and B</text>
+</g>
+<text x="12" y="158" font-size="10" fill="#A79E95">one world across servers</text>
+</g>
+<rect x="1" y="1" width="266" height="168" rx="8" fill="url(#scan)" opacity="0.10"/>
+</svg>

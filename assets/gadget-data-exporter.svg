@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="446" height="218" viewBox="-4 0 446 218" role="img" aria-label="Data Exporter. Exports app data to a ZIP download, S3-compatible storage, or PostgreSQL.">
+<style><![CDATA[
+text{font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;}
+@keyframes export-signal{0%,10%{transform:translateX(0);opacity:0}20%{opacity:1}77%{transform:translateX(82px);opacity:1}90%,100%{transform:translateX(82px);opacity:0}}
+@keyframes bootrev{0%{opacity:0}30%{opacity:.8}55%{opacity:.15}100%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;}}
+]]></style>
+
+<defs>
+  <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <pattern id="scan" width="3" height="3" patternUnits="userSpaceOnUse">
+    <rect width="3" height="1" y="2" fill="#000"/>
+  </pattern>
+</defs>
+<g style="animation:bootrev .5s linear both;animation-delay:4.8s">
+<rect x="0.75" y="0.75" width="436.5" height="216.5" rx="9" fill="#211B24" stroke="#51444F" stroke-width="1.5"/>
+<rect x="12" y="12" width="414" height="128" rx="5" fill="#2E251F" stroke="#F4CE88" stroke-opacity=".36"/>
+
+<rect x="47" y="36" width="132" height="83" rx="4" fill="#332A23" stroke="#786243"/>
+<text x="59" y="54" font-size="10" font-weight="700" fill="#F4CE88">APP CONTENTS</text>
+<g font-size="10" fill="#DCCAB0">
+  <text x="59" y="73">Model records</text><text x="59" y="90">Uploaded files</text><text x="59" y="107">App source</text>
+</g>
+<path d="M180 77h79m0-26v52m0-52h11m-11 26h11m-11 26h11" fill="none" stroke="#8D774F" stroke-dasharray="3 3"/>
+<circle cx="181" cy="77" r="3" fill="#F4CE88" opacity="0" style="animation:export-signal 4.3s linear infinite"/>
+<g font-size="11" fill="#F4CE88">
+  <rect x="272" y="41" width="119" height="20" rx="3" fill="#4B3C2D"/><text x="286" y="55">ZIP</text>
+  <rect x="272" y="67" width="119" height="20" rx="3" fill="#4B3C2D"/><text x="286" y="81">S3</text>
+  <rect x="272" y="93" width="119" height="20" rx="3" fill="#4B3C2D"/><text x="286" y="107">PostgreSQL</text>
+</g>
+
+<path d="M13 148h412" stroke="#38313C"/>
+<path d="M13 148h36" stroke="#F4CE88" stroke-width="2"/>
+<text x="16" y="179" fill="#F6E9D0" font-size="26" font-weight="700">Data Exporter</text>
+<text x="17" y="203" fill="#F4CE88" font-size="16">Export to ZIP, S3, or PostgreSQL</text>
+
+<rect x="1" y="1" width="436" height="216" rx="8" fill="url(#scan)" opacity="0.10"/></g>
+
+</svg>

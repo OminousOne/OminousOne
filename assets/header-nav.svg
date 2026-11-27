@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="276" height="170" viewBox="-4 0 276 170" role="img" aria-label="NAV Canada Simulator. A radar sweeps over illustrated Canadian flight paths.">
+<style><![CDATA[
+text{font-family:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;}
+@keyframes radar-turn{to{transform:rotate(360deg)}}
+@keyframes bootrev{0%{opacity:0}30%{opacity:.8}55%{opacity:.15}100%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;}}
+]]></style>
+
+<defs>
+  <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <pattern id="scan" width="3" height="3" patternUnits="userSpaceOnUse">
+    <rect width="3" height="1" y="2" fill="#000"/>
+  </pattern>
+</defs>
+<g style="animation:bootrev .5s linear both;animation-delay:5.22s">
+<rect x="0.75" y="0.75" width="266.5" height="168.5" rx="8" fill="#211B24" stroke="#51444F" stroke-width="1.5"/>
+<rect x="9" y="34" width="250" height="107" rx="4" fill="#1B2A40" stroke="#9ABEF9" stroke-opacity=".38"/>
+<path d="M10 40v-5h22m204 105h22v-5" fill="none" stroke="#9ABEF9" stroke-opacity=".68"/>
+<text x="13" y="23" font-size="15" font-weight="700" fill="#F6E9D0">NAV Canada Simulator</text>
+<g style="--art-start:5.22s">
+<g transform="translate(146 88)">
+  <circle r="46" fill="#18263A" stroke="#587395"/>
+  <circle r="32" fill="none" stroke="#3B5373"/><circle r="17" fill="none" stroke="#3B5373"/>
+  <path d="M-46 0h92m-46-46v92" stroke="#3B5373"/>
+  <g style="animation:radar-turn 6.4s linear var(--art-start) infinite">
+    <path d="M0 0V-45a45 45 0 0 1 23 6z" fill="#9ABEF9" opacity=".17"/>
+    <path d="M0 0l23-39" stroke="#9ABEF9" stroke-opacity=".63"/>
+  </g>
+  <path d="M-23 15Q-9-18 21-16m-17 38Q11 10 31 4" fill="none" stroke="#FFCA86" stroke-opacity=".58" stroke-dasharray="2 3"/>
+  <circle cx="-23" cy="15" r="2.6" fill="#FFCA86"/><circle cx="21" cy="-16" r="2.6" fill="#FFCA86"/>
+  <circle cx="31" cy="4" r="2" fill="#FFCA86"/>
+</g>
+<g font-size="10" fill="#9ABEF9"><text x="26" y="72">YOW</text><text x="26" y="105">YUL</text></g>
+<path d="M56 68h19m-19 33h21m123-31h29m-29 34h26" stroke="#55779E" stroke-dasharray="2 3"/>
+<text x="222" y="90" font-size="9" fill="#9ABEF9">ATC</text>
+</g>
+<text x="13" y="158" font-size="10.5" fill="#9ABEF9">Open the simulator</text>
+<path d="M241 154h13m-5-4 5 4-5 4" fill="none" stroke="#9ABEF9" stroke-width="1.2"/>
+<rect x="1" y="1" width="266" height="168" rx="8" fill="url(#scan)" opacity="0.10"/></g>
+
+</svg>
